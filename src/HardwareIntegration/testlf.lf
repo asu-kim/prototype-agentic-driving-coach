@@ -1,0 +1,49 @@
+target Python{keepalive: true, coordination: decentralized}
+
+reactor A {
+
+    output messageA
+    timer t(0, 2 sec)
+
+    reaction(t)-> messageA {=
+        messageA.set("This is reactor A")
+        print(f"LOGICAL TIME AT A: {lf.time.logical_elapsed()/1e6}")
+    =}
+}
+
+reactor B {
+    timer t(0,1 sec)
+    output messageB
+
+    reaction(t)-> messageB{=
+        messageB.set("This is reactor B")
+        print(f"LOGICAL TIME AT B: {lf.time.logical_elapsed()/1e6}")
+    =}
+}
+reactor Print{
+    input mesA
+    input mesB
+
+    reaction(mesA){=
+        if mesA.is_present:
+            print(mesA.value)
+            print(f"LOGICAL TIME MESSAGE A RECEIVED: {lf.time.logical_elapsed()/1e6}")
+    =}
+    reaction(mesB){=
+        print(mesB.value)
+        print(f"LOGICAL TIME MESSAGE B RECEIVED: {lf.time.logical_elapsed()/1e6}")
+    =}
+}
+
+federated reactor{
+    a = new A()
+    b = new B()
+    P = new Print()
+
+
+    @maxwait(1 sec)
+    a.messageA -> P.mesA after 0 sec
+    @maxwait(1 sec)
+    b.messageB -> P.mesB after 0 sec
+
+}

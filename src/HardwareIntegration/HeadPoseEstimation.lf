@@ -1,0 +1,58 @@
+target Python {files: ["face_detection.py"]}
+
+preamble {=
+    from face_detection import FaceDetector
+=}
+
+reactor FaceLandmark{
+    input frame
+    output head_msg
+    output eye_msg
+
+    state mesh
+    state yaw_old
+
+    reaction(startup) {=
+        self.detector = FaceDetector()
+    =}
+
+    reaction(frame) -> head_msg, eye_msg {=
+        img = frame.value
+
+        if img is None:
+            return
+
+        if not isinstance(img, np.ndarray):
+            return
+
+        if img.ndim != 3:
+            return
+
+      
+        img = img.copy()
+        img = np.ascontiguousarray(img)
+
+        try:
+            result = self.detector.process(img)
+            current_dri = lf.time.logical_elapsed()/1e6
+            physical_dri = lf.time.physical_elapsed()/1e6
+            lag = physical_dri - current_dri
+
+            print("----------------------------------------------------------")
+            print(f"[FACE DETECTOR] Logical time: {current_dri:.2f} ", flush=True)
+            print(f"[FACE DETECTOR] Physical time: {physical_dri:.2f} ", flush=True)
+            print(f"[FACE DETECTOR] LAG: {lag:.2f} ", flush=True)
+            print("----------------------------------------------------------")
+        except Exception as e:
+            print("Detection error:", e, flush=True)
+            return
+
+        if result is None:
+            head_msg.set(1)
+            eye_msg.set(1)
+            return
+
+        head_msg.set(result["head"])
+        eye_msg.set(result["eye"])
+    =}
+}

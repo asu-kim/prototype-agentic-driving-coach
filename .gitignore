@@ -1,0 +1,22 @@
+build/
+bin
+src-gen
+/include
+fed-gen
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Large model files
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# macOS
+.DS_Store
