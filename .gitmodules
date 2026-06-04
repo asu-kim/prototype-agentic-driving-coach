@@ -1,0 +1,4 @@
+[submodule "mujoco-py"]
+	path = mujoco-py
+	url = git@github.com:lf-lang/mujoco-py.git
+	branch = demo
