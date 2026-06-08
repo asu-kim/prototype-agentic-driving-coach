@@ -5,9 +5,9 @@ target Python {keepalive: true,
     }
 
 import SensorInputs from "SensorInputs.lf"
-// import MuJoCoCar from "/home/raspdeeksha/agentic-driving-coach/mujoco-py/src/lib/MuJoCoCar.lf"
 
-// import MuJoCoCarAuto from "../../mujoco-py/src/lib/MuJoCoCarAutoHardware.lf"
+
+import MuJoCoCarAuto from "../../mujoco-py/src/lib/MuJoCoCarAutoHardware.lf"
 
 preamble{=
     import time
@@ -88,51 +88,50 @@ reactor Driver{
 }
 
 
-// reactor Simulation {
-//     preamble {=
-//         from mujoco.glfw import glfw
-//     =}
-//     input steer_in
-//     input velocity_in
-//     input rem_dist
+reactor Simulation {
+    preamble {=
+        from mujoco.glfw import glfw
+    =}
+    input steer_in
+    input velocity_in
+    input rem_dist
 
-//     m = new MuJoCoCarAuto()
+    m = new MuJoCoCarAuto()
 
-//     reaction(steer_in, velocity_in, rem_dist) -> m.forward, m.turn, m.rd {=
-//         vel = velocity_in.value if velocity_in.is_present else 0.0
-//         st  = steer_in.value if steer_in.is_present else 1
-//         print(f"The value of rd into simulation : {rem_dist.value}")
-//         rem_dis = rem_dist.value if rem_dist.is_present else 0.0
+    reaction(steer_in, velocity_in, rem_dist) -> m.forward, m.turn, m.rd {=
+        vel = velocity_in.value if velocity_in.is_present else 0.0
+        st  = steer_in.value if steer_in.is_present else 1
+        print(f"The value of rd into simulation : {rem_dist.value}")
+        rem_dis = rem_dist.value if rem_dist.is_present else 0.0
 
-//         # if rem_dist.is_present:
-//         #     self.rem_dis = rem_dist.value
-//         #     print(f"The value of rd into simulation : {self.rem_dis}")
+        # if rem_dist.is_present:
+        #     self.rem_dis = rem_dist.value
+        #     print(f"The value of rd into simulation : {self.rem_dis}")
         
 
-//         forward_cmd = vel    
-//         # forward_cmd = max(-1.0, min(1.0, forward_cmd))
+        forward_cmd = vel    
+        # forward_cmd = max(-1.0, min(1.0, forward_cmd))
 
-//         if st == 2:
-//             turn_cmd = -0.05
-//         elif st == 0:
-//             turn_cmd = 0.05
-//         else:
-//             turn_cmd = 0.0
+        if st == 2:
+            turn_cmd = -0.05
+        elif st == 0:
+            turn_cmd = 0.05
+        else:
+            turn_cmd = 0.0
 
-//         m.forward.set(forward_cmd)
-//         m.turn.set(turn_cmd)
-//         m.rd.set(rem_dis)
-//     =}
-//     reaction(m.key) -> m.cam_toggle {=
-//         if m.key.value.act == glfw.PRESS:
-//             if m.key.value.key == glfw.KEY_F:
-//                 m.cam_toggle.set(True)
-//     =}
-// }
+        m.forward.set(forward_cmd)
+        m.turn.set(turn_cmd)
+        m.rd.set(rem_dis)
+    =}
+    reaction(m.key) -> m.cam_toggle {=
+        if m.key.value.act == glfw.PRESS:
+            if m.key.value.key == glfw.KEY_F:
+                m.cam_toggle.set(True)
+    =}
+}
 
 reactor Car{
-    // input start_signal
-    // state started = False
+
 
     input steer_in
     input accel_in
@@ -165,26 +164,10 @@ reactor Car{
 
    =}
     reaction(accel_in, brake_in, eye_pos_in, head_pos_in, steer_in, actuate_in)-> velocity, steer, head_pos, eye_pos {=
-        # if not self.started:
-        #     return
-        # if accel_in.is_present:
-        #     self.accel_val = float(accel_in.value)
-
-        # if brake_in.is_present:
-        #     self.brake_val = float(brake_in.value)
+  
 
         print(f"[DEBUG] time={lf.time.logical_elapsed()/1e6}, actuate_present={actuate_in.is_present}", flush=True)
-        # if actuate_in.is_present:
-        #     print(f"The actuation command: {actuate_in.value} at logical time: {lf.time.logical_elapsed()/1e6} and physical time : {lf.time.physical_elapsed()/1e6}", flush=True)
-
-        ###k = (1/2m)rho* C_d *A
-
-        # Typical values of the drag coefficient for calculation:
-
-        # * \rho = 1.2
-        # * C_d = 0.3
-        # * A = 2.2
-        # * m = 1500
+    
         if actuate_in.is_present:
             print(f"The actuation command: {actuate_in.value} at logical time: {lf.time.logical_elapsed()/1e6} and physical time : {lf.time.physical_elapsed()/1e6}", flush=True)
             amsg, bmsg = self.actuate_logic(actuate_in.value)
@@ -246,8 +229,7 @@ reactor Car{
 
 
 reactor Environment{
-    // input start_signal
-    // state started = False
+
 
     input v
     state pos_speed_change = 300.0
@@ -256,12 +238,8 @@ reactor Environment{
     
     state v_val = 0.0
 
-    // reaction(start_signal) {=
-    //     self.started = True
-    // =}
     reaction(v) -> displacement{=
-        # if not self.started:
-        #     return
+
         if v.is_present:
             self.v_val = float(v.value)
         
@@ -310,7 +288,7 @@ reactor LLMInference {
 
     state last_dl_tok = ""
     state last_dl_msg = ""
-    // state is_ready = False
+
     state s_val = 0.0
     state v_val = 0.0
     state st_val = 2
@@ -336,40 +314,7 @@ reactor LLMInference {
                             "role": "system",
                             "content": """You are a real-time driving coach.
 
-                                            Scenario:
-                                            - There is a STOP SIGN ahead.
-                                            - Target speed = 0 meter per second.
-
-                                            Output format:
-                                            TOKEN | message
-
-                                            TOKEN must be one of: NONE, WARNING, ACTUATE
-
-                                            Policy:
-                                            - If distance <= 30 and velocity > 5 -> ACTUATE
-                                            - Else if distance <= 60 and velocity > 8 -> WARNING
-                                            - Else if velocity <= 1 -> NONE
-                                            - Else if driver not attentive (head or eye not forward) -> WARNING
-                                            - Else -> NONE
-
-                                            Post-stop behavior:
-
-                                            - If velocity <= 0 (vehicle stopped) ONLY THEN :
-                                                - Instruct: look left and right before moving
-
-                                            Attention rules:
-                                            - If head is not center OR eyes are not forward → inattentive
-
-                                            Instructions:
-                                            - Generate exactly one line
-                                            - Max 12 words
-                                            - Focus on stopping and safety
-                                            - Use "meter per second"
-                                            - Message must be clear and human-guidable
-                                            Examples:
-                                            ACTUATE | Brake now stop before sign
-                                            WARNING | Look ahead slow down for stop sign
-                                            NONE | Look left and right before moving
+                                         
 
                                             """
                         },
@@ -475,7 +420,6 @@ reactor LLMInference {
         print(f"Head history: {self.head_history}", flush=True)
         print(f"Eye history: {self.eye_history}", flush=True)
 
-        # tok_raw, msg_raw, ms = self.run_llm_message(rd_val, v_val, head_str, eye_str)
 
         tok_raw, msg_raw, ms = self.run_llm_message(
             rd_val,
@@ -492,7 +436,7 @@ reactor LLMInference {
         print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ", flush=True)
         print(f"[LLM INFERENCE] LAG: {lag:.2f} ", flush=True)
         print("----------------------------------------------------------")
-        self.check_deadline()
+        # self.check_deadline()
 
         raw = (msg_raw or "").strip()
 
@@ -510,8 +454,7 @@ reactor LLMInference {
         control.set(tok)
         instruction.set(msg)
 
-    =} 
-    deadline(10 sec) {=
+    =} tardy {=
         rd_val = self.s_val
         v_val  = self.v_val
         tok, msg = self.fallback_policy(rd_val, v_val)
@@ -800,7 +743,7 @@ reactor Coach{
 
     output act
     output instr
-    // output ready
+
 
     llm = new LLMInference()
     a = new Planner()
@@ -818,7 +761,6 @@ reactor Coach{
     a.act -> act
     a.planned_instr -> instr
 
-    // llm.ready -> ready
    
     
 }
@@ -828,16 +770,7 @@ federated reactor at 10.218.100.78 {
     c = new Car()
     en = new Environment()
     adc = new Coach()
-    // sim = new Simulation() 
-    
-
-
-    // adc.ready -> d.start_signal
-    // adc.ready -> c.start_signal
-    // adc.ready -> en.start_signal
-    // adc.ready -> sim.start_signal
-  
-
+    sim = new Simulation() 
 
     d.accelerator -> c.accel_in 
     d.brake -> c.brake_in 
@@ -851,11 +784,11 @@ federated reactor at 10.218.100.78 {
     c.steer -> adc.st
     c.head_pos -> adc.h
     c.eye_pos -> adc.e
-    // c.velocity -> sim.velocity_in
-    // c.steer -> sim.steer_in
+    c.velocity -> sim.velocity_in
+    c.steer -> sim.steer_in
 
     en.displacement -> adc.s
-    // en.displacement -> sim.rem_dist
+    en.displacement -> sim.rem_dist
 
     adc.act -> c.actuate_in after 200 ms
 }
