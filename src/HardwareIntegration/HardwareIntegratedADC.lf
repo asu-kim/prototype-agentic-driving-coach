@@ -1,5 +1,6 @@
 target Python {keepalive: true, 
     // logging: DEBUG,
+    files: "environment.csv",
     coordination: decentralized,
     DNET: False
     }
@@ -13,6 +14,7 @@ preamble{=
     import time
     import subprocess
     import threading
+    import csv
 =}
 
 reactor Driver{
@@ -104,13 +106,8 @@ reactor Simulation {
         print(f"The value of rd into simulation : {rem_dist.value}")
         rem_dis = rem_dist.value if rem_dist.is_present else 0.0
 
-        # if rem_dist.is_present:
-        #     self.rem_dis = rem_dist.value
-        #     print(f"The value of rd into simulation : {self.rem_dis}")
-        
-
         forward_cmd = vel    
-        # forward_cmd = max(-1.0, min(1.0, forward_cmd))
+ 
 
         if st == 2:
             turn_cmd = -0.05
@@ -123,6 +120,7 @@ reactor Simulation {
         m.turn.set(turn_cmd)
         m.rd.set(rem_dis)
     =}
+
     reaction(m.key) -> m.cam_toggle {=
         if m.key.value.act == glfw.PRESS:
             if m.key.value.key == glfw.KEY_F:
@@ -131,8 +129,6 @@ reactor Simulation {
 }
 
 reactor Car{
-
-
     input steer_in
     input accel_in
     input brake_in
@@ -229,34 +225,60 @@ reactor Car{
 
 
 reactor Environment{
-
-
     input v
-    state pos_speed_change = 300.0
+
+    // distances are in miles 
+    state highway_distance = 2
+    state exit_distance = 2
+    state stop_distance = 1 
+    state loaded = False
+
+
     state passed = False
     output displacement
     
     state v_val = 0.0
+    reaction(startup){=
+        
+        try:
+            with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
+                reader = csv.DictReader(f)
+                headings = reader.fieldnames
+                self.lines = list(reader)
+            self.loaded = True
+            print("Environment Loaded", flush=True)
+        except Exception as e:
+            print(f"Environment is not loaded: {e}", flush=True)
+            self.loaded = False
+    =}
 
     reaction(v) -> displacement{=
+        row = self.lines[0]
+        road_phase = row["road_phase"]
+        car_present = int(row["other_car_present"])
+        distance_of_adj_car = float(row["other_distance_m"])
+        velocity = float(row["other_velocity_kmh"])
+      
+        print(road_phase)
+        print(car_present)
+        print(distance_of_adj_car)
+        print(velocity)
 
-        if v.is_present:
-            self.v_val = float(v.value)
-        
-        
+        if road_phase = "HIGHWAY":
 
-        step = self.v_val * 0.1
+            if v.is_present:
+                self.v_val = float(v.value)
+            step = self.v_val * 0.1
+            if not self.passed:
+                self.pos_speed_change -= step
 
-        if not self.passed:
-            self.pos_speed_change -= step
+                if self.pos_speed_change <= 0.0:
+                    self.pos_speed_change = 0.0
+                    self.passed = True
 
-            if self.pos_speed_change <= 0.0:
-                self.pos_speed_change = 0.0
-                self.passed = True
-
-            displacement.set(self.pos_speed_change)
-        else:
-            displacement.set(0.0)
+                displacement.set(self.pos_speed_change)
+            else:
+                displacement.set(0.0)
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
@@ -289,15 +311,13 @@ reactor LLMInference {
     state last_dl_tok = ""
     state last_dl_msg = ""
 
-    state s_val = 0.0
-    state v_val = 0.0
-    state st_val = 2
-    state h_val = 5
 
-    timer llmclock(4 sec, 400 msec)
 
-    preamble{=
-        
+   
+    reaction(startup) {=
+        self.head_history = []
+        self.eye_history = []
+        self.max_history = 4
 
         def run_llm_message(self, rd_val, v_val, head, eye):
             import ollama
@@ -312,11 +332,30 @@ reactor LLMInference {
                             {
 
                             "role": "system",
-                            "content": """You are a real-time driving coach.
+                            "content": """
+                            
+                            You are a real-time driving coach. 
+                            
+                            The environment has tasks in this order:
 
-                                         
+                            1. The driver must do a lane change from a left lane to right lane before the exiting the highway. The driver is maintaining a speed between 60 miles per hour to 65 miles per hour. 
+                            The driver must look to the left before changing the lane to avoid any cars behind.
+                            2. After lane change, the driver must reduce the speed to 45 miles per hour, while exiting the highway.
+                            3. There is a stop sign at 1 mile after exiting and the driver must come to a stop sign and look right and left before moving ahead.
 
-                                            """
+                            Please guide the driver based on the Inputs from the driver and the environment.
+
+                            You will generate the output in this format:
+
+                            "TOKEN|INSTRUCTION"
+
+                            where TOKEN is:
+                                NONE = if the driver is following the instruction
+                                WARNING = If the driver is in the recoverable speed region
+                                ACTUATE = if there needs to be control taken over.
+
+                            Instruction is the guiding message for warning or actuation.
+                            """
                         },
                         {
                             "role": "user",
@@ -347,67 +386,10 @@ reactor LLMInference {
             msg = parts[1].strip() if len(parts) > 1 else ""
 
             return token, msg, ms
-
-        def fallback_policy(self, rd_val, v_val):
-            # print(f"[FALLBACK POLICY] evaluating s={rd_val:.2f}, v={v_val:.2f}", flush=True)
-
-            if rd_val <= 0.0:
-                return "NONE", ""
-
-            if rd_val <= 25:
-                return "ACTUATE", "Brake now."
-
-            if rd_val >= 80:
-                return "WARNING", "stop sign ahead."
-
-            return "NONE", ""
-
-    =}
-    reaction(startup) {=
-        self.head_history = []
-        self.eye_history = []
-        self.max_history = 4
-    =}
-    
-
-    reaction(s, v, st, h,e){=
-     
-
-        if s.is_present:
-            self.s_val = s.value
-        if v.is_present:
-            self.v_val = v.value
-        if st.is_present:
-            self.st_val = st.value
-        if h.is_present:
-            self.h_val = h.value
-            print(f"Head value every 100ms: {self.h_val}")
-            if self.h_val == 0:
-                self.head_history.append("LEFT")
-            elif self.h_val == 1:
-                self.head_history.append("CENTER")
-            elif self.h_val == 2:
-                self.head_history.append("RIGHT")
-            else:
-                self.head_history.append("CENTER")
-        if e.is_present:
-            self.e_val = e.value
-            print(f"EYE value every 100ms: {self.e_val}")
-            if self.e_val == 0:
-                self.eye_history.append("LEFT")
-            elif self.e_val == 1:
-                self.eye_history.append("CENTER")
-            elif self.e_val == 2:
-                self.eye_history.append("RIGHT")
-            else:
-                self.eye_history.append("CENTER")
-        self.head_history = self.head_history[-self.max_history:]
-        self.eye_history = self.eye_history[-self.max_history:]
-       
-
     =}
 
-    reaction(llmclock) -> control, instruction {=
+
+    reaction(s,v,st, h, e) -> control, instruction {=
         rd_val = self.s_val
         v_val  = self.v_val
         if rd_val <= 0.0:
@@ -436,7 +418,6 @@ reactor LLMInference {
         print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ", flush=True)
         print(f"[LLM INFERENCE] LAG: {lag:.2f} ", flush=True)
         print("----------------------------------------------------------")
-        # self.check_deadline()
 
         raw = (msg_raw or "").strip()
 
@@ -455,11 +436,7 @@ reactor LLMInference {
         instruction.set(msg)
 
     =} tardy {=
-        rd_val = self.s_val
-        v_val  = self.v_val
-        tok, msg = self.fallback_policy(rd_val, v_val)
-        control.set(tok)
-        instruction.set(msg)
+        
     =}
 }
 
@@ -675,35 +652,7 @@ reaction(startup) {=
             now_ns = lf.time.physical_elapsed()
 
             rd = s.value if s.value is not None else 0.0
-            print(f"[RD PLANNER]: {rd:.2f}")
-
-            v_val = v.value if v.value is not None else 0.0
-            target = 0.0
-
-            if rd <= 1:
-                if v_val > target:
-                    print(f"Act set to BRAKE")
-                    act.set("BRAKE")
-
-                    
-            elif rd > 150:
-                if v_val < target - 0.5:
-                    print(f"Act set to accel")
-                    act.set("ACCEL")
-                else:
-                    print(f"Act set to hold")
-                    act.set("HOLD")
-            elif rd <= 25:
-                if v_val > target + 5:
-                    print(f"Act set to BRAKE")
-                    act.set("BRAKE")
-                else:
-                    print(f"Act set to hold")
-                    act.set("HOLD")
-            else:
-                print(f"Act set to hold")
-                act.set("HOLD")
-
+            
             if kw != "ACTUATE":
                 monitoring.set()
                 current_dri = lf.time.logical_elapsed()/1e6
@@ -738,28 +687,67 @@ reactor Coach{
     input st 
     input h
     input e
-    
-    
+    timer llmclock(4 sec, 400 msec)
 
-    output act
-    output instr
+    state s_val = 0.0
+    state v_val = 0.0
+    state st_val = 2
+    state h_val = 5
 
+    output displacement
+    output velocity
+    output steer 
+    output head_pos
+    output eye_pos
 
-    llm = new LLMInference()
-    a = new Planner()
-    s -> llm.s
-    v -> llm.v
-    st -> llm.st
-    h -> llm.h
-    e -> llm.e
-   
-    llm.control -> a.ctrl
-    llm.instruction -> a.instr
-    s -> a.s
-    v -> a.v
     
-    a.act -> act
-    a.planned_instr -> instr
+    reaction(startup){=
+        self.head_history = []
+        self.eye_history = []
+        self.max_history = 4
+    =}
+    reaction(s, v, st, h,e){=
+         if s.is_present:
+             self.s_val = s.value
+         if v.is_present:
+             self.v_val = v.value
+         if st.is_present:
+             self.st_val = st.value
+         if h.is_present:
+             self.h_val = h.value
+             print(f"Head value every 100ms: {self.h_val}")
+             if self.h_val == 0:
+                 self.head_history.append("LEFT")
+             elif self.h_val == 1:
+                 self.head_history.append("CENTER")
+             elif self.h_val == 2:
+                 self.head_history.append("RIGHT")
+             else:
+                 self.head_history.append("CENTER")
+         if e.is_present:
+             self.e_val = e.value
+             print(f"EYE value every 100ms: {self.e_val}")
+             if self.e_val == 0:
+                 self.eye_history.append("LEFT")
+             elif self.e_val == 1:
+                 self.eye_history.append("CENTER")
+             elif self.e_val == 2:
+                 self.eye_history.append("RIGHT")
+             else:
+                 self.eye_history.append("CENTER")
+         self.head_history = self.head_history[-self.max_history:]
+         self.eye_history = self.eye_history[-self.max_history:]
+     =}
+
+    
+    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos{=
+        displacement.set(self.s.value)
+        velocity.set(self.v.value)
+        steer.set(self.st.value)
+        head_pos.set(self.head_history)
+        eye_pos.set(self.eye_history)
+
+    =}
 
    
     
@@ -770,7 +758,10 @@ federated reactor at 10.218.100.78 {
     c = new Car()
     en = new Environment()
     adc = new Coach()
-    sim = new Simulation() 
+    @maxwait(250 msec)
+    llm = new LLMInference()
+    planner = new Planner()
+    // sim = new Simulation() 
 
     d.accelerator -> c.accel_in 
     d.brake -> c.brake_in 
@@ -784,11 +775,29 @@ federated reactor at 10.218.100.78 {
     c.steer -> adc.st
     c.head_pos -> adc.h
     c.eye_pos -> adc.e
-    c.velocity -> sim.velocity_in
-    c.steer -> sim.steer_in
+     
+    // c.velocity -> sim.velocity_in
+    // c.steer -> sim.steer_in
 
     en.displacement -> adc.s
-    en.displacement -> sim.rem_dist
+    // en.displacement -> sim.rem_dist
+    // en.displacement -> llm.s
 
-    adc.act -> c.actuate_in after 200 ms
+    adc.displacement -> llm.s
+    adc.velocity -> llm.v
+    adc.steer -> llm.st
+    adc.head_pos -> llm.h
+    adc.eye_pos ->llm.e
+    adc.velocity -> planner.v
+    adc.displacement -> planner.s
+
+
+    llm.control -> planner.ctrl
+    llm.instruction -> planner.instr
+    
+   
+    planner.act -> c.actuate_in after 200 ms
+    
+
+    // adc.act -> c.actuate_in after 200 ms
 }

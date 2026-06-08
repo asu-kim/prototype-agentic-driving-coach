@@ -1,49 +1,48 @@
-target Python{keepalive: true, coordination: decentralized}
+target Python{keepalive: true, files:"environment.csv", coordination: decentralized}
+preamble{=
+    import csv
+=}
+
 
 reactor A {
-
-    output messageA
-    timer t(0, 2 sec)
-
-    reaction(t)-> messageA {=
-        messageA.set("This is reactor A")
-        print(f"LOGICAL TIME AT A: {lf.time.logical_elapsed()/1e6}")
-    =}
-}
-
-reactor B {
-    timer t(0,1 sec)
+    timer t(0,100msec)
     output messageB
+    reaction(startup){=
+        
+        try:
+            with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
+                reader = csv.DictReader(f)
+
+                headings = reader.fieldnames
+                self.lines = list(reader)
+                
+            self.loaded = True
+            print("Environment Loaded", flush=True)
+        except Exception as e:
+            print(f"Environment is not loaded: {e}", flush=True)
+            self.loaded = False
+    =}
 
     reaction(t)-> messageB{=
         messageB.set("This is reactor B")
-        print(f"LOGICAL TIME AT B: {lf.time.logical_elapsed()/1e6}")
-    =}
-}
-reactor Print{
-    input mesA
-    input mesB
-
-    reaction(mesA){=
-        if mesA.is_present:
-            print(mesA.value)
-            print(f"LOGICAL TIME MESSAGE A RECEIVED: {lf.time.logical_elapsed()/1e6}")
-    =}
-    reaction(mesB){=
-        print(mesB.value)
-        print(f"LOGICAL TIME MESSAGE B RECEIVED: {lf.time.logical_elapsed()/1e6}")
+        row = self.lines[0]
+        road_phase = row["road_phase"]
+        car_present = int(row["other_car_present"])
+        distance = float(row["other_distance_m"])
+        velocity = float(row["other_velocity_kmh"])
+      
+        print(road_phase)
+        print(car_present)
+        print(distance)
+        print(velocity)
+        # print(f"LOGICAL TIME AT B: {lf.time.logical_elapsed()/1e6}")
     =}
 }
 
-federated reactor{
+main reactor{
     a = new A()
-    b = new B()
-    P = new Print()
 
 
-    @maxwait(1 sec)
-    a.messageA -> P.mesA after 0 sec
-    @maxwait(1 sec)
-    b.messageB -> P.mesB after 0 sec
+
 
 }
