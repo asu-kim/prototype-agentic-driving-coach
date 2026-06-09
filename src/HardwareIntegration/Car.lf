@@ -1,0 +1,92 @@
+target Python
+
+reactor Car{
+    input steer_in
+    input accel_in
+    input brake_in
+    input actuate_in 
+    input head_pos_in  
+    input eye_pos_in
+
+
+    state velocity_init = 25 #this is m/s
+    state dist_init = 0.0
+
+    output velocity
+    output steer
+    output head_pos
+    output eye_pos
+    preamble{=
+        def actuate_logic(self,cmd):
+            if cmd == "ACCEL":
+                return 0.5, 0.0
+            elif cmd == "BRAKE":
+                return 0.0, 0.5
+            elif cmd == "HOLD":
+                return 0.15, 0.0
+            elif cmd == "STOP":
+                return 0.0, 1.0
+            else:
+                print("[CAR_ACTUATE]: ACCTUATE CMD is invalid")
+                return 0.0, 0.0
+    =}
+    
+   
+    reaction(accel_in, brake_in, eye_pos_in, head_pos_in, steer_in, actuate_in)-> velocity, steer, head_pos, eye_pos {=
+        print(f"[DEBUG] time={lf.time.logical_elapsed()/1e6}, actuate_present={actuate_in.is_present}", flush=True)
+        if actuate_in.is_present:
+            print(f"The actuation command: {actuate_in.value} at logical time: {lf.time.logical_elapsed()/1e6} and physical time : {lf.time.physical_elapsed()/1e6}", flush=True)
+            amsg, bmsg = self.actuate_logic(actuate_in.value)
+        else:
+            amsg = accel_in.value
+            bmsg = brake_in.value
+
+        # calculations are kept in m/s2 to avoid the decimal values but velocity is converted to km/h to keep it familiar for human-in-the-loop
+        MAX_BRAKE = - 10.0
+        MAX_ACCEL = 4.0
+        A_DRAG_COEF = - 0.002
+        A_FRIC_COEFF = - 0.022
+        DT = 0.1
+        MAX_VEL = 35.0
+      
+        print(f"The accel pedal position: {amsg:.2f}, The brake pedal: {bmsg:.2f}")
+        ## acceleration for throttle is second order polynomial equation
+
+        accel_brake = bmsg * MAX_BRAKE
+        accel_throt = (0.6 * amsg + 0.4 * amsg* amsg) * MAX_ACCEL 
+        accel_drag = A_DRAG_COEF * self.velocity_init ** 2
+        accel_net = accel_brake + accel_throt + accel_drag + A_FRIC_COEFF
+
+        
+        vel = self.velocity_init + accel_net * DT
+        if vel > MAX_VEL:
+            vel = MAX_VEL
+        else:
+            vel = max(0.0, vel)
+        dist = self.dist_init + vel * DT
+
+
+        self.velocity_init = vel
+        self.dist_init = dist
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+        velocity_kmh = vel * 3.6
+
+        print("----------------------------------------------------------")
+        print(f"[CAR] Logical time: {current_dri:.2f} ", flush=True)
+        print(f"[CAR] Physical time: {physical_dri:.2f} ", flush=True)
+        print(f"[CAR] LAG: {lag:.2f} ", flush=True)
+        print(f"---------------------------------------------------------", flush=True)
+        print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
+        print(f"Distance travelled={dist:.2f} m", flush=True)
+
+        velocity.set(velocity_kmh)
+        steer.set(steer_in.value)
+        head_pos.set(head_pos_in.value)
+        eye_pos.set(eye_pos_in.value)
+
+    =}   
+    
+
+}

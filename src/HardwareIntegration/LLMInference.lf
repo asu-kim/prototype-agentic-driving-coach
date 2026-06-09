@@ -1,0 +1,145 @@
+target Python
+
+preamble{=
+    import time
+=}
+
+reactor LLMInference {
+    input s
+    input v
+    input st 
+    input h
+    input e
+
+    // output ready
+    output control
+    output instruction
+
+    state last_dl_tok = ""
+    state last_dl_msg = ""
+
+    reaction(startup) {=
+        self.head_history = []
+        self.eye_history = []
+        self.max_history = 4
+
+        def run_llm_message(self, rd_val, v_val, head, eye):
+            import ollama
+            import time
+
+            t0 = time.perf_counter()
+
+            try:
+                r = ollama.chat(
+                    model="llama3:8b",
+                    messages=[
+                            {
+
+                            "role": "system",
+                            "content": """
+                            
+                            You are a real-time driving coach. 
+                            
+                            The environment has tasks in this order:
+
+                            1. The driver must do a lane change from a left lane to right lane before the exiting the highway. The driver is maintaining a speed between 60 miles per hour to 65 miles per hour. 
+                            The driver must look to the right before changing the lane to avoid any cars behind.
+                            2. After lane change, the driver must reduce the speed to 45 miles per hour, while exiting the highway.
+                            3. There is a stop sign at 1 mile after exiting and the driver must come to a stop sign and look right and left before moving ahead.
+
+                            Please guide the driver based on the Inputs from the driver and the environment.
+
+                            You will generate the output in this format:
+
+                            "TOKEN|INSTRUCTION"
+
+                            where TOKEN is:
+                                NONE = if the driver is following the instruction
+                                WARNING = If the driver is in the recoverable speed region
+                                ACTUATE = if there needs to be control taken over.
+
+                            Instruction is the guiding message for warning or actuation.
+                            """
+                        },
+                        {
+                            "role": "user",
+                            "content": f"""INPUT:
+                                            distance = {rd_val:.2f}
+                                            velocity = {v_val:.2f}
+                                            head_history = {head}
+                                            eye_history = {eye}
+
+                                            Return output:"""
+                        }
+                    ],
+                    options={
+                        "temperature": 0.0,
+                        "num_predict": 30
+                    },
+                )
+            except Exception as e:
+                print(">>> LLM ERROR:", e, flush=True)
+                return "NONE", "", 0.0
+
+            ms = (time.perf_counter() - t0) * 1000.0
+            raw = (r.get("message", {}).get("content", "") or "").strip()
+
+            # Parse token + message properly
+            parts = raw.split("|", 1)
+            token = parts[0].strip() if len(parts) > 0 else "NONE"
+            msg = parts[1].strip() if len(parts) > 1 else ""
+
+            return token, msg, ms
+    =}
+
+
+    reaction(s,v,st, h, e) -> control, instruction {=
+        rd_val = self.s_val
+        v_val  = self.v_val
+        if rd_val <= 0.0:
+            rd_val = 0.0
+        head_input = self.head_history if self.head_history else ["CENTER"]
+        eye_input  = self.eye_history if self.eye_history else ["CENTER"]
+
+       
+        print(f"[LLM INPUT] DISTANCE: {rd_val:.2f} m  VELOCITY: {v_val} m/s")
+        print(f"Head history: {self.head_history}", flush=True)
+        print(f"Eye history: {self.eye_history}", flush=True)
+
+
+        tok_raw, msg_raw, ms = self.run_llm_message(
+            rd_val,
+            v_val,
+            head_input,
+            eye_input
+        )
+
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+        print("----------------------------------------------------------")
+        print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ", flush=True)
+        print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ", flush=True)
+        print(f"[LLM INFERENCE] LAG: {lag:.2f} ", flush=True)
+        print("----------------------------------------------------------")
+
+        raw = (msg_raw or "").strip()
+
+        if "|" in raw:
+            tok, msg = raw.split("|", 1)
+        else:
+            tok = tok_raw or "NONE"
+            msg = raw
+
+        tok = tok.strip()
+        msg = msg.strip()
+
+        print(f"[LLM RESULT] {tok} | {msg} | {ms:.2f} ms", flush=True)
+
+        control.set(tok)
+        instruction.set(msg)
+
+    =} tardy {=
+        
+    =}
+}
