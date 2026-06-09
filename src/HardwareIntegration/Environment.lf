@@ -7,7 +7,9 @@ reactor Environment{
     input v
 
     state loaded = False
-
+    state distance_to_exit_m = 1600
+    state distance_to_stop_sign_m = 500
+    state row_idx = 0
 
     state passed = False
     output displacement
@@ -17,25 +19,33 @@ reactor Environment{
     reaction(startup){=
         
         try:
-            with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
+            with open("environment.csv", "r", newline="") as f:
                 reader = csv.DictReader(f)
                 headings = reader.fieldnames
                 self.lines = list(reader)
+            if len(self.lines) == 0:
+                raise RuntimeError("environment.csv contains no data rows")
             self.loaded = True
             print("Environment Loaded", flush=True)
         except Exception as e:
-            print(f"Environment is not loaded: {e}", flush=True)
             self.loaded = False
+            raise RuntimeError(f"Environment is not loaded: {e}") from e
     =}
 
     reaction(v) -> displacement, environment_states{=
-        row = self.lines[0]
+        #reading the csv for the environment variables 
+        if not self.loaded or len(self.lines) == 0:
+            raise RuntimeError("Environment reaction cannot run because environment.csv is not loaded")
+
+        row = self.lines[self.row_idx]
+        if self.row_idx < len(self.lines) - 1:
+            self.row_idx += 1
         road_phase = row["road_phase"]
         other_car_present = int(row["other_car_present"])
         other_distance_m = float(row["other_distance_m"])
         other_velocity_kmh = float(row["other_velocity_kmh"])
         right_car_present = int(row["right_car_present"])
-        right_car_position = row["right_car_position"]
+        right_car_position = row["other_lane"]
         right_car_distance_m = float(row["right_car_distance_m"])
         right_car_velocity_kmh = float(row["right_car_velocity_kmh"])
         cross_left_car_present = int(row["cross_left_car_present"])
@@ -43,29 +53,44 @@ reactor Environment{
         cross_right_car_distance_m = float(row["cross_right_car_distance_m"])
         cross_right_car_velocity_kmh = float(row["cross_right_car_velocity_kmh"])
 
-        en_states = []
-        en_states.append(road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present,  cross_right_car_distance_m, cross_right_car_velocity_kmh)
-    
-        environment_states.set(en_states)
-
-        if v.is_present:
-            self.v_val = float(v.value)
-        step = self.v_val * 0.1
-        if not self.passed:
-            self.pos_speed_change -= step
-
-            if self.pos_speed_change <= 0.0:
-                self.pos_speed_change = 0.0
-                self.passed = True
-
-            displacement.set(self.pos_speed_change)
+        #converting the velocity back to m/s for ease of calculation 
+        
+        car_velocity = float(v.value if v.value is not None else 0.0)/ 3.6
+        vdt = car_velocity * 0.1
+        current_displacement = 0.0
+        if road_phase in ("HIGHWAY", "LANE_CHANGE"):
+            self.distance_to_exit_m = max(0.0, self.distance_to_exit_m - vdt)
+            current_displacement = self.distance_to_exit_m
+            displacement.set(current_displacement)
+            
+        elif road_phase in ("EXIT", "STOP_SIGN"):
+            self.distance_to_stop_sign_m = max(0.0, self.distance_to_stop_sign_m - vdt)
+            current_displacement = self.distance_to_stop_sign_m
+            displacement.set(current_displacement)
+        
         else:
             displacement.set(0.0)
+        
+        en_states = [
+            road_phase,
+            other_car_present,
+            other_distance_m,
+            other_velocity_kmh,
+            right_car_present,
+            right_car_position,
+            right_car_distance_m,
+            right_car_velocity_kmh,
+            cross_left_car_present,
+            cross_right_car_present
+        ]
+        environment_states.set(en_states)        
+
+
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
 
-        print(f"[ENV CLOCK] displacement={self.pos_speed_change}", flush=True)
+        print(f"[ENV CLOCK] displacement={current_displacement}", flush=True)
         print("----------------------------------------------------------")
         print(f"[ENVIRONMENT] Logical time: {current_dri:.2f} ", flush=True)
         print(f"[ENVIRONMENT] Physical time: {physical_dri:.2f} ", flush=True)

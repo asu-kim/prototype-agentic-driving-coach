@@ -15,24 +15,27 @@ reactor Planner {
     input en_states
     
     output act
+    output lane_act
     output planned_instr
 
     state last_speak_ns = -10000000000000
     state speech_proc
-    state reached = False
-    state stable_count = 0
+    state control_token = "NONE"
+    state instruction_val = ""
+    state distance_val = 0.0
+    state velocity_val = 0.0
 
     preamble{=
         import subprocess
         import re
         import threading
-        import tempfile
         import os
 
         def adaptive_cruise_control(
             self,
             road_phase,
             velocity_kmh,
+            distance_to_target_m,
             other_car_present, # this is for the car in front after changing lane 
             other_distance_m,
             other_velocity_kmh,
@@ -50,9 +53,13 @@ reactor Planner {
 
             if road_phase in ("HIGHWAY", "LANE_CHANGE"):
                 target_speed_kmh = 90.0
-            elif road_phase in ("EXIT", "MOVE"):
+            elif road_phase == "EXIT":
                 target_speed_kmh = 45.0
-            elif road_phase in ("STOP_SIGN", "YIELD"):
+            elif road_phase == "MOVE":
+                target_speed_kmh = 25.0
+            elif road_phase == "STOP_SIGN":
+                target_speed_kmh = 45.0
+            elif road_phase == "YIELD":
                 target_speed_kmh = 0.0
             else:
                 target_speed_kmh = velocity_kmh
@@ -89,7 +96,14 @@ reactor Planner {
                     lane_command = "CHANGE_RIGHT"
 
             #Hold the vehicle stopped during stop or yield phases
-            if road_phase in ("STOP_SIGN", "YIELD"):
+            if road_phase == "STOP_SIGN":
+                velocity_mps = velocity_kmh / 3.6
+                required_stop_distance_m = velocity_mps * 1.0 + (velocity_mps ** 2) / (2.0 * 3.0)
+                if distance_to_target_m <= 1.0 and velocity_kmh <= 0.5:
+                    return "STOP", "KEEP_LANE"
+                if distance_to_target_m <= max(5.0, required_stop_distance_m):
+                    return "BRAKE", "KEEP_LANE"
+            if road_phase == "YIELD":
                 if velocity_kmh > 0.5:
                     return "BRAKE", "KEEP_LANE"
                 return "STOP", "KEEP_LANE"
@@ -154,14 +168,25 @@ reactor Planner {
     reaction(startup) {=
         self.speech_proc = None
         self.speech_lock = threading.Lock()
+        self.latest_environment_states = None
     =}
 
     initial mode monitoring {
-            reaction(ctrl, instr, s, v) -> warning, actuate, planned_instr {=
-                token_keyword = (ctrl.value or "NONE").strip()
-                instruction = (instr.value or "").strip()
-                rd = s.value if s.value is not None else 0.0
-                v_val = v.value if v.value is not None else 0.0
+            reaction(ctrl, instr, s, v, en_states) -> warning, actuate, planned_instr {=
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
+                if en_states.is_present:
+                    self.latest_environment_states = en_states.value
+                token_keyword = self.control_token
+                instruction = self.instruction_val
+                rd = self.distance_val
+                v_val = self.velocity_val
                 now_ns = lf.time.physical_elapsed()
                 print(f"[RD PLANNER]: {rd:.2f}")
 
@@ -215,11 +240,21 @@ reactor Planner {
     }
 
     mode warning {
-            reaction(ctrl, instr, s, v) -> monitoring, actuate, planned_instr {=
-                token_keyword = (ctrl.value or "NONE").strip()
-                instruction = (instr.value or "").strip()
+            reaction(ctrl, instr, s, v, en_states) -> monitoring, actuate, planned_instr {=
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
+                if en_states.is_present:
+                    self.latest_environment_states = en_states.value
+                token_keyword = self.control_token
+                instruction = self.instruction_val
                 now_ns = lf.time.physical_elapsed()
-                rd = s.value if s.value is not None else 0.0
+                rd = self.distance_val
                 print(f"[RD PLANNER]: {rd:.2f}")
 
                 if token_keyword == "ACTUATE":
@@ -238,7 +273,7 @@ reactor Planner {
                     actuate.set()
                     return
 
-                if kw != "WARNING":
+                if token_keyword != "WARNING":
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
@@ -264,20 +299,24 @@ reactor Planner {
     }
 
     mode actuate {
-            reaction(ctrl, instr, s, v, en_states) -> act, monitoring, planned_instr {=
-                token_keyword = (ctrl.value or "NONE").strip()
-                instruction = (instr.value or "").strip()
-                velocity_kmh = v.value if v.value is not None else 0.0
-                rd = s.value if s.value is not None else 0.0
+            reaction(ctrl, instr, s, v, en_states) -> act, lane_act, monitoring, planned_instr {=
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
+                if en_states.is_present:
+                    self.latest_environment_states = en_states.value
+                token_keyword = self.control_token
+                instruction = self.instruction_val
+                velocity_kmh = self.velocity_val
+                rd = self.distance_val
 
                 now_ns = lf.time.physical_elapsed()
-                environment_states = en_states.value
-                road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
 
-                
-                speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
-                act.set(speed_command)
-                
                 if token_keyword != "ACTUATE":
                     monitoring.set()
                     current_dri = lf.time.logical_elapsed()/1e6
@@ -289,6 +328,15 @@ reactor Planner {
                     print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ", flush=True)
                     print("----------------------------------------------------------")
                     return
+
+                environment_states = self.latest_environment_states
+                if environment_states is None or len(environment_states) != 10:
+                    raise RuntimeError(f"Planner expected 10 environment state values, received: {environment_states}")
+                road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
+
+                speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
+                act.set(speed_command)
+                lane_act.set(lane_command)
 
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -304,3 +352,4 @@ reactor Planner {
             =}
     }
 }
+

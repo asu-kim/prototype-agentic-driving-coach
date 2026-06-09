@@ -5,17 +5,19 @@ reactor Car{
     input accel_in
     input brake_in
     input actuate_in 
-    input head_pos_in  
-    input eye_pos_in
+    input lane_actuate_in
+    
 
 
     state velocity_init = 25 #this is m/s
     state dist_init = 0.0
+    state accel_val = 0.0
+    state brake_val = 0.0
+    state steer_val = 1
 
     output velocity
     output steer
-    output head_pos
-    output eye_pos
+ 
     preamble{=
         def actuate_logic(self,cmd):
             if cmd == "ACCEL":
@@ -32,14 +34,23 @@ reactor Car{
     =}
     
    
-    reaction(accel_in, brake_in, eye_pos_in, head_pos_in, steer_in, actuate_in)-> velocity, steer, head_pos, eye_pos {=
+    reaction(accel_in, brake_in, steer_in, actuate_in, lane_actuate_in)-> velocity, steer{=
         print(f"[DEBUG] time={lf.time.logical_elapsed()/1e6}, actuate_present={actuate_in.is_present}", flush=True)
+        if accel_in.is_present:
+            self.accel_val = float(accel_in.value)
+        if brake_in.is_present:
+            self.brake_val = float(brake_in.value)
+        if steer_in.is_present:
+            self.steer_val = steer_in.value
         if actuate_in.is_present:
             print(f"The actuation command: {actuate_in.value} at logical time: {lf.time.logical_elapsed()/1e6} and physical time : {lf.time.physical_elapsed()/1e6}", flush=True)
             amsg, bmsg = self.actuate_logic(actuate_in.value)
         else:
-            amsg = accel_in.value
-            bmsg = brake_in.value
+            amsg = self.accel_val
+            bmsg = self.brake_val
+
+        amsg = max(0.0, min(1.0, amsg))
+        bmsg = max(0.0, min(1.0, bmsg))
 
         # calculations are kept in m/s2 to avoid the decimal values but velocity is converted to km/h to keep it familiar for human-in-the-loop
         MAX_BRAKE = - 10.0
@@ -81,10 +92,14 @@ reactor Car{
         print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
         print(f"Distance travelled={dist:.2f} m", flush=True)
 
+        if lane_actuate_in.is_present:
+            if lane_actuate_in.value == "CHANGE_RIGHT":
+                self.steer_val = 2
+            elif lane_actuate_in.value == "KEEP_LANE":
+                self.steer_val = 1
         velocity.set(velocity_kmh)
-        steer.set(steer_in.value)
-        head_pos.set(head_pos_in.value)
-        eye_pos.set(eye_pos_in.value)
+        steer.set(self.steer_val)
+        
 
     =}   
     

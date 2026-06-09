@@ -19,11 +19,9 @@ reactor LLMInference {
     state last_dl_msg = ""
 
     reaction(startup) {=
-        self.head_history = []
-        self.eye_history = []
-        self.max_history = 4
+      
 
-        def run_llm_message(self, rd_val, v_val, head, eye):
+        def run_llm_message(self, rd_val, v_val, steer, head, eye):
             import ollama
             import time
 

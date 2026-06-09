@@ -12,6 +12,7 @@ reactor Coach{
     state v_val = 0.0
     state st_val = 2
     state h_val = 5
+    state e_val = 5
 
     output displacement
     output velocity
@@ -60,9 +61,9 @@ reactor Coach{
 
     
     reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos{=
-        displacement.set(self.s.value)
-        velocity.set(self.v.value)
-        steer.set(self.st.value)
+        displacement.set(self.s_val)
+        velocity.set(self.v_val)
+        steer.set(self.st_val)
         head_pos.set(self.head_history)
         eye_pos.set(self.eye_history)
 

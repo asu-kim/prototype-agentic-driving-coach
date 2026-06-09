@@ -26,15 +26,15 @@ federated reactor at 10.218.100.78 {
     d.accelerator -> c.accel_in 
     d.brake -> c.brake_in 
     d.steer -> c.steer_in 
-    d.head -> c.head_pos_in 
-    d.eye -> c.eye_pos_in
+    d.head -> adc.h 
+    d.eye -> adc.e
   
 
     c.velocity -> en.v
     c.velocity -> adc.v
     c.steer -> adc.st
-    c.head_pos -> adc.h
-    c.eye_pos -> adc.e
+    // c.head_pos -> adc.h
+    // c.eye_pos -> adc.e
      
     // c.velocity -> sim.velocity_in
     // c.steer -> sim.steer_in
@@ -58,6 +58,7 @@ federated reactor at 10.218.100.78 {
     
    
     planner.act -> c.actuate_in after 200 ms
+    planner.lane_act -> c.lane_actuate_in after 200 ms
     
 
     // adc.act -> c.actuate_in after 200 ms
