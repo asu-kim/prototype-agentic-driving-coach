@@ -10,21 +10,23 @@ reactor LLMInference {
     input st 
     input h
     input e
+    input en_states
 
     // output ready
     output control
     output instruction
 
     preamble {=
-        def run_llm_message(self, rd_val, v_val, head, eye):
+        def run_llm_message(self, llm_inputs):
             import ollama
             import time
+            import json
 
             t0 = time.perf_counter()
 
             try:
                 r = ollama.chat(
-                    model="llama3:8b",
+                    model="qwen3:30b-a3b-fp16",
                     messages=[
                             {
 
@@ -35,10 +37,14 @@ reactor LLMInference {
                             
                             The environment has tasks in this order:
 
-                            1. The driver must do a lane change from a left lane to right lane before the exiting the highway. The driver is maintaining a speed between 60 miles per hour to 65 miles per hour. 
-                            The driver must look to the right before changing the lane to avoid any cars behind.
-                            2. After lane change, the driver must reduce the speed to 45 miles per hour, while exiting the highway.
-                            3. There is a stop sign at 1 mile after exiting and the driver must come to a stop sign and look right and left before moving ahead.
+                            1. The driver must do a lane change from a left lane to right lane before the exiting the highway. The the exit is in 1.6 kilometer.
+                            The driver is maintaining a speed between 85 kilometer per hour to 90 kilometer per hour. 
+                            The driver must look to the right before changing the lane to avoid any cars on the right lane.
+
+                            2. After lane change, the driver must exiting the highway, and reduce the speed to 45 kilometer per hour.
+                            There maybe cars ahead of the driver and the driver must maintain a safe distance.
+
+                            3. There is a stop sign at 1 kilometer after exiting and the driver must come to a stop sign and look right and left before moving ahead.
 
                             Please guide the driver based on the Inputs from the driver and the environment.
 
@@ -57,16 +63,13 @@ reactor LLMInference {
                         {
                             "role": "user",
                             "content": f"""INPUT:
-                                            distance = {rd_val:.2f}
-                                            velocity = {v_val:.2f}
-                                            head_history = {head}
-                                            eye_history = {eye}
+                                            {json.dumps(llm_inputs, indent=2)}
 
                                             Return output:"""
                         }
                     ],
                     options={
-                        "temperature": 0.0,
+                        "temperature": 0.1,
                         "num_predict": 30
                     },
                 )
@@ -86,33 +89,50 @@ reactor LLMInference {
     =}
 
 
-    reaction(s,v,st, h, e) -> control, instruction {=
-        rd_val = s.value if s.is_present else 0.0
-        v_val = v.value if v.is_present else 0.0
+    reaction(s, v, st, h, e, en_states) -> control, instruction {=
+        distance_val = s.value if s.is_present else 0.0
+        velocity_val = v.value if v.is_present else 0.0
         steer_input = st.value if st.is_present else None
         head_input = h.value if h.is_present and h.value else ["CENTER"]
         eye_input = e.value if e.is_present and e.value else ["CENTER"]
+        environment_values = en_states.value if en_states.is_present else []
 
-        if rd_val <= 0.0:
-            rd_val = 0.0
+        if distance_val <= 0.0:
+            distance_val = 0.0
 
        
         print(
-            f"[LLM INPUT] DISTANCE: {rd_val:.2f} m  "
-            f"VELOCITY: {v_val} m/s  STEER: {steer_input}",
+            f"[LLM INPUT] DISTANCE: {distance_val:.2f} m  "
+            f"VELOCITY: {velocity_val} m/s  STEER: {steer_input}",
             flush=True
         )
         print(f"Head history: {head_input}", flush=True)
         print(f"Eye history: {eye_input}", flush=True)
+        environment_keys = [
+            "road_phase",
+            "front_car_present",
+            "front_car_distance_m",
+            "front_car_velocity_kmh",
+            "right_car_present",
+            "right_car_position",
+            "right_car_distance_m",
+            "right_car_velocity_kmh",
+            "cross_left_car_present",
+            "cross_right_car_present"
+        ]
+        environment_input = dict(zip(environment_keys, environment_values))
+        llm_inputs = {
+            "distance_to_target_m": distance_val,
+            "velocity_kmh": velocity_val,
+            "steering": steer_input,
+            "head_history": head_input,
+            "eye_history": eye_input,
+            "environment": environment_input
+        }
+        print(f"LLM inputs: {llm_inputs}", flush=True)
 
 
-        tok_raw, msg_raw, ms = self.run_llm_message(
-            rd_val,
-            v_val,
-            steer_input,
-            head_input,
-            eye_input
-        )
+        tok_raw, msg_raw, ms = self.run_llm_message(llm_inputs)
 
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
@@ -133,7 +153,5 @@ reactor LLMInference {
         control.set(tok)
         instruction.set(msg)
 
-    =} tardy {=
-        
-    =}
+    =} tardy
 }

@@ -1,48 +1,140 @@
-target Python{keepalive: true, files:"environment.csv", coordination: decentralized}
-preamble{=
-    import csv
+target Python {coordination: decentralized}
+
+preamble {=
+    import random
+    import time
 =}
 
+reactor LLM {
+    timer llm_clock(0, 400 msec)
+    state count = 0
+    output control
+    output instruction
 
-reactor A {
-    timer t(0,100msec)
-    output messageB
-    reaction(startup){=
-        
-        try:
-            with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
-                reader = csv.DictReader(f)
+    reaction(llm_clock) -> control, instruction {=
+        self.count += 1
+        sleep_seconds = 0.3
+        print(f"[LLM] Sleeping for {sleep_seconds * 1000:.2f} ms", flush=True)
+        time.sleep(sleep_seconds)
 
-                headings = reader.fieldnames
-                self.lines = list(reader)
-                
-            self.loaded = True
-            print("Environment Loaded", flush=True)
-        except Exception as e:
-            print(f"Environment is not loaded: {e}", flush=True)
-            self.loaded = False
-    =}
+        # The first ACTUATE enters actuate mode; the second executes actuation.
+        tokens = ["NONE", "WARNING", "ACTUATE", "ACTUATE"]
+        token = tokens[(self.count - 1) % len(tokens)]
+        control.set(token)
+        instruction.set(f"Dummy {token} message")
 
-    reaction(t)-> messageB{=
-        messageB.set("This is reactor B")
-        row = self.lines[0]
-        road_phase = row["road_phase"]
-        car_present = int(row["other_car_present"])
-        distance = float(row["other_distance_m"])
-        velocity = float(row["other_velocity_kmh"])
-      
-        print(road_phase)
-        print(car_present)
-        print(distance)
-        print(velocity)
-        # print(f"LOGICAL TIME AT B: {lf.time.logical_elapsed()/1e6}")
+        logical_ms = lf.time.logical_elapsed()/1e6
+        print(f"[LLM] {token} | logical={logical_ms:.2f} ms", flush=True)
+    =} tardy {=
+        print(f"[LLM TARDY] logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
     =}
 }
 
-main reactor{
-    a = new A()
+reactor Planner {
+    state logical_time_ms = -1.0
+    input ctrl
+    input instr
+    output act
 
+    initial mode monitoring {
+        reaction(ctrl, instr) -> warning, reset(actuate) {=
+            token = ctrl.value if ctrl.is_present else "NONE"
+            print(f"[PLANNER MONITORING] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+            if token == "WARNING":
+                warning.set()
+            elif token == "ACTUATE":
+                actuate.set()
+        =} tardy {=
+            logical_ms = lf.time.logical_elapsed()/1e6
+            physical_ms = lf.time.physical_elapsed()/1e6
+            message_age_ms = physical_ms - logical_ms
+            if message_age_ms > 400.0:
+                print(f"[PLANNER MONITORING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                return
 
+            token = ctrl.value if ctrl.is_present else "NONE"
+            print(f"[PLANNER MONITORING TARDY] Processing {token}: age={message_age_ms:.2f} ms", flush=True)
+            if token == "WARNING":
+                warning.set()
+            elif token == "ACTUATE":
+                actuate.set()
+        =}
+    }
 
+    mode warning {
+        reaction(ctrl, instr) -> monitoring, reset(actuate) {=
+            token = ctrl.value if ctrl.is_present else "NONE"
+            print(f"[PLANNER WARNING] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+            if token == "ACTUATE":
+                actuate.set()
+            elif token != "WARNING":
+                monitoring.set()
+        =} tardy {=
+            logical_ms = lf.time.logical_elapsed()/1e6
+            physical_ms = lf.time.physical_elapsed()/1e6
+            message_age_ms = physical_ms - logical_ms
+            if message_age_ms > 400.0:
+                print(f"[PLANNER WARNING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                return
 
+            token = ctrl.value if ctrl.is_present else "NONE"
+            print(f"[PLANNER WARNING TARDY] Processing {token}: age={message_age_ms:.2f} ms", flush=True)
+            if token == "ACTUATE":
+                actuate.set()
+            elif token != "WARNING":
+                monitoring.set()
+        =}
+    }
+
+    mode actuate {
+        reaction(reset){=
+            print(f"[PLANNER ACTUATE] RESET REACTION ")
+        =}
+        reaction(ctrl, instr) -> act, monitoring {=
+            
+            print(ctrl.is_present)
+            if  (ctrl.is_present and instr.is_present):
+                print(f"Tokens are not available")
+            token = ctrl.value if ctrl.is_present else "NONE"
+            print(f"[PLANNER ACTUATE] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+            if token == "ACTUATE":
+                act.set("DUMMY_ACTUATE")
+            else:
+                monitoring.set()
+        =} tardy {=
+            logical_ms = lf.time.logical_elapsed()/1e6
+            physical_ms = lf.time.physical_elapsed()/1e6
+            message_age_ms = physical_ms - logical_ms
+            if message_age_ms > 400.0:
+                print(f"[PLANNER ACTUATE TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                return
+
+            print(f"[PLANNER ACTUATE TARDY] BRAKE: age={message_age_ms:.2f} ms", flush=True)
+            act.set("BRAKE")
+        =}
+        
+    }
+}
+
+reactor Car {
+    input actuate_in
+
+    reaction(actuate_in) {=
+        print(f"[CAR] Received: {actuate_in.value} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+    =} tardy {=
+        print(f"[CAR TARDY] logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+    =}
+}
+
+federated reactor {
+    llm = new LLM()
+
+    @maxwait(350 msec)
+    planner = new Planner()
+
+    car = new Car()
+
+    llm.control -> planner.ctrl
+    llm.instruction -> planner.instr
+    planner.act -> car.actuate_in after 200 ms
 }

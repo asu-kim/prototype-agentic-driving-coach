@@ -1,15 +1,12 @@
 target Python
 
-reactor Car{
+reactor Car {
     input steer_in
     input accel_in
     input brake_in
-    input actuate_in 
-    input lane_actuate_in
-    
+    input actuate_in
 
-
-    state velocity_init = 25 #this is m/s
+    state velocity_init = 25
     state dist_init = 0.0
     state accel_val = 0.0
     state brake_val = 0.0
@@ -17,9 +14,9 @@ reactor Car{
 
     output velocity
     output steer
- 
-    preamble{=
-        def actuate_logic(self,cmd):
+
+    preamble {=
+        def actuate_logic(self, cmd):
             if cmd == "ACCEL":
                 return 0.5, 0.0
             elif cmd == "BRAKE":
@@ -28,80 +25,70 @@ reactor Car{
                 return 0.15, 0.0
             elif cmd == "STOP":
                 return 0.0, 1.0
+            print("[CAR_ACTUATE]: ACTUATE CMD is invalid", flush=True)
+            return 0.0, 0.0
+
+        def update_car(self, accel_input, brake_input, steer_input, actuate_command):
+            if accel_input is not None:
+                self.accel_val = float(accel_input)
+            if brake_input is not None:
+                self.brake_val = float(brake_input)
+            if steer_input is not None:
+                self.steer_val = steer_input
+
+            if actuate_command is not None:
+                print(f"The actuation command: {actuate_command}", flush=True)
+                amsg, bmsg = self.actuate_logic(actuate_command)
             else:
-                print("[CAR_ACTUATE]: ACCTUATE CMD is invalid")
-                return 0.0, 0.0
+                amsg = self.accel_val
+                bmsg = self.brake_val
+
+            amsg = max(0.0, min(1.0, amsg))
+            bmsg = max(0.0, min(1.0, bmsg))
+
+            MAX_BRAKE = -10.0
+            MAX_ACCEL = 4.0
+            A_DRAG_COEF = -0.002
+            A_FRIC_COEFF = -0.022
+            DT = 0.1
+            MAX_VEL = 35.0
+
+            accel_brake = bmsg * MAX_BRAKE
+            accel_throt = (0.6 * amsg + 0.4 * amsg * amsg) * MAX_ACCEL
+            accel_drag = A_DRAG_COEF * self.velocity_init ** 2
+            accel_net = accel_brake + accel_throt + accel_drag + A_FRIC_COEFF
+
+            vel = max(0.0, min(MAX_VEL, self.velocity_init + accel_net * DT))
+            dist = self.dist_init + vel * DT
+            self.velocity_init = vel
+            self.dist_init = dist
+
+            velocity_kmh = vel * 3.6
+            print(f"The accel pedal position: {amsg:.2f}, The brake pedal: {bmsg:.2f}", flush=True)
+            print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
+            print(f"Distance travelled={dist:.2f} m", flush=True)
+            return velocity_kmh, self.steer_val
     =}
-    
-   
-    reaction(accel_in, brake_in, steer_in, actuate_in, lane_actuate_in)-> velocity, steer{=
-        print(f"[DEBUG] time={lf.time.logical_elapsed()/1e6}, actuate_present={actuate_in.is_present}", flush=True)
-        if accel_in.is_present:
-            self.accel_val = float(accel_in.value)
-        if brake_in.is_present:
-            self.brake_val = float(brake_in.value)
-        if steer_in.is_present:
-            self.steer_val = steer_in.value
-        if actuate_in.is_present:
-            print(f"The actuation command: {actuate_in.value} at logical time: {lf.time.logical_elapsed()/1e6} and physical time : {lf.time.physical_elapsed()/1e6}", flush=True)
-            amsg, bmsg = self.actuate_logic(actuate_in.value)
-        else:
-            amsg = self.accel_val
-            bmsg = self.brake_val
 
-        amsg = max(0.0, min(1.0, amsg))
-        bmsg = max(0.0, min(1.0, bmsg))
-
-        # calculations are kept in m/s2 to avoid the decimal values but velocity is converted to km/h to keep it familiar for human-in-the-loop
-        MAX_BRAKE = - 10.0
-        MAX_ACCEL = 4.0
-        A_DRAG_COEF = - 0.002
-        A_FRIC_COEFF = - 0.022
-        DT = 0.1
-        MAX_VEL = 35.0
-      
-        print(f"The accel pedal position: {amsg:.2f}, The brake pedal: {bmsg:.2f}")
-        ## acceleration for throttle is second order polynomial equation
-
-        accel_brake = bmsg * MAX_BRAKE
-        accel_throt = (0.6 * amsg + 0.4 * amsg* amsg) * MAX_ACCEL 
-        accel_drag = A_DRAG_COEF * self.velocity_init ** 2
-        accel_net = accel_brake + accel_throt + accel_drag + A_FRIC_COEFF
-
-        
-        vel = self.velocity_init + accel_net * DT
-        if vel > MAX_VEL:
-            vel = MAX_VEL
-        else:
-            vel = max(0.0, vel)
-        dist = self.dist_init + vel * DT
-
-
-        self.velocity_init = vel
-        self.dist_init = dist
-        current_dri = lf.time.logical_elapsed()/1e6
-        physical_dri = lf.time.physical_elapsed()/1e6
-        lag = physical_dri - current_dri
-        velocity_kmh = vel * 3.6
-
-        print("----------------------------------------------------------")
-        print(f"[CAR] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[CAR] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[CAR] LAG: {lag:.2f} ", flush=True)
-        print(f"---------------------------------------------------------", flush=True)
-        print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
-        print(f"Distance travelled={dist:.2f} m", flush=True)
-
-        if lane_actuate_in.is_present:
-            if lane_actuate_in.value == "CHANGE_RIGHT":
-                self.steer_val = 2
-            elif lane_actuate_in.value == "KEEP_LANE":
-                self.steer_val = 1
+    reaction(accel_in, brake_in, steer_in, actuate_in) -> velocity, steer {=
+        print(f"[CAR] Logical time: {lf.time.logical_elapsed()/1e6:.2f}", flush=True)
+        velocity_kmh, steer_value = self.update_car(
+            accel_in.value if accel_in.is_present else None,
+            brake_in.value if brake_in.is_present else None,
+            steer_in.value if steer_in.is_present else None,
+            actuate_in.value if actuate_in.is_present else None
+        )
         velocity.set(velocity_kmh)
-        steer.set(self.steer_val)
-        
-
-    =}   
-    
-
+        steer.set(steer_value)
+    =} tardy {=
+        print(f"[CAR TARDY] Logical time: {lf.time.logical_elapsed()/1e6:.2f}", flush=True)
+        velocity_kmh, steer_value = self.update_car(
+            accel_in.value if accel_in.is_present else None,
+            brake_in.value if brake_in.is_present else None,
+            steer_in.value if steer_in.is_present else None,
+            actuate_in.value if actuate_in.is_present else None
+        )
+        velocity.set(velocity_kmh)
+        steer.set(steer_value)
+    =}
 }

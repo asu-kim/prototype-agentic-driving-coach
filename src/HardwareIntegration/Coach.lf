@@ -6,6 +6,7 @@ reactor Coach{
     input st 
     input h
     input e
+    input en_states
     timer llmclock(4 sec, 400 msec)
 
     state s_val = 0.0
@@ -13,12 +14,14 @@ reactor Coach{
     state st_val = 2
     state h_val = 5
     state e_val = 5
+    state en_states_val
 
     output displacement
     output velocity
     output steer 
     output head_pos
     output eye_pos
+    output environment_states
 
     
     reaction(startup){=
@@ -26,7 +29,7 @@ reactor Coach{
         self.eye_history = []
         self.max_history = 4
     =}
-    reaction(s, v, st, h,e){=
+    reaction(s, v, st, h, e, en_states){=
          if s.is_present:
              self.s_val = s.value
          if v.is_present:
@@ -35,7 +38,7 @@ reactor Coach{
              self.st_val = st.value
          if h.is_present:
              self.h_val = h.value
-             print(f"Head value every 100ms: {self.h_val}")
+            #  print(f"Head value every 100ms: {self.h_val}")
              if self.h_val == 0:
                  self.head_history.append("LEFT")
              elif self.h_val == 1:
@@ -46,7 +49,7 @@ reactor Coach{
                  self.head_history.append("CENTER")
          if e.is_present:
              self.e_val = e.value
-             print(f"EYE value every 100ms: {self.e_val}")
+            #  print(f"EYE value every 100ms: {self.e_val}")
              if self.e_val == 0:
                  self.eye_history.append("LEFT")
              elif self.e_val == 1:
@@ -55,17 +58,22 @@ reactor Coach{
                  self.eye_history.append("RIGHT")
              else:
                  self.eye_history.append("CENTER")
+         if en_states.is_present:
+             self.en_states_val = en_states.value
          self.head_history = self.head_history[-self.max_history:]
          self.eye_history = self.eye_history[-self.max_history:]
-     =}
+         print(f"v: {self.v_val}, s: {self.s_val}, st: {self.st_val}")
+     =} tardy
 
     
-    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos{=
+    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
         displacement.set(self.s_val)
         velocity.set(self.v_val)
         steer.set(self.st_val)
         head_pos.set(self.head_history)
         eye_pos.set(self.eye_history)
+        if self.en_states_val is not None:
+            environment_states.set(self.en_states_val)
 
     =}
 

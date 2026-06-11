@@ -15,7 +15,6 @@ reactor Planner {
     input en_states
     
     output act
-    output lane_act
     output planned_instr
 
     state last_speak_ns = -10000000000000
@@ -172,7 +171,7 @@ reactor Planner {
     =}
 
     initial mode monitoring {
-            reaction(ctrl, instr, s, v, en_states) -> warning, actuate, planned_instr {=
+            reaction(ctrl, instr, s, v) -> warning, actuate, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -181,8 +180,6 @@ reactor Planner {
                     self.distance_val = s.value
                 if v.is_present:
                     self.velocity_val = v.value
-                if en_states.is_present:
-                    self.latest_environment_states = en_states.value
                 token_keyword = self.control_token
                 instruction = self.instruction_val
                 rd = self.distance_val
@@ -236,11 +233,13 @@ reactor Planner {
                 print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
                 print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
                 print("----------------------------------------------------------")
-            =}
-    }
-
-    mode warning {
-            reaction(ctrl, instr, s, v, en_states) -> monitoring, actuate, planned_instr {=
+            =} tardy {=
+                logical_ms = lf.time.logical_elapsed()/1e6
+                physical_ms = lf.time.physical_elapsed()/1e6
+                message_age_ms = physical_ms - logical_ms
+                if message_age_ms > 400.0:
+                    print(f"[PLANNER MONITORING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                    return
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -249,8 +248,29 @@ reactor Planner {
                     self.distance_val = s.value
                 if v.is_present:
                     self.velocity_val = v.value
-                if en_states.is_present:
-                    self.latest_environment_states = en_states.value
+                token_keyword = self.control_token
+                instruction = self.instruction_val
+                print(f"[PLANNER MONITORING TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
+                if instruction:
+                    planned_instr.set(instruction)
+                    self.try_speak(lf.time.physical_elapsed(), instruction)
+                if token_keyword == "ACTUATE":
+                    actuate.set()
+                elif token_keyword == "WARNING":
+                    warning.set()
+            =}
+    }
+
+    mode warning {
+            reaction(ctrl, instr, s, v) -> monitoring, actuate, planned_instr {=
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
                 token_keyword = self.control_token
                 instruction = self.instruction_val
                 now_ns = lf.time.physical_elapsed()
@@ -295,11 +315,36 @@ reactor Planner {
                 print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
                 print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
                 print("----------------------------------------------------------")
+            =} tardy {=
+                logical_ms = lf.time.logical_elapsed()/1e6
+                physical_ms = lf.time.physical_elapsed()/1e6
+                message_age_ms = physical_ms - logical_ms
+                if message_age_ms > 400.0:
+                    print(f"[PLANNER WARNING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                    return
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
+                token_keyword = self.control_token
+                instruction = self.instruction_val
+                print(f"[PLANNER WARNING TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
+                if instruction:
+                    planned_instr.set(instruction)
+                    self.try_speak(lf.time.physical_elapsed(), instruction)
+                if token_keyword == "ACTUATE":
+                    actuate.set()
+                elif token_keyword != "WARNING":
+                    monitoring.set()
             =}
     }
 
     mode actuate {
-            reaction(ctrl, instr, s, v, en_states) -> act, lane_act, monitoring, planned_instr {=
+            reaction(ctrl, instr, s, v, en_states) -> act,  monitoring, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -336,7 +381,6 @@ reactor Planner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                lane_act.set(lane_command)
 
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -349,7 +393,36 @@ reactor Planner {
                 print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ", flush=True)
                 print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ", flush=True)
                 print("----------------------------------------------------------")
+            =} tardy {=
+                logical_ms = lf.time.logical_elapsed()/1e6
+                physical_ms = lf.time.physical_elapsed()/1e6
+                message_age_ms = physical_ms - logical_ms
+                if message_age_ms > 400.0:
+                    print(f"[PLANNER ACTUATE TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                    return
+                if ctrl.is_present:
+                    self.control_token = (ctrl.value or "NONE").strip()
+                if instr.is_present:
+                    self.instruction_val = (instr.value or "").strip()
+                if s.is_present:
+                    self.distance_val = s.value
+                if v.is_present:
+                    self.velocity_val = v.value
+                if en_states.is_present:
+                    self.latest_environment_states = en_states.value
+                token_keyword = self.control_token
+                print(f"[PLANNER ACTUATE TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
+                if token_keyword != "ACTUATE":
+                    monitoring.set()
+                    return
+                environment_states = self.latest_environment_states
+                if environment_states is None or len(environment_states) != 10:
+                    print(f"[PLANNER ACTUATE TARDY] Missing environment state; discarding: {environment_states}", flush=True)
+                    return
+                road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
+                speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
+                act.set(speed_command)
             =}
-    }
+    } 
 }
 

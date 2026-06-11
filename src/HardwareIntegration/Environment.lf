@@ -19,7 +19,7 @@ reactor Environment{
     reaction(startup){=
         
         try:
-            with open("environment.csv", "r", newline="") as f:
+            with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
                 reader = csv.DictReader(f)
                 headings = reader.fieldnames
                 self.lines = list(reader)
