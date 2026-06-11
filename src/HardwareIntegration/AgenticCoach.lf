@@ -6,6 +6,7 @@ preamble{=
     import time
     import ollama
 
+    _OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
     _CONTROL_IDS = {"NONE": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
 =}
 
@@ -40,7 +41,7 @@ reactor AgenticCoach {
 
             try:
                 r = ollama.chat(
-                    model="qwen3:30b-a3b-fp16",
+                    model=_OLLAMA_MODEL,
                     messages=[
                             {
 
@@ -60,6 +61,8 @@ reactor AgenticCoach {
 
                             3. There is a stop sign at 1 kilometer after exiting and the driver must come to a stop sign and look right and left before moving ahead.
 
+                            Treat the provided INPUT values as authoritative current measurements. Do not assume the driver is following the task. Compare the current measurements against the task requirements and warn or actuate when they are unsafe or substantially outside the required range.
+
                             Please guide the driver based on the Inputs from the driver and the environment.
 
                             You will generate the output in this format:
@@ -70,6 +73,8 @@ reactor AgenticCoach {
                                 NONE = if the driver is following the instruction
                                 WARNING = If the driver is in the recoverable speed region
                                 ACTUATE = if there needs to be control taken over.
+
+                            Return exactly one line in TOKEN|INSTRUCTION format with no explanation before it.
 
                             Instruction is the guiding message for warning or actuation.
                             """
@@ -93,6 +98,7 @@ reactor AgenticCoach {
 
             ms = (time.perf_counter() - t0) * 1000.0
             raw = (r.get("message", {}).get("content", "") or "").strip()
+            print(f"[LLM RAW] {raw}", flush=True)
 
             # Parse token + message properly
             parts = raw.split("|", 1)
@@ -117,7 +123,7 @@ reactor AgenticCoach {
        
         print(
             f"[LLM INPUT] DISTANCE: {distance_val:.2f} m  "
-            f"VELOCITY: {velocity_val} m/s  STEER: {steer_input}",
+            f"VELOCITY: {velocity_val} km/h  STEER: {steer_input}",
             flush=True
         )
         print(f"Head history: {head_input}", flush=True)
@@ -168,6 +174,7 @@ reactor AgenticCoach {
         rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
         rr.log("llm/control", rr.TextLog(tok))
         rr.log("llm/instruction", rr.TextLog(msg))
+        rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
         rr.log("llm/inference_ms", rr.Scalars(float(ms)))
 
         control.set(tok)

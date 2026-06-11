@@ -2,10 +2,29 @@
 """Benchmark the Ollama model and prompt used by LLMInference.lf."""
 
 import argparse
+import contextlib
 import statistics
+import sys
 import time
 
 import ollama
+
+
+DEFAULT_LOG_PATH = "src/WCETLLAMA8Bnewprompt.log"
+
+
+class TeeOutput:
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            stream.write(data)
+            stream.flush()
+
+    def flush(self):
+        for stream in self.streams:
+            stream.flush()
 
 
 SYSTEM_PROMPT = """
@@ -90,20 +109,21 @@ def print_summary(label, values):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Benchmark qwen3:30b-a3b-fp16 using the LLMInference.lf prompt."
+        description="Benchmark llama3:8b using the LLMInference.lf prompt."
     )
-    parser.add_argument("--model", default="qwen3:30b-a3b-fp16")
+    parser.add_argument("--model", default="llama3:8b")
     parser.add_argument("--runs", type=int, default=100)
     parser.add_argument("--warmup", type=int, default=1)
     parser.add_argument("--distance", type=float, default=1200.0)
     parser.add_argument("--velocity", type=float, default=24.0)
     parser.add_argument("--head-history", default="['CENTER', 'LEFT', 'RIGHT']")
     parser.add_argument("--eye-history", default="['CENTER', 'LEFT', 'RIGHT']")
+    parser.add_argument("--log-file", default=DEFAULT_LOG_PATH)
+    parser.add_argument("--append", action="store_true")
     return parser.parse_args()
 
 
-def main():
-    args = parse_args()
+def run_benchmark(args):
     if args.runs < 1 or args.warmup < 0:
         raise SystemExit("--runs must be at least 1 and --warmup cannot be negative")
 
@@ -143,6 +163,16 @@ def main():
     print_summary("Ollama server total_duration", server_times)
     print(f"\nFailures: {failures}")
 
+
+
+
+def main():
+    args = parse_args()
+    mode = "a" if args.append else "w"
+    with open(args.log_file, mode, encoding="utf-8") as log_file:
+        output = TeeOutput(sys.stdout, log_file)
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+            run_benchmark(args)
 
 if __name__ == "__main__":
     main()

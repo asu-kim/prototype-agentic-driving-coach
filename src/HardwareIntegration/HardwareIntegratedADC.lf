@@ -21,7 +21,7 @@ federated reactor at 10.218.100.78 {
     adc = new InputForCoach()
     
     llm = new AgenticCoach()
-    @maxwait(400 msec)
+    @maxwait(300 msec)
     planner = new ActionPlanner()
     // sim = new Simulation() 
 
@@ -58,7 +58,7 @@ federated reactor at 10.218.100.78 {
 
     llm.control -> planner.ctrl
     llm.instruction -> planner.instr
-    
+   
    
     planner.act -> c.actuate_in after 200 ms
     // planner.lane_act -> c.lane_actuate_in after 200 ms

@@ -74,7 +74,7 @@ reactor InputForCoach{
              self.en_states_val = en_states.value
          self.head_history = self.head_history[-self.max_history:]
          self.eye_history = self.eye_history[-self.max_history:]
-         print(f"v: {self.v_val}, s: {self.s_val}, st: {self.st_val}")
+        #  print(f"v: {self.v_val}, s: {self.s_val}, st: {self.st_val}")
      =} tardy
 
     
@@ -93,6 +93,16 @@ reactor InputForCoach{
         rr.log("coach/steer", rr.Scalars(float(self.st_val)))
         rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
         rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+
+        
+        print("----------------------------------------------------------")
+        print(f"[InputForCoach] Logical time: {current_dri:.2f} ", flush=True)
+        print(f"[InputForCoach] Physical time: {physical_dri:.2f} ", flush=True)
+        print(f"[InputForCoach] LAG: {lag:.2f} ", flush=True)
+        print("----------------------------------------------------------")
 
     =}
 

@@ -8,6 +8,7 @@ preamble{=
     import threading
     import csv
     _ACTUATOR_IDS = {"STOP": 0.0, "BRAKE": 1.0, "HOLD": 2.0, "ACCEL": 3.0}
+    _MODE_IDS = {"MONITORING": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
 =}
 
 
@@ -33,6 +34,14 @@ reactor ActionPlanner {
         import re
         import threading
         import os
+
+        def log_mode_transition(self, from_mode, to_mode, reason):
+            logical_ms = lf.time.logical_elapsed() / 1_000_000
+            rr.set_time("logical_time_ms", sequence=int(logical_ms))
+            rr.log("planner/mode", rr.TextLog(to_mode))
+            rr.log("planner/mode_id", rr.Scalars(_MODE_IDS[to_mode]))
+            rr.log("planner/mode_transitions", rr.TextLog(f"{from_mode} -> {to_mode}: {reason}"))
+            print(f"[PLANNER MODE] {from_mode} -> {to_mode}: {reason}", flush=True)
 
         def adaptive_cruise_control(
             self,
@@ -178,7 +187,12 @@ reactor ActionPlanner {
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
+        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        rr.log("planner/mode", rr.TextLog("MONITORING"))
+        rr.log("planner/mode_id", rr.Scalars(_MODE_IDS["MONITORING"]))
+        print("[PLANNER MODE] Initial mode: MONITORING", flush=True)
     =}
+
 
     initial mode monitoring {
             reaction(ctrl, instr, s, v) -> warning, actuate, planned_instr {=
@@ -210,6 +224,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
                     print("----------------------------------------------------------")
+                    self.log_mode_transition("MONITORING", "ACTUATE", token_keyword)
                     actuate.set()
                     return
 
@@ -226,6 +241,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
                     print("----------------------------------------------------------")
+                    self.log_mode_transition("MONITORING", "WARNING", token_keyword)
                     warning.set()
                     return
 
@@ -265,8 +281,10 @@ reactor ActionPlanner {
                     planned_instr.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
                 if token_keyword == "ACTUATE":
+                    self.log_mode_transition("MONITORING", "ACTUATE", f"tardy {token_keyword}")
                     actuate.set()
                 elif token_keyword == "WARNING":
+                    self.log_mode_transition("MONITORING", "WARNING", f"tardy {token_keyword}")
                     warning.set()
             =}
     }
@@ -300,6 +318,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
                     print("----------------------------------------------------------")
+                    self.log_mode_transition("WARNING", "ACTUATE", token_keyword)
                     actuate.set()
                     return
 
@@ -312,6 +331,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
                     print("----------------------------------------------------------")
+                    self.log_mode_transition("WARNING", "MONITORING", token_keyword)
                     monitoring.set()
                     return
                 if instruction:
@@ -347,8 +367,10 @@ reactor ActionPlanner {
                     planned_instr.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
                 if token_keyword == "ACTUATE":
+                    self.log_mode_transition("WARNING", "ACTUATE", f"tardy {token_keyword}")
                     actuate.set()
                 elif token_keyword != "WARNING":
+                    self.log_mode_transition("WARNING", "MONITORING", f"tardy {token_keyword}")
                     monitoring.set()
             =}
     }
@@ -373,6 +395,7 @@ reactor ActionPlanner {
                 now_ns = lf.time.physical_elapsed()
 
                 if token_keyword != "ACTUATE":
+                    self.log_mode_transition("ACTUATE", "MONITORING", token_keyword)
                     monitoring.set()
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
@@ -426,6 +449,7 @@ reactor ActionPlanner {
                 token_keyword = self.control_token
                 print(f"[PLANNER ACTUATE TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
                 if token_keyword != "ACTUATE":
+                    self.log_mode_transition("ACTUATE", "MONITORING", token_keyword)
                     monitoring.set()
                     return
                 environment_states = self.latest_environment_states
