@@ -25,7 +25,7 @@ Install the main prerequisites:
 3. Install the Python MuJoCo package:
 
 ```bash
-python3 -m pip install mujoco
+python3 -m pip install mujoco rerun-sdk
 ```
 
 Pull the local Llama models used during experiments:
@@ -65,7 +65,7 @@ cd fed-gen/HardwareIntegratedADC
 Start the RTI on the server:
 
 ```bash
-./bin/RTI -n 5
+./bin/RTI -n 6
 ```
 
 Then start the federates. The driver federate should run on the Raspberry Pi or hardware input machine; the remaining federates usually run on the server.
@@ -75,8 +75,12 @@ Then start the federates. The driver federate should run on the Raspberry Pi or 
 ./bin/federate__c
 ./bin/federate__en
 ./bin/federate__adc
-./bin/federate__sim
+./bin/federate__llm
+./bin/federate__planner
 ```
+
+Each separately launched federate opens its own Rerun viewer automatically. No
+shared Rerun server or `RERUN_GRPC_URL` configuration is required.
 
 If you run the federates on different machines, update the federated reactor host address in `src/HardwareIntegration/HardwareIntegratedADC.lf` before compiling.
 

@@ -1,5 +1,9 @@
 target Python
 
+preamble {=
+    import rerun as rr
+=}
+
 reactor Car {
     input steer_in
     input accel_in
@@ -14,6 +18,12 @@ reactor Car {
 
     output velocity
     output steer
+
+    reaction(startup) {=
+        rr.init("hardware_integrated_adc_car")
+        rr.connect_grpc("rerun+http://127.0.0.1:9876/proxy")
+        print("[RERUN] Car viewer initialized.", flush=True)
+    =}
 
     preamble {=
         def actuate_logic(self, cmd):
@@ -80,6 +90,9 @@ reactor Car {
         )
         velocity.set(velocity_kmh)
         steer.set(steer_value)
+        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
+        rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
     =} tardy {=
         print(f"[CAR TARDY] Logical time: {lf.time.logical_elapsed()/1e6:.2f}", flush=True)
         velocity_kmh, steer_value = self.update_car(
@@ -90,5 +103,8 @@ reactor Car {
         )
         velocity.set(velocity_kmh)
         steer.set(steer_value)
+        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
+        rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
     =}
 }

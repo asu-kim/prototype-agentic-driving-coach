@@ -1,6 +1,8 @@
 target Python {files: "environment.csv"}
 preamble{=
     import csv
+    import json
+    import rerun as rr
 =}
 
 reactor Environment{
@@ -17,6 +19,9 @@ reactor Environment{
     
     state v_val = 0.0
     reaction(startup){=
+        rr.init("hardware_integrated_adc_environment")
+        rr.connect_grpc("rerun+http://127.0.0.1:9876/proxy")
+        print("[RERUN] Environment viewer initialized.", flush=True)
         
         try:
             with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
@@ -86,6 +91,11 @@ reactor Environment{
         environment_states.set(en_states)        
 
 
+
+        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        rr.log("environment/displacement_m", rr.Scalars(float(current_displacement)))
+        rr.log("environment/road_phase", rr.TextLog(road_phase))
+        rr.log("environment/states", rr.TextLog(json.dumps(en_states)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri

@@ -1,5 +1,10 @@
 target Python 
 
+preamble {=
+    import json
+    import rerun as rr
+=}
+
 reactor Coach{
     input s
     input v
@@ -25,6 +30,9 @@ reactor Coach{
 
     
     reaction(startup){=
+        rr.init("hardware_integrated_adc_coach")
+        rr.connect_grpc("rerun+http://127.0.0.1:9876/proxy")
+        print("[RERUN] Coach viewer initialized.", flush=True)
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
@@ -74,6 +82,13 @@ reactor Coach{
         eye_pos.set(self.eye_history)
         if self.en_states_val is not None:
             environment_states.set(self.en_states_val)
+
+        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
+        rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
+        rr.log("coach/steer", rr.Scalars(float(self.st_val)))
+        rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
+        rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
 
     =}
 

@@ -2,9 +2,9 @@ target Python {keepalive: true,
     // logging: DEBUG,
     coordination: decentralized,
     DNET: False,
-    // tracing:True
+    tracing:True
     }
-    // Add rerun in the preamble
+
 import Driver from "Driver.lf"
 import Car from "Car.lf"
 import Environment from "Environment.lf"
@@ -62,6 +62,7 @@ federated reactor at 10.218.100.78 {
    
     planner.act -> c.actuate_in after 200 ms
     // planner.lane_act -> c.lane_actuate_in after 200 ms
+
     
 
 }
