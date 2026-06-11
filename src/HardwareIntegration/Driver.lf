@@ -3,6 +3,7 @@ target Python
 import SensorInputs from "SensorInputs.lf"
 
 preamble {=
+    import os
     import rerun as rr
 =}
 
@@ -26,8 +27,11 @@ reactor Driver{
     timer sensorclock(4 sec, 100 msec)
 
     reaction(startup) {=
-        rr.init("hardware_integrated_adc_driver")
-        rr.connect_grpc("rerun+http://127.0.0.1:9876/proxy")
+        rr.init(
+            "hardware_integrated_adc",
+            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        )
+        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
         print("[RERUN] Driver viewer initialized.", flush=True)
     =}
 

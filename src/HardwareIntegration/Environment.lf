@@ -2,6 +2,7 @@ target Python {files: "environment.csv"}
 preamble{=
     import csv
     import json
+    import os
     import rerun as rr
 =}
 
@@ -19,8 +20,11 @@ reactor Environment{
     
     state v_val = 0.0
     reaction(startup){=
-        rr.init("hardware_integrated_adc_environment")
-        rr.connect_grpc("rerun+http://127.0.0.1:9876/proxy")
+        rr.init(
+            "hardware_integrated_adc",
+            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        )
+        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
         print("[RERUN] Environment viewer initialized.", flush=True)
         
         try:

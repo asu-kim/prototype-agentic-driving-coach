@@ -1,20 +1,47 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+import argparse
+from math import tau
+from pathlib import Path
 
-# Specify the driving model repository
-model_id = "dongdongcui/DriveGPT-13B"
+import rerun as rr
+from rerun.utilities import build_color_spiral
 
-# Load the tokenizer and model weights
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id, 
-    torch_dtype=torch.float16, 
-    device_map="auto"
-)
+NUM_POINTS = 100
 
-# Example input simulating vehicle telemetry or driving states
-inputs = tokenizer("Ego-vehicle speed: 45mph. Obstacle detected at 20 meters ahead. Action:", return_tensors="pt").to("cuda")
 
-# Generate predicted driving trajectory/text reasoning
-outputs = model.generate(**inputs, max_new_tokens=50)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Test Rerun with a DNA point cloud.")
+    parser.add_argument(
+        "--spawn",
+        action="store_true",
+        help="Open the native viewer instead of saving an RRD recording.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("rerun_test.rrd"),
+        help="Recording path used when --spawn is not provided.",
+    )
+    args = parser.parse_args()
+
+    rr.init("rerun_example_dna_abacus", spawn=args.spawn)
+    if not args.spawn:
+        rr.save(args.output)
+
+    points1, colors1 = build_color_spiral(NUM_POINTS)
+    points2, colors2 = build_color_spiral(NUM_POINTS, angular_offset=tau * 0.5)
+
+    rr.log(
+        "dna/structure/left",
+        rr.Points3D(points1, colors=colors1, radii=0.08),
+    )
+    rr.log(
+        "dna/structure/right",
+        rr.Points3D(points2, colors=colors2, radii=0.08),
+    )
+
+    if not args.spawn:
+        print(f"Saved Rerun recording to {args.output.resolve()}")
+
+
+if __name__ == "__main__":
+    main()

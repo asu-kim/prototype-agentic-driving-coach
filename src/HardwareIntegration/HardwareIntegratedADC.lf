@@ -8,9 +8,9 @@ target Python {keepalive: true,
 import Driver from "Driver.lf"
 import Car from "Car.lf"
 import Environment from "Environment.lf"
-import Coach from "Coach.lf"
-import LLMInference from "LLMInference.lf"
-import Planner from "Planner.lf"
+import InputForCoach from "InputForCoach.lf"
+import AgenticCoach from "AgenticCoach.lf"
+import ActionPlanner from "ActionPlanner.lf"
 // import Simulation from "Simulation.lf"
 
 
@@ -18,11 +18,11 @@ federated reactor at 10.218.100.78 {
     d = new Driver()
     c = new Car()
     en = new Environment()
-    adc = new Coach()
+    adc = new InputForCoach()
     
-    llm = new LLMInference()
+    llm = new AgenticCoach()
     @maxwait(400 msec)
-    planner = new Planner()
+    planner = new ActionPlanner()
     // sim = new Simulation() 
 
     d.accelerator -> c.accel_in 
