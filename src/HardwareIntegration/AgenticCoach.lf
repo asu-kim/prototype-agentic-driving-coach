@@ -157,10 +157,13 @@ reactor AgenticCoach {
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
+        current_tag = lf.tag()
         print("----------------------------------------------------------")
         print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[LLM INFERENCE] LAG: {lag:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[LLM INFERENCE] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
 
         tok = (tok_raw or "NONE").strip().upper()

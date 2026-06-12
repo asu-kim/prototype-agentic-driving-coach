@@ -219,10 +219,13 @@ reactor ActionPlanner {
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
+                    current_tag = lf.tag()
                     print("----------------------------------------------------------")
                     print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "ACTUATE", token_keyword)
                     actuate.set()
@@ -236,10 +239,13 @@ reactor ActionPlanner {
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
+                    current_tag = lf.tag()
                     print("----------------------------------------------------------")
                     print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "WARNING", token_keyword)
                     warning.set()
@@ -254,10 +260,13 @@ reactor ActionPlanner {
                 current_dri = lf.time.logical_elapsed()/1e6
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
+                current_tag = lf.tag()
                 print("----------------------------------------------------------")
                 print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
+                print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6
@@ -313,10 +322,13 @@ reactor ActionPlanner {
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
+                    current_tag = lf.tag()
                     print("----------------------------------------------------------")
                     print(f"[PLANNER WARNING ] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "ACTUATE", token_keyword)
                     actuate.set()
@@ -326,10 +338,13 @@ reactor ActionPlanner {
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
+                    current_tag = lf.tag()
                     print("----------------------------------------------------------")
                     print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "MONITORING", token_keyword)
                     monitoring.set()
@@ -340,10 +355,13 @@ reactor ActionPlanner {
                 current_dri = lf.time.logical_elapsed()/1e6
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
+                current_tag = lf.tag()
                 print("----------------------------------------------------------")
                 print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
+                print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6
@@ -400,10 +418,13 @@ reactor ActionPlanner {
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
+                    current_tag = lf.tag()
                     print("----------------------------------------------------------")
                     print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
+                    print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     return
 
@@ -424,10 +445,13 @@ reactor ActionPlanner {
                 current_dri = lf.time.logical_elapsed()/1e6
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
+                current_tag = lf.tag()
                 print("----------------------------------------------------------")
                 print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
+                print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6

@@ -95,12 +95,15 @@ reactor InputForCoach{
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
+        current_tag = lf.tag()
 
         
         print("----------------------------------------------------------")
         print(f"[InputForCoach] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[InputForCoach] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[InputForCoach] LAG: {lag:.2f} ms", flush=True)
+        print(f"[InputForCoach] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[InputForCoach] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
 
     =}

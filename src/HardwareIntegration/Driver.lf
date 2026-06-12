@@ -57,11 +57,14 @@ reactor Driver{
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
+        current_tag = lf.tag()
 
         print("----------------------------------------------------------")
         print(f"[DRIVER REACTION 1] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[DRIVER REACTION 1] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[DRIVER REACTION 1] LAG: {lag:.2f} ms", flush=True)
+        print(f"[DRIVER REACTION 1] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER REACTION 1] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
     =}
     reaction(sensorclock) -> head, eye, accelerator, brake, steer {=
@@ -82,11 +85,14 @@ reactor Driver{
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
+        current_tag = lf.tag()
 
         print("----------------------------------------------------------")
         print(f"[DRIVER] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[DRIVER] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[DRIVER] LAG: {lag:.2f} ms", flush=True)
+        print(f"[DRIVER] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
 
     =}
