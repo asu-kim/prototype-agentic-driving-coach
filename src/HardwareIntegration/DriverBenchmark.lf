@@ -6,4 +6,53 @@ import Driver from "Driver.lf"
 
 main reactor DriverBenchmark {
     driver = new Driver()
+
+    state sample_count = 0
+    state total_output_latency_ns = 0
+    state max_output_latency_ns = 0
+
+    reaction(startup) {=
+        print(
+            "[DRIVER BENCHMARK] Started: approximately 1000 Driver timer executions over 104 seconds.",
+            flush=True
+        )
+    =}
+
+    reaction(driver.steer, driver.accelerator, driver.brake, driver.head, driver.eye) {=
+        output_latency_ns = (
+            lf.time.physical_elapsed() - lf.time.logical_elapsed()
+        )
+        self.sample_count += 1
+        self.total_output_latency_ns += output_latency_ns
+        self.max_output_latency_ns = max(
+            self.max_output_latency_ns,
+            output_latency_ns
+        )
+    =}
+
+    reaction(shutdown) {=
+        average_output_latency_ns = (
+            self.total_output_latency_ns / self.sample_count
+            if self.sample_count
+            else 0
+        )
+        print("----------------------------------------------------------", flush=True)
+        print("[DRIVER BENCHMARK SUMMARY]", flush=True)
+        print(f"Samples: {self.sample_count}", flush=True)
+        print(
+            f"Average observable output latency: "
+            f"{average_output_latency_ns / 1e6:.6f} ms",
+            flush=True
+        )
+        print(
+            f"Maximum observable output latency: "
+            f"{self.max_output_latency_ns / 1e6:.6f} ms",
+            flush=True
+        )
+        print(
+            "[DRIVER BENCHMARK] Finished: the 104-second benchmark timeout was reached.",
+            flush=True
+        )
+        print("----------------------------------------------------------", flush=True)
+    =}
 }

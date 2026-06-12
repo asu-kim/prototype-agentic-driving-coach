@@ -16,8 +16,11 @@ import ActionPlanner from "ActionPlanner.lf"
 
 federated reactor at 10.218.100.78 {
     d = new Driver()
+    @maxwait(100 msec)
     c = new Car()
+    // @maxwait(100 msec)
     en = new Environment()
+    // @maxwait(100 msec)
     adc = new InputForCoach()
     
     llm = new AgenticCoach()
