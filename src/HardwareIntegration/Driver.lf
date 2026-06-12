@@ -59,9 +59,9 @@ reactor Driver{
         lag = physical_dri - current_dri
 
         print("----------------------------------------------------------")
-        print(f"[DRIVER REACTION 1] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[DRIVER REACTION 1] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[DRIVER REACTION 1] LAG: {lag:.2f} ", flush=True)
+        print(f"[DRIVER REACTION 1] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[DRIVER REACTION 1] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[DRIVER REACTION 1] LAG: {lag:.2f} ms", flush=True)
         print("----------------------------------------------------------")
     =}
     reaction(sensorclock) -> head, eye, accelerator, brake, steer {=
@@ -84,9 +84,9 @@ reactor Driver{
         lag = physical_dri - current_dri
 
         print("----------------------------------------------------------")
-        print(f"[DRIVER] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[DRIVER] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[DRIVER] LAG: {lag:.2f} ", flush=True)
+        print(f"[DRIVER] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[DRIVER] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[DRIVER] LAG: {lag:.2f} ms", flush=True)
         print("----------------------------------------------------------")
 
     =}

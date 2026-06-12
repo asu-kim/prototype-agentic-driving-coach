@@ -199,22 +199,75 @@
     <geom name="edge_line_L" type="box" pos="15 -0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
     <geom name="edge_line_R" type="box" pos="15  0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
     
+    <!--
+      environment.csv route mapping (1 MuJoCo meter = 100 real meters):
+        x=0.0..12.8   HIGHWAY
+        x=12.8..16.0  LANE_CHANGE
+        x=16.0..21.0  EXIT / approach to STOP_SIGN
+        x=21.0        STOP_SIGN / YIELD intersection
+        x=21.0..23.0  MOVE
+
+      The XML provides the static road context. Simulation logic will later move/show
+      the traffic bodies from the current environment.csv row.
+    -->
+
+    <!-- Phase-boundary road markers. -->
+    <site name="lane_change_zone_start" type="box" pos="12.8 0 0.004"
+          size="0.025 0.375 0.002" rgba="0.2 0.6 1 0.8"/>
+    <site name="exit_zone_start" type="box" pos="16.0 0 0.004"
+          size="0.035 0.375 0.002" rgba="1 0.55 0 0.9"/>
+    <site name="stop_line" type="box" pos="20.8 0 0.005"
+          size="0.035 0.375 0.003" rgba="1 1 1 1"/>
+
+    <!-- Crossroad used by the STOP_SIGN and YIELD rows. -->
+    <geom name="intersection_asphalt" type="box" pos="21.0 0 -0.002"
+          size="0.45 2.0 0.01" rgba="0.2 0.2 0.2 1" contype="0" conaffinity="0"/>
+    <geom name="crossroad_edge_before" type="box" pos="20.55 0 0.002"
+          size="0.01 2.0 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="crossroad_edge_after" type="box" pos="21.45 0 0.002"
+          size="0.01 2.0 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+
+    <!-- Representative right-lane vehicle from LANE_CHANGE rows 641-760. -->
+    <body name="csv_right_lane_car" pos="13.15 -0.25 0.045">
+      <geom name="csv_right_lane_car_body" type="box" size="0.09 0.045 0.025"
+            rgba="0.85 0.15 0.15 1" contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_cabin" type="box" pos="-0.01 0 0.035"
+            size="0.045 0.037 0.02" rgba="0.55 0.1 0.1 1"
+            contype="0" conaffinity="0"/>
+    </body>
+
+    <!-- Representative cross traffic from YIELD rows 3215-3264. -->
+    <body name="csv_cross_left_car" pos="21.0 0.80 0.045" euler="0 0 -90">
+      <geom name="csv_cross_left_car_body" type="box" size="0.09 0.045 0.025"
+            rgba="0.15 0.35 0.9 1" contype="0" conaffinity="0"/>
+      <geom name="csv_cross_left_car_cabin" type="box" pos="-0.01 0 0.035"
+            size="0.045 0.037 0.02" rgba="0.1 0.2 0.6 1"
+            contype="0" conaffinity="0"/>
+    </body>
+    <body name="csv_cross_right_car" pos="21.0 -0.80 0.045" euler="0 0 90">
+      <geom name="csv_cross_right_car_body" type="box" size="0.09 0.045 0.025"
+            rgba="0.8 0.7 0.1 1" contype="0" conaffinity="0"/>
+      <geom name="csv_cross_right_car_cabin" type="box" pos="-0.01 0 0.035"
+            size="0.045 0.037 0.02" rgba="0.55 0.45 0.05 1"
+            contype="0" conaffinity="0"/>
+    </body>
+
     <!-- Goal line and visual arch at 23.0m (scaled proportionally to the narrowed width) -->
     <site name="goal_site" pos="23.0 0 0.005" size="0.2 0.375 0.005" type="box" rgba="0 1 0 0.8"/>
     <geom name="goal_pole_L" type="cylinder" pos="23.0 -0.375 0.4" size="0.02 0.4" rgba="1 0.2 0.2 1"/>
     <geom name="goal_pole_R" type="cylinder" pos="23.0  0.375 0.4" size="0.02 0.4" rgba="1 0.2 0.2 1"/>
     <geom name="goal_top" type="box" pos="23.0 0 0.82" size="0.02 0.375 0.02" rgba="1 0.2 0.2 1"/>
 
-    <!-- === Speed Limit Sign (x=21.5m, 1.5m before goal, right side of road y=0.62) ===
+    <!-- === Stop Sign mapped to the STOP_SIGN phase at x=21.0m ===
          The sign faces the approaching driver (visible on ±X faces of the thin box). -->
     <!-- Metal post -->
     <geom name="sign_post" type="cylinder"
-          pos="21.5 0.62 0.40" size="0.022 0.40"
+          pos="20.75 -0.62 0.40" size="0.022 0.40"
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
     <!-- Sign board: thin in X (0.025m), wide in Y (0.36m total), tall in Z (0.48m total)
          texture mapped on the large ±X faces via YZ coordinates -->
     <geom name="sign_board" type="box"
-          pos="21.5 0.62 0.73" size="0.24 0.18 0.025"
+          pos="20.75 -0.62 0.73" size="0.24 0.18 0.025"
           euler="0 -90 0"
           material="speed_limit_mat"
           contype="0" conaffinity="0"/>

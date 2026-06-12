@@ -106,9 +106,9 @@ reactor Environment{
 
         print(f"[ENV CLOCK] displacement={current_displacement}", flush=True)
         print("----------------------------------------------------------")
-        print(f"[ENVIRONMENT] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[ENVIRONMENT] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[ENVIRONMENT] LAG: {lag:.2f} ", flush=True)
+        print(f"[ENVIRONMENT] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[ENVIRONMENT] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[ENVIRONMENT] LAG: {lag:.2f} ms", flush=True)
         print("----------------------------------------------------------")
     =}
  

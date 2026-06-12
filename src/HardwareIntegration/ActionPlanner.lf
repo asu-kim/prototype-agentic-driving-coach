@@ -220,9 +220,9 @@ reactor ActionPlanner {
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
                     print("----------------------------------------------------------")
-                    print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ", flush=True)
-                    print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
-                    print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
+                    print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "ACTUATE", token_keyword)
                     actuate.set()
@@ -237,9 +237,9 @@ reactor ActionPlanner {
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
                     print("----------------------------------------------------------")
-                    print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ", flush=True)
-                    print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
-                    print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
+                    print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "WARNING", token_keyword)
                     warning.set()
@@ -255,9 +255,9 @@ reactor ActionPlanner {
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
                 print("----------------------------------------------------------")
-                print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ", flush=True)
-                print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ", flush=True)
-                print(f"[PLANNER monitor] LAG: {lag:.2f} ", flush=True)
+                print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
+                print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
+                print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6
@@ -314,9 +314,9 @@ reactor ActionPlanner {
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
                     print("----------------------------------------------------------")
-                    print(f"[PLANNER WARNING ] Logical time: {current_dri:.2f} ", flush=True)
-                    print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
-                    print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
+                    print(f"[PLANNER WARNING ] Logical time: {current_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "ACTUATE", token_keyword)
                     actuate.set()
@@ -327,9 +327,9 @@ reactor ActionPlanner {
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
                     print("----------------------------------------------------------")
-                    print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ", flush=True)
-                    print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
-                    print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
+                    print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "MONITORING", token_keyword)
                     monitoring.set()
@@ -341,9 +341,9 @@ reactor ActionPlanner {
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
                 print("----------------------------------------------------------")
-                print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ", flush=True)
-                print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ", flush=True)
-                print(f"[PLANNER WARNING] LAG: {lag:.2f} ", flush=True)
+                print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
+                print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
+                print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6
@@ -401,9 +401,9 @@ reactor ActionPlanner {
                     physical_dri = lf.time.physical_elapsed()/1e6
                     lag = physical_dri - current_dri
                     print("----------------------------------------------------------")
-                    print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ", flush=True)
-                    print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ", flush=True)
-                    print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ", flush=True)
+                    print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
+                    print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
                     print("----------------------------------------------------------")
                     return
 
@@ -425,9 +425,9 @@ reactor ActionPlanner {
                 physical_dri = lf.time.physical_elapsed()/1e6
                 lag = physical_dri - current_dri
                 print("----------------------------------------------------------")
-                print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ", flush=True)
-                print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ", flush=True)
-                print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ", flush=True)
+                print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
+                print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
+                print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
                 logical_ms = lf.time.logical_elapsed()/1e6

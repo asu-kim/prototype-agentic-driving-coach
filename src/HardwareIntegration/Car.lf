@@ -85,7 +85,18 @@ reactor Car {
     =}
 
     reaction(accel_in, brake_in, steer_in, actuate_in) -> velocity, steer {=
-        print(f"[CAR] Logical time: {lf.time.logical_elapsed()/1e6:.2f}", flush=True)
+        current_car = lf.time.logical_elapsed()/1e6
+        physical_car = lf.time.physical_elapsed()/1e6
+        lag = physical_car - current_car
+        current_tag = lf.tag()
+
+        print("----------------------------------------------------------")
+        print(f"[CAR] Logical time: {current_car:.2f} ms", flush=True)
+        print(f"[CAR] Physical time: {physical_car:.2f} ms", flush=True)
+        print(f"[CAR] LAG: {lag:.2f} ms", flush=True)
+        print(f"[CAR] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[CAR] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
         velocity_kmh, steer_value = self.update_car(
             accel_in.value if accel_in.is_present else None,
             brake_in.value if brake_in.is_present else None,
@@ -98,7 +109,18 @@ reactor Car {
         rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
         rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
     =} tardy {=
-        print(f"[CAR TARDY] Logical time: {lf.time.logical_elapsed()/1e6:.2f}", flush=True)
+        current_car = lf.time.logical_elapsed()/1e6
+        physical_car = lf.time.physical_elapsed()/1e6
+        lag = physical_car - current_car
+        current_tag = lf.tag()
+
+        print("----------------------------------------------------------")
+        print(f"[CAR TARDY] Logical time: {current_car:.2f} ms", flush=True)
+        print(f"[CAR TARDY] Physical time: {physical_car:.2f} ms", flush=True)
+        print(f"[CAR TARDY] LAG: {lag:.2f} ms", flush=True)
+        print(f"[CAR TARDY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[CAR TARDY] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
         velocity_kmh, steer_value = self.update_car(
             accel_in.value if accel_in.is_present else None,
             brake_in.value if brake_in.is_present else None,

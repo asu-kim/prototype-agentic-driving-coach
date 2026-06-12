@@ -74,7 +74,6 @@ reactor InputForCoach{
              self.en_states_val = en_states.value
          self.head_history = self.head_history[-self.max_history:]
          self.eye_history = self.eye_history[-self.max_history:]
-        #  print(f"v: {self.v_val}, s: {self.s_val}, st: {self.st_val}")
      =} tardy
 
     
@@ -99,9 +98,9 @@ reactor InputForCoach{
 
         
         print("----------------------------------------------------------")
-        print(f"[InputForCoach] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[InputForCoach] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[InputForCoach] LAG: {lag:.2f} ", flush=True)
+        print(f"[InputForCoach] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[InputForCoach] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[InputForCoach] LAG: {lag:.2f} ms", flush=True)
         print("----------------------------------------------------------")
 
     =}

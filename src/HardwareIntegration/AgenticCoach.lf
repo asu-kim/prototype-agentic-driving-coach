@@ -158,9 +158,9 @@ reactor AgenticCoach {
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
         print("----------------------------------------------------------")
-        print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ", flush=True)
-        print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ", flush=True)
-        print(f"[LLM INFERENCE] LAG: {lag:.2f} ", flush=True)
+        print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] LAG: {lag:.2f} ms", flush=True)
         print("----------------------------------------------------------")
 
         tok = (tok_raw or "NONE").strip().upper()

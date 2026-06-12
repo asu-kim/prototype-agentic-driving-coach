@@ -10,26 +10,34 @@ reactor Simulation {
     input velocity_in
     input rem_dist
 
+    state velocity_kmh = 0.0
+    state steer_value = 1
+    state remaining_distance_m = 0.0
+
     m = new MuJoCoCarAuto()
 
     reaction(steer_in, velocity_in, rem_dist) -> m.forward, m.turn, m.rd {=
-        vel = velocity_in.value if velocity_in.is_present else 0.0
-        st  = steer_in.value if steer_in.is_present else 1
-        print(f"The value of rd into simulation : {rem_dist.value}")
-        rem_dis = rem_dist.value if rem_dist.is_present else 0.0
+        if velocity_in.is_present:
+            self.velocity_kmh = float(velocity_in.value)
+        if steer_in.is_present:
+            self.steer_value = steer_in.value
+        if rem_dist.is_present:
+            self.remaining_distance_m = float(rem_dist.value)
+            print(f"The value of rd into simulation : {self.remaining_distance_m}")
 
-        forward_cmd = vel    
+        # MuJoCo's forward motor accepts a normalized command in [-1, 1].
+        forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 35.0))
  
-        if st == 2:
+        if self.steer_value == 2:
             turn_cmd = -0.05
-        elif st == 0:
+        elif self.steer_value == 0:
             turn_cmd = 0.05
         else:
             turn_cmd = 0.0
 
         m.forward.set(forward_cmd)
         m.turn.set(turn_cmd)
-        m.rd.set(rem_dis)
+        m.rd.set(self.remaining_distance_m)
     =}
 
     reaction(m.key) -> m.cam_toggle {=
