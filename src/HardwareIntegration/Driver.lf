@@ -88,6 +88,16 @@ reactor Driver{
         current_tag = lf.tag()
 
         print("----------------------------------------------------------")
+        print(
+            f"[DRIVER SEND] "
+            f"accel={self.accel_val}, "
+            f"brake={self.brake_val}, "
+            f"steer={self.steer_val}, "
+            f"head={self.head_val}, "
+            f"eye={self.eye_val}",
+            flush=True
+        )
+
         print(f"[DRIVER] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[DRIVER] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[DRIVER] LAG: {lag:.2f} ms", flush=True)

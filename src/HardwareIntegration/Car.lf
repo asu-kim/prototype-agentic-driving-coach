@@ -91,6 +91,15 @@ reactor Car {
         current_tag = lf.tag()
 
         print("----------------------------------------------------------")
+        # print(f"[CAR] INPUT: accel: {accel_in.value} brake: {brake_in.value} steer_in: {steer_in.value} actuate: {actuate_in.value}")
+        print(
+            f"[CAR PRESENT] "
+            f"accel={accel_in.is_present}, "
+            f"brake={brake_in.is_present}, "
+            f"steer={steer_in.is_present}, "
+            f"actuate={actuate_in.is_present}",
+            flush=True
+        )
         print(f"[CAR] Logical time: {current_car:.2f} ms", flush=True)
         print(f"[CAR] Physical time: {physical_car:.2f} ms", flush=True)
         print(f"[CAR] LAG: {lag:.2f} ms", flush=True)
@@ -122,7 +131,15 @@ reactor Car {
             actuate_in.value if actuate_in.is_present else None
         )
         print("----------------------------------------------------------")
-        print(f"[CAR TARDY] INPUT: accel: {accel_in.value} brake: {brake_in.value} steer_in: {steer_in.value} actuate: {actuate_in.value}")
+        # print(f"[CAR TARDY] INPUT: accel: {accel_in.value} brake: {brake_in.value} steer_in: {steer_in.value} actuate: {actuate_in.value}")
+        print(
+            f"[CAR PRESENT] "
+            f"accel={accel_in.is_present}, "
+            f"brake={brake_in.is_present}, "
+            f"steer={steer_in.is_present}, "
+            f"actuate={actuate_in.is_present}",
+            flush=True
+        )
         print(f"[CAR TARDY] Logical time: {current_car:.2f} ms", flush=True)
         print(f"[CAR TARDY] Physical time: {physical_car:.2f} ms", flush=True)
         print(f"[CAR TARDY] LAG: {lag:.2f} ms", flush=True)
