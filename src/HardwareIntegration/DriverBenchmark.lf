@@ -7,9 +7,12 @@ import Driver from "Driver.lf"
 main reactor DriverBenchmark {
     driver = new Driver()
 
-    state sample_count = 0
-    state total_output_latency_ns = 0
-    state max_output_latency_ns = 0
+    state control_sample_count = 0
+    state control_total_latency_ns = 0
+    state control_max_latency_ns = 0
+    state vision_sample_count = 0
+    state vision_total_latency_ns = 0
+    state vision_max_latency_ns = 0
 
     reaction(startup) {=
         print(
@@ -18,35 +21,65 @@ main reactor DriverBenchmark {
         )
     =}
 
-    reaction(driver.steer, driver.accelerator, driver.brake, driver.head, driver.eye) {=
-        output_latency_ns = (
+    reaction(driver.steer, driver.accelerator, driver.brake) {=
+        control_latency_ns = (
             lf.time.physical_elapsed() - lf.time.logical_elapsed()
         )
-        self.sample_count += 1
-        self.total_output_latency_ns += output_latency_ns
-        self.max_output_latency_ns = max(
-            self.max_output_latency_ns,
-            output_latency_ns
+        self.control_sample_count += 1
+        self.control_total_latency_ns += control_latency_ns
+        self.control_max_latency_ns = max(
+            self.control_max_latency_ns,
+            control_latency_ns
+        )
+    =}
+
+    reaction(driver.head, driver.eye) {=
+        vision_latency_ns = (
+            lf.time.physical_elapsed() - lf.time.logical_elapsed()
+        )
+        self.vision_sample_count += 1
+        self.vision_total_latency_ns += vision_latency_ns
+        self.vision_max_latency_ns = max(
+            self.vision_max_latency_ns,
+            vision_latency_ns
         )
     =}
 
     reaction(shutdown) {=
-        average_output_latency_ns = (
-            self.total_output_latency_ns / self.sample_count
-            if self.sample_count
+        control_average_latency_ns = (
+            self.control_total_latency_ns / self.control_sample_count
+            if self.control_sample_count
+            else 0
+        )
+        vision_average_latency_ns = (
+            self.vision_total_latency_ns / self.vision_sample_count
+            if self.vision_sample_count
             else 0
         )
         print("----------------------------------------------------------", flush=True)
         print("[DRIVER BENCHMARK SUMMARY]", flush=True)
-        print(f"Samples: {self.sample_count}", flush=True)
+        print("[STEER, ACCELERATOR, BRAKE]", flush=True)
+        print(f"Samples: {self.control_sample_count}", flush=True)
         print(
             f"Average observable output latency: "
-            f"{average_output_latency_ns / 1e6:.6f} ms",
+            f"{control_average_latency_ns / 1e6:.6f} ms",
             flush=True
         )
         print(
             f"Maximum observable output latency: "
-            f"{self.max_output_latency_ns / 1e6:.6f} ms",
+            f"{self.control_max_latency_ns / 1e6:.6f} ms",
+            flush=True
+        )
+        print("[HEAD, EYE]", flush=True)
+        print(f"Samples: {self.vision_sample_count}", flush=True)
+        print(
+            f"Average observable output latency: "
+            f"{vision_average_latency_ns / 1e6:.6f} ms",
+            flush=True
+        )
+        print(
+            f"Maximum observable output latency: "
+            f"{self.vision_max_latency_ns / 1e6:.6f} ms",
             flush=True
         )
         print(
