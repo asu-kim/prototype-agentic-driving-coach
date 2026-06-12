@@ -1,0 +1,9 @@
+target Python {
+    timeout: 104 sec
+}
+
+import Driver from "Driver.lf"
+
+main reactor DriverBenchmark {
+    driver = new Driver()
+}
