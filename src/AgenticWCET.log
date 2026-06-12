@@ -1,0 +1,1139 @@
+******* Using Python version: 3.12.3
+[AGENTIC COACH BENCHMARK] Started: approximately 1000 LLM samples at a 10-second period.
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 4000.00 ms
+[LLM INFERENCE] Physical time: 4199.93 ms
+[LLM INFERENCE] LAG: 199.93 ms
+[LLM INFERENCE] Tag time: 1781291820697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 199.23 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 4500.00 ms
+[LLM INFERENCE] Physical time: 4677.46 ms
+[LLM INFERENCE] LAG: 177.46 ms
+[LLM INFERENCE] Tag time: 1781291821197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.11 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 5000.00 ms
+[LLM INFERENCE] Physical time: 5181.17 ms
+[LLM INFERENCE] LAG: 181.17 ms
+[LLM INFERENCE] Tag time: 1781291821697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 180.83 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 5500.00 ms
+[LLM INFERENCE] Physical time: 5669.59 ms
+[LLM INFERENCE] LAG: 169.59 ms
+[LLM INFERENCE] Tag time: 1781291822197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 169.28 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 6000.00 ms
+[LLM INFERENCE] Physical time: 6228.76 ms
+[LLM INFERENCE] LAG: 228.76 ms
+[LLM INFERENCE] Tag time: 1781291822697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 228.42 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your current head and eye history indicate you are not looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 6500.00 ms
+[LLM INFERENCE] Physical time: 6728.84 ms
+[LLM INFERENCE] LAG: 228.84 ms
+[LLM INFERENCE] Tag time: 1781291823197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your current head and eye history indicate you are not looking in | 228.58 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 7000.00 ms
+[LLM INFERENCE] Physical time: 7229.79 ms
+[LLM INFERENCE] LAG: 229.79 ms
+[LLM INFERENCE] Tag time: 1781291823697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 229.50 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 7500.00 ms
+[LLM INFERENCE] Physical time: 7675.53 ms
+[LLM INFERENCE] LAG: 175.53 ms
+[LLM INFERENCE] Tag time: 1781291824197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 175.22 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 8000.00 ms
+[LLM INFERENCE] Physical time: 8182.26 ms
+[LLM INFERENCE] LAG: 182.26 ms
+[LLM INFERENCE] Tag time: 1781291824697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 181.94 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 8500.00 ms
+[LLM INFERENCE] Physical time: 8733.96 ms
+[LLM INFERENCE] LAG: 233.96 ms
+[LLM INFERENCE] Tag time: 1781291825197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 233.56 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 9000.00 ms
+[LLM INFERENCE] Physical time: 9186.14 ms
+[LLM INFERENCE] LAG: 186.14 ms
+[LLM INFERENCE] Tag time: 1781291825697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 185.83 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 9500.00 ms
+[LLM INFERENCE] Physical time: 9733.97 ms
+[LLM INFERENCE] LAG: 233.97 ms
+[LLM INFERENCE] Tag time: 1781291826197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 233.66 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 10000.00 ms
+[LLM INFERENCE] Physical time: 10181.92 ms
+[LLM INFERENCE] LAG: 181.92 ms
+[LLM INFERENCE] Tag time: 1781291826697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 181.61 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 10500.00 ms
+[LLM INFERENCE] Physical time: 10677.90 ms
+[LLM INFERENCE] LAG: 177.90 ms
+[LLM INFERENCE] Tag time: 1781291827197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.62 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 11000.00 ms
+[LLM INFERENCE] Physical time: 11231.64 ms
+[LLM INFERENCE] LAG: 231.64 ms
+[LLM INFERENCE] Tag time: 1781291827697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 231.26 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 11500.00 ms
+[LLM INFERENCE] Physical time: 11673.93 ms
+[LLM INFERENCE] LAG: 173.93 ms
+[LLM INFERENCE] Tag time: 1781291828197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 173.71 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 12000.00 ms
+[LLM INFERENCE] Physical time: 12169.11 ms
+[LLM INFERENCE] LAG: 169.11 ms
+[LLM INFERENCE] Tag time: 1781291828697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 168.86 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are currently looking at the center of the road.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 12500.00 ms
+[LLM INFERENCE] Physical time: 12701.94 ms
+[LLM INFERENCE] LAG: 201.94 ms
+[LLM INFERENCE] Tag time: 1781291829197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are currently looking at the center of the road. | 201.68 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 13000.00 ms
+[LLM INFERENCE] Physical time: 13225.87 ms
+[LLM INFERENCE] LAG: 225.87 ms
+[LLM INFERENCE] Tag time: 1781291829697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 225.59 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 13500.00 ms
+[LLM INFERENCE] Physical time: 13734.19 ms
+[LLM INFERENCE] LAG: 234.19 ms
+[LLM INFERENCE] Tag time: 1781291830197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 233.93 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 14000.00 ms
+[LLM INFERENCE] Physical time: 14180.35 ms
+[LLM INFERENCE] LAG: 180.35 ms
+[LLM INFERENCE] Tag time: 1781291830697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 180.09 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are currently looking forward.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 14500.00 ms
+[LLM INFERENCE] Physical time: 14728.11 ms
+[LLM INFERENCE] LAG: 228.11 ms
+[LLM INFERENCE] Tag time: 1781291831197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are currently looking forward. | 227.86 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 15000.00 ms
+[LLM INFERENCE] Physical time: 15177.59 ms
+[LLM INFERENCE] LAG: 177.59 ms
+[LLM INFERENCE] Tag time: 1781291831697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.30 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 15500.00 ms
+[LLM INFERENCE] Physical time: 15669.59 ms
+[LLM INFERENCE] LAG: 169.59 ms
+[LLM INFERENCE] Tag time: 1781291832197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 169.28 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 16000.00 ms
+[LLM INFERENCE] Physical time: 16233.97 ms
+[LLM INFERENCE] LAG: 233.97 ms
+[LLM INFERENCE] Tag time: 1781291832697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 233.64 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 16500.00 ms
+[LLM INFERENCE] Physical time: 16676.34 ms
+[LLM INFERENCE] LAG: 176.34 ms
+[LLM INFERENCE] Tag time: 1781291833197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 176.06 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 17000.00 ms
+[LLM INFERENCE] Physical time: 17175.52 ms
+[LLM INFERENCE] LAG: 175.52 ms
+[LLM INFERENCE] Tag time: 1781291833697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 175.24 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 17500.00 ms
+[LLM INFERENCE] Physical time: 17731.76 ms
+[LLM INFERENCE] LAG: 231.76 ms
+[LLM INFERENCE] Tag time: 1781291834197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 231.35 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 18000.00 ms
+[LLM INFERENCE] Physical time: 18180.55 ms
+[LLM INFERENCE] LAG: 180.55 ms
+[LLM INFERENCE] Tag time: 1781291834697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 180.26 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 18500.00 ms
+[LLM INFERENCE] Physical time: 18735.00 ms
+[LLM INFERENCE] LAG: 235.00 ms
+[LLM INFERENCE] Tag time: 1781291835197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 234.68 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 19000.00 ms
+[LLM INFERENCE] Physical time: 19178.70 ms
+[LLM INFERENCE] LAG: 178.70 ms
+[LLM INFERENCE] Tag time: 1781291835697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 178.33 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 19500.00 ms
+[LLM INFERENCE] Physical time: 19668.35 ms
+[LLM INFERENCE] LAG: 168.35 ms
+[LLM INFERENCE] Tag time: 1781291836197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 168.05 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head is currently centered and not looking in that direction.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 20000.00 ms
+[LLM INFERENCE] Physical time: 20238.40 ms
+[LLM INFERENCE] LAG: 238.40 ms
+[LLM INFERENCE] Tag time: 1781291836697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head is currently centered and not looking in that direction. | 238.01 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 20500.00 ms
+[LLM INFERENCE] Physical time: 20677.55 ms
+[LLM INFERENCE] LAG: 177.55 ms
+[LLM INFERENCE] Tag time: 1781291837197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.26 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 21000.00 ms
+[LLM INFERENCE] Physical time: 21172.68 ms
+[LLM INFERENCE] LAG: 172.68 ms
+[LLM INFERENCE] Tag time: 1781291837697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 172.40 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 21500.00 ms
+[LLM INFERENCE] Physical time: 21676.95 ms
+[LLM INFERENCE] LAG: 176.95 ms
+[LLM INFERENCE] Tag time: 1781291838197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 176.65 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are currently looking at the center of the road.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 22000.00 ms
+[LLM INFERENCE] Physical time: 22197.65 ms
+[LLM INFERENCE] LAG: 197.65 ms
+[LLM INFERENCE] Tag time: 1781291838697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are currently looking at the center of the road. | 197.37 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 22500.00 ms
+[LLM INFERENCE] Physical time: 22668.71 ms
+[LLM INFERENCE] LAG: 168.71 ms
+[LLM INFERENCE] Tag time: 1781291839197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 168.45 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 23000.00 ms
+[LLM INFERENCE] Physical time: 23172.56 ms
+[LLM INFERENCE] LAG: 172.56 ms
+[LLM INFERENCE] Tag time: 1781291839697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 172.26 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 23500.00 ms
+[LLM INFERENCE] Physical time: 23729.48 ms
+[LLM INFERENCE] LAG: 229.48 ms
+[LLM INFERENCE] Tag time: 1781291840197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 229.22 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 24000.00 ms
+[LLM INFERENCE] Physical time: 24239.80 ms
+[LLM INFERENCE] LAG: 239.80 ms
+[LLM INFERENCE] Tag time: 1781291840697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 239.54 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 24500.00 ms
+[LLM INFERENCE] Physical time: 24733.21 ms
+[LLM INFERENCE] LAG: 233.21 ms
+[LLM INFERENCE] Tag time: 1781291841197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 232.94 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 25000.00 ms
+[LLM INFERENCE] Physical time: 25230.77 ms
+[LLM INFERENCE] LAG: 230.77 ms
+[LLM INFERENCE] Tag time: 1781291841697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 230.49 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Please look to the right before changing lanes to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 25500.00 ms
+[LLM INFERENCE] Physical time: 25687.46 ms
+[LLM INFERENCE] LAG: 187.46 ms
+[LLM INFERENCE] Tag time: 1781291842197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Please look to the right before changing lanes to avoid any cars on the right lane. | 187.21 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Please look to the right before changing lanes to avoid any cars that may be present on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 26000.00 ms
+[LLM INFERENCE] Physical time: 26201.89 ms
+[LLM INFERENCE] LAG: 201.89 ms
+[LLM INFERENCE] Tag time: 1781291842697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Please look to the right before changing lanes to avoid any cars that may be present on the right lane. | 201.53 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 26500.00 ms
+[LLM INFERENCE] Physical time: 26728.10 ms
+[LLM INFERENCE] LAG: 228.10 ms
+[LLM INFERENCE] Tag time: 1781291843197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 227.84 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 27000.00 ms
+[LLM INFERENCE] Physical time: 27230.13 ms
+[LLM INFERENCE] LAG: 230.13 ms
+[LLM INFERENCE] Tag time: 1781291843697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 229.87 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 27500.00 ms
+[LLM INFERENCE] Physical time: 27688.06 ms
+[LLM INFERENCE] LAG: 188.06 ms
+[LLM INFERENCE] Tag time: 1781291844197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 187.81 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 28000.00 ms
+[LLM INFERENCE] Physical time: 28221.79 ms
+[LLM INFERENCE] LAG: 221.79 ms
+[LLM INFERENCE] Tag time: 1781291844697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 221.53 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 28500.00 ms
+[LLM INFERENCE] Physical time: 28730.46 ms
+[LLM INFERENCE] LAG: 230.46 ms
+[LLM INFERENCE] Tag time: 1781291845197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 230.15 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are approaching a lane change and there may be cars in the adjacent lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 29000.00 ms
+[LLM INFERENCE] Physical time: 29239.41 ms
+[LLM INFERENCE] LAG: 239.41 ms
+[LLM INFERENCE] Tag time: 1781291845697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are approaching a lane change and there may be cars in the adjacent lane. | 239.11 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 29500.00 ms
+[LLM INFERENCE] Physical time: 29675.98 ms
+[LLM INFERENCE] LAG: 175.98 ms
+[LLM INFERENCE] Tag time: 1781291846197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 175.69 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 30000.00 ms
+[LLM INFERENCE] Physical time: 30234.32 ms
+[LLM INFERENCE] LAG: 234.32 ms
+[LLM INFERENCE] Tag time: 1781291846697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 233.96 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 30500.00 ms
+[LLM INFERENCE] Physical time: 30677.65 ms
+[LLM INFERENCE] LAG: 177.65 ms
+[LLM INFERENCE] Tag time: 1781291847197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.45 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 31000.00 ms
+[LLM INFERENCE] Physical time: 31172.50 ms
+[LLM INFERENCE] LAG: 172.50 ms
+[LLM INFERENCE] Tag time: 1781291847697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 172.15 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 31500.00 ms
+[LLM INFERENCE] Physical time: 31685.10 ms
+[LLM INFERENCE] LAG: 185.10 ms
+[LLM INFERENCE] Tag time: 1781291848197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 184.80 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 32000.00 ms
+[LLM INFERENCE] Physical time: 32174.38 ms
+[LLM INFERENCE] LAG: 174.38 ms
+[LLM INFERENCE] Tag time: 1781291848697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 174.05 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 32500.00 ms
+[LLM INFERENCE] Physical time: 32729.10 ms
+[LLM INFERENCE] LAG: 229.10 ms
+[LLM INFERENCE] Tag time: 1781291849197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 228.76 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are currently looking at the center of the road.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 33000.00 ms
+[LLM INFERENCE] Physical time: 33197.28 ms
+[LLM INFERENCE] LAG: 197.28 ms
+[LLM INFERENCE] Tag time: 1781291849697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are currently looking at the center of the road. | 197.01 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are currently looking forward.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 33500.00 ms
+[LLM INFERENCE] Physical time: 33729.75 ms
+[LLM INFERENCE] LAG: 229.75 ms
+[LLM INFERENCE] Tag time: 1781291850197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are currently looking forward. | 229.43 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 34000.00 ms
+[LLM INFERENCE] Physical time: 34189.28 ms
+[LLM INFERENCE] LAG: 189.28 ms
+[LLM INFERENCE] Tag time: 1781291850697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 188.97 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 34500.00 ms
+[LLM INFERENCE] Physical time: 34674.33 ms
+[LLM INFERENCE] LAG: 174.33 ms
+[LLM INFERENCE] Tag time: 1781291851197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 173.95 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 35000.00 ms
+[LLM INFERENCE] Physical time: 35231.77 ms
+[LLM INFERENCE] LAG: 231.77 ms
+[LLM INFERENCE] Tag time: 1781291851697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 231.47 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 35500.00 ms
+[LLM INFERENCE] Physical time: 35675.80 ms
+[LLM INFERENCE] LAG: 175.80 ms
+[LLM INFERENCE] Tag time: 1781291852197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 175.55 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 36000.00 ms
+[LLM INFERENCE] Physical time: 36184.69 ms
+[LLM INFERENCE] LAG: 184.69 ms
+[LLM INFERENCE] Tag time: 1781291852697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 184.44 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 36500.00 ms
+[LLM INFERENCE] Physical time: 36687.59 ms
+[LLM INFERENCE] LAG: 187.59 ms
+[LLM INFERENCE] Tag time: 1781291853197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 187.31 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 37000.00 ms
+[LLM INFERENCE] Physical time: 37174.06 ms
+[LLM INFERENCE] LAG: 174.06 ms
+[LLM INFERENCE] Tag time: 1781291853697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 173.76 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 37500.00 ms
+[LLM INFERENCE] Physical time: 37678.48 ms
+[LLM INFERENCE] LAG: 178.48 ms
+[LLM INFERENCE] Tag time: 1781291854197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 178.18 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 38000.00 ms
+[LLM INFERENCE] Physical time: 38177.98 ms
+[LLM INFERENCE] LAG: 177.98 ms
+[LLM INFERENCE] Tag time: 1781291854697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.48 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 38500.00 ms
+[LLM INFERENCE] Physical time: 38732.74 ms
+[LLM INFERENCE] LAG: 232.74 ms
+[LLM INFERENCE] Tag time: 1781291855197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 232.41 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you're not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 39000.00 ms
+[LLM INFERENCE] Physical time: 39248.65 ms
+[LLM INFERENCE] LAG: 248.65 ms
+[LLM INFERENCE] Tag time: 1781291855697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you're not currently looking in | 248.30 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 39500.00 ms
+[LLM INFERENCE] Physical time: 39730.85 ms
+[LLM INFERENCE] LAG: 230.85 ms
+[LLM INFERENCE] Tag time: 1781291856197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 230.55 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are about to make a lane change from left to right.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 40000.00 ms
+[LLM INFERENCE] Physical time: 40221.06 ms
+[LLM INFERENCE] LAG: 221.06 ms
+[LLM INFERENCE] Tag time: 1781291856697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are about to make a lane change from left to right. | 220.72 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 40500.00 ms
+[LLM INFERENCE] Physical time: 40684.62 ms
+[LLM INFERENCE] LAG: 184.62 ms
+[LLM INFERENCE] Tag time: 1781291857197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 184.29 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 41000.00 ms
+[LLM INFERENCE] Physical time: 41177.13 ms
+[LLM INFERENCE] LAG: 177.13 ms
+[LLM INFERENCE] Tag time: 1781291857697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 176.75 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 41500.00 ms
+[LLM INFERENCE] Physical time: 41683.84 ms
+[LLM INFERENCE] LAG: 183.84 ms
+[LLM INFERENCE] Tag time: 1781291858197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 183.54 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 42000.00 ms
+[LLM INFERENCE] Physical time: 42185.97 ms
+[LLM INFERENCE] LAG: 185.97 ms
+[LLM INFERENCE] Tag time: 1781291858697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 185.67 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 42500.00 ms
+[LLM INFERENCE] Physical time: 42678.97 ms
+[LLM INFERENCE] LAG: 178.97 ms
+[LLM INFERENCE] Tag time: 1781291859197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 178.67 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 43000.00 ms
+[LLM INFERENCE] Physical time: 43176.22 ms
+[LLM INFERENCE] LAG: 176.22 ms
+[LLM INFERENCE] Tag time: 1781291859697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 175.89 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 43500.00 ms
+[LLM INFERENCE] Physical time: 43683.92 ms
+[LLM INFERENCE] LAG: 183.92 ms
+[LLM INFERENCE] Tag time: 1781291860197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 183.57 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 44000.00 ms
+[LLM INFERENCE] Physical time: 44238.83 ms
+[LLM INFERENCE] LAG: 238.83 ms
+[LLM INFERENCE] Tag time: 1781291860697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 238.54 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 44500.00 ms
+[LLM INFERENCE] Physical time: 44673.96 ms
+[LLM INFERENCE] LAG: 173.96 ms
+[LLM INFERENCE] Tag time: 1781291861197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 173.66 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 45000.00 ms
+[LLM INFERENCE] Physical time: 45237.61 ms
+[LLM INFERENCE] LAG: 237.61 ms
+[LLM INFERENCE] Tag time: 1781291861697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 237.32 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 45500.00 ms
+[LLM INFERENCE] Physical time: 45675.55 ms
+[LLM INFERENCE] LAG: 175.55 ms
+[LLM INFERENCE] Tag time: 1781291862197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 175.19 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 46000.00 ms
+[LLM INFERENCE] Physical time: 46230.84 ms
+[LLM INFERENCE] LAG: 230.84 ms
+[LLM INFERENCE] Tag time: 1781291862697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 230.59 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 46500.00 ms
+[LLM INFERENCE] Physical time: 46677.29 ms
+[LLM INFERENCE] LAG: 177.29 ms
+[LLM INFERENCE] Tag time: 1781291863197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.03 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 47000.00 ms
+[LLM INFERENCE] Physical time: 47225.72 ms
+[LLM INFERENCE] LAG: 225.72 ms
+[LLM INFERENCE] Tag time: 1781291863697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 225.45 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 47500.00 ms
+[LLM INFERENCE] Physical time: 47668.22 ms
+[LLM INFERENCE] LAG: 168.22 ms
+[LLM INFERENCE] Tag time: 1781291864197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 167.95 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 48000.00 ms
+[LLM INFERENCE] Physical time: 48181.21 ms
+[LLM INFERENCE] LAG: 181.21 ms
+[LLM INFERENCE] Tag time: 1781291864697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 180.95 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 48500.00 ms
+[LLM INFERENCE] Physical time: 48677.31 ms
+[LLM INFERENCE] LAG: 177.31 ms
+[LLM INFERENCE] Tag time: 1781291865197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.06 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 49000.00 ms
+[LLM INFERENCE] Physical time: 49241.59 ms
+[LLM INFERENCE] LAG: 241.59 ms
+[LLM INFERENCE] Tag time: 1781291865697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 241.34 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 49500.00 ms
+[LLM INFERENCE] Physical time: 49673.02 ms
+[LLM INFERENCE] LAG: 173.02 ms
+[LLM INFERENCE] Tag time: 1781291866197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 172.78 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 50000.00 ms
+[LLM INFERENCE] Physical time: 50232.66 ms
+[LLM INFERENCE] LAG: 232.66 ms
+[LLM INFERENCE] Tag time: 1781291866697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 232.37 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 50500.00 ms
+[LLM INFERENCE] Physical time: 50677.27 ms
+[LLM INFERENCE] LAG: 177.27 ms
+[LLM INFERENCE] Tag time: 1781291867197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 177.04 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 51000.00 ms
+[LLM INFERENCE] Physical time: 51231.73 ms
+[LLM INFERENCE] LAG: 231.73 ms
+[LLM INFERENCE] Tag time: 1781291867697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 231.46 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 51500.00 ms
+[LLM INFERENCE] Physical time: 51666.01 ms
+[LLM INFERENCE] LAG: 166.01 ms
+[LLM INFERENCE] Tag time: 1781291868197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 165.74 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 52000.00 ms
+[LLM INFERENCE] Physical time: 52174.57 ms
+[LLM INFERENCE] LAG: 174.57 ms
+[LLM INFERENCE] Tag time: 1781291868697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 174.27 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 52500.00 ms
+[LLM INFERENCE] Physical time: 52677.05 ms
+[LLM INFERENCE] LAG: 177.05 ms
+[LLM INFERENCE] Tag time: 1781291869197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 176.66 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 53000.00 ms
+[LLM INFERENCE] Physical time: 53230.52 ms
+[LLM INFERENCE] LAG: 230.52 ms
+[LLM INFERENCE] Tag time: 1781291869697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 230.24 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 53500.00 ms
+[LLM INFERENCE] Physical time: 53666.89 ms
+[LLM INFERENCE] LAG: 166.89 ms
+[LLM INFERENCE] Tag time: 1781291870197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 166.64 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 54000.00 ms
+[LLM INFERENCE] Physical time: 54177.82 ms
+[LLM INFERENCE] LAG: 177.82 ms
+[LLM INFERENCE] Tag time: 1781291870697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 177.59 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 54500.00 ms
+[LLM INFERENCE] Physical time: 54677.15 ms
+[LLM INFERENCE] LAG: 177.15 ms
+[LLM INFERENCE] Tag time: 1781291871197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 176.89 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 55000.00 ms
+[LLM INFERENCE] Physical time: 55179.59 ms
+[LLM INFERENCE] LAG: 179.59 ms
+[LLM INFERENCE] Tag time: 1781291871697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing lane to avoid any cars on the right lane. | 179.33 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 55500.00 ms
+[LLM INFERENCE] Physical time: 55671.79 ms
+[LLM INFERENCE] LAG: 171.79 ms
+[LLM INFERENCE] Tag time: 1781291872197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 171.53 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 56000.00 ms
+[LLM INFERENCE] Physical time: 56178.45 ms
+[LLM INFERENCE] LAG: 178.45 ms
+[LLM INFERENCE] Tag time: 1781291872697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 178.04 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 56500.00 ms
+[LLM INFERENCE] Physical time: 56731.70 ms
+[LLM INFERENCE] LAG: 231.70 ms
+[LLM INFERENCE] Tag time: 1781291873197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 231.40 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 57000.00 ms
+[LLM INFERENCE] Physical time: 57235.29 ms
+[LLM INFERENCE] LAG: 235.29 ms
+[LLM INFERENCE] Tag time: 1781291873697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 234.97 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 57500.00 ms
+[LLM INFERENCE] Physical time: 57673.78 ms
+[LLM INFERENCE] LAG: 173.78 ms
+[LLM INFERENCE] Tag time: 1781291874197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 173.46 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look to the right before changing lanes, as you are currently looking at the center of the road.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 58000.00 ms
+[LLM INFERENCE] Physical time: 58196.25 ms
+[LLM INFERENCE] LAG: 196.25 ms
+[LLM INFERENCE] Tag time: 1781291874697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look to the right before changing lanes, as you are currently looking at the center of the road. | 195.97 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 58500.00 ms
+[LLM INFERENCE] Physical time: 58730.06 ms
+[LLM INFERENCE] LAG: 230.06 ms
+[LLM INFERENCE] Tag time: 1781291875197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 229.78 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 59000.00 ms
+[LLM INFERENCE] Physical time: 59243.20 ms
+[LLM INFERENCE] LAG: 243.20 ms
+[LLM INFERENCE] Tag time: 1781291875697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane, as your head and eye history indicate you are not currently looking in | 242.96 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 59500.00 ms
+[LLM INFERENCE] Physical time: 59676.60 ms
+[LLM INFERENCE] LAG: 176.60 ms
+[LLM INFERENCE] Tag time: 1781291876197392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 176.31 ms
+----------------------------------------------------------
+[LLM RAW] WARNING|Look right before changing the lane to avoid any cars on the right lane.
+----------------------------------------------------------
+LLM inputs: {'distance_to_target_m': 1600.0, 'velocity_kmh': 88.0, 'steering': 1, 'head_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'eye_history': ['CENTER', 'CENTER', 'RIGHT', 'CENTER'], 'environment': {'road_phase': 'LANE_CHANGE', 'front_car_present': False, 'front_car_distance_m': 100.0, 'front_car_velocity_kmh': 88.0, 'right_car_present': False, 'right_car_position': 'NONE', 'right_car_distance_m': 100.0, 'right_car_velocity_kmh': 88.0, 'cross_left_car_present': False, 'cross_right_car_present': False}}
+[LLM INFERENCE] Logical time: 60000.00 ms
+[LLM INFERENCE] Physical time: 60180.68 ms
+[LLM INFERENCE] LAG: 180.68 ms
+[LLM INFERENCE] Tag time: 1781291876697392621 ns
+[LLM INFERENCE] Microstep: 0
+[LLM RESULT] WARNING | Look right before changing the lane to avoid any cars on the right lane. | 180.38 ms
+----------------------------------------------------------
+----------------------------------------------------------
+[AGENTIC COACH BENCHMARK SUMMARY]
+Samples: 113
+Average observable output latency: 199.164817 ms
+Maximum observable output latency: 248.829674 ms
+[AGENTIC COACH BENCHMARK] Finished.
+----------------------------------------------------------

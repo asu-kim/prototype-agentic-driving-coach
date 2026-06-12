@@ -22,7 +22,7 @@ reactor DeviceReader {
   output brake
   output frame
   physical action sensor
-  timer cam_timer(4 sec, 200 msec)
+  timer cam_timer(4 sec, 100 msec)
   state cap
   state cam_ready = False
 
