@@ -37,10 +37,10 @@ reactor ActionPlanner {
 
         def log_mode_transition(self, from_mode, to_mode, reason):
             logical_ms = lf.time.logical_elapsed() / 1_000_000
-            rr.set_time("logical_time_ms", sequence=int(logical_ms))
-            rr.log("planner/mode", rr.TextLog(to_mode))
-            rr.log("planner/mode_id", rr.Scalars(_MODE_IDS[to_mode]))
-            rr.log("planner/mode_transitions", rr.TextLog(f"{from_mode} -> {to_mode}: {reason}"))
+            # rr.set_time("logical_time_ms", sequence=int(logical_ms))
+            # rr.log("planner/mode", rr.TextLog(to_mode))
+            # rr.log("planner/mode_id", rr.Scalars(_MODE_IDS[to_mode]))
+            # rr.log("planner/mode_transitions", rr.TextLog(f"{from_mode} -> {to_mode}: {reason}"))
             print(f"[PLANNER MODE] {from_mode} -> {to_mode}: {reason}", flush=True)
 
         def adaptive_cruise_control(
@@ -178,18 +178,18 @@ reactor ActionPlanner {
     =}
 
     reaction(startup) {=
-        rr.init(
-            "hardware_integrated_adc",
-            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        )
-        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        print("[RERUN] Planner viewer initialized.", flush=True)
+        # rr.init(
+            # "hardware_integrated_adc",
+            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        # )
+        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
+        # print("[RERUN] Planner viewer initialized.", flush=True)
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("planner/mode", rr.TextLog("MONITORING"))
-        rr.log("planner/mode_id", rr.Scalars(_MODE_IDS["MONITORING"]))
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("planner/mode", rr.TextLog("MONITORING"))
+        # rr.log("planner/mode_id", rr.Scalars(_MODE_IDS["MONITORING"]))
         print("[PLANNER MODE] Initial mode: MONITORING", flush=True)
     =}
 
@@ -435,9 +435,9 @@ reactor ActionPlanner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                rr.log("planner/actuator_command", rr.TextLog(speed_command))
+                # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+                # rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
+                # rr.log("planner/actuator_command", rr.TextLog(speed_command))
 
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -483,9 +483,9 @@ reactor ActionPlanner {
                 road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                rr.log("planner/actuator_command", rr.TextLog(speed_command))
+                # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+                # rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
+                # rr.log("planner/actuator_command", rr.TextLog(speed_command))
             =}
     } 
 }

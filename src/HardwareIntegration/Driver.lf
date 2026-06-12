@@ -27,12 +27,12 @@ reactor Driver{
     timer sensorclock(4 sec, 100 msec)
 
     reaction(startup) {=
-        rr.init(
-            "hardware_integrated_adc",
-            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        )
-        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        print("[RERUN] Driver viewer initialized.", flush=True)
+        # rr.init(
+            # "hardware_integrated_adc",
+            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        # )
+        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
+        # print("[RERUN] Driver viewer initialized.", flush=True)
     =}
 
     sen = new SensorInputs()
@@ -75,12 +75,12 @@ reactor Driver{
         head.set(self.head_val)
         eye.set(self.eye_val)
 
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("driver/accelerator", rr.Scalars(float(self.accel_val)))
-        rr.log("driver/brake", rr.Scalars(float(self.brake_val)))
-        rr.log("driver/steer", rr.Scalars(float(self.steer_val)))
-        rr.log("driver/head", rr.Scalars(float(self.head_val)))
-        rr.log("driver/eye", rr.Scalars(float(self.eye_val)))
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("driver/accelerator", rr.Scalars(float(self.accel_val)))
+        # rr.log("driver/brake", rr.Scalars(float(self.brake_val)))
+        # rr.log("driver/steer", rr.Scalars(float(self.steer_val)))
+        # rr.log("driver/head", rr.Scalars(float(self.head_val)))
+        # rr.log("driver/eye", rr.Scalars(float(self.eye_val)))
 
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6

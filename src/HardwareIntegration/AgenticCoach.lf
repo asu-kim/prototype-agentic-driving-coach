@@ -13,22 +13,23 @@ preamble{=
 reactor AgenticCoach {
     input s
     input v
-    input st 
+    input st
     input h
     input e
     input en_states
+    input coach_inp
 
     // output ready
     output control
     output instruction
 
     reaction(startup) {=
-        rr.init(
-            "hardware_integrated_adc",
-            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        )
-        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        print("[RERUN] LLM viewer initialized.", flush=True)
+        # rr.init(
+            # "hardware_integrated_adc",
+            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        # )
+        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
+        # print("[RERUN] LLM viewer initialized.", flush=True)
     =}
 
     preamble {=
@@ -47,13 +48,13 @@ reactor AgenticCoach {
 
                             "role": "system",
                             "content": """
-                            
-                            You are a real-time driving coach. 
-                            
+
+                            You are a real-time driving coach.
+
                             The environment has tasks in this order:
 
                             1. The driver must do a lane change from a left lane to right lane before the exiting the highway. The the exit is in 1.6 kilometer.
-                            The driver is maintaining a speed between 85 kilometer per hour to 90 kilometer per hour. 
+                            The driver is maintaining a speed between 85 kilometer per hour to 90 kilometer per hour.
                             The driver must look to the right before changing the lane to avoid any cars on the right lane.
 
                             2. After lane change, the driver must exiting the highway, and reduce the speed to 45 kilometer per hour.
@@ -91,6 +92,7 @@ reactor AgenticCoach {
                         "temperature": 0.1,
                         "num_predict": 30
                     },
+                    keep_alive="10m",
                 )
             except Exception as e:
                 print(">>> LLM ERROR:", e, flush=True)
@@ -110,24 +112,35 @@ reactor AgenticCoach {
 
 
     reaction(s, v, st, h, e, en_states) -> control, instruction {=
+        #reaction(coach_inp) -> control, instruction {=
+        # if not (s.is_present and v.is_present and st.is_present and h.is_present and e.is_present):
+        #     print("[LLM SKIP] incomplete input bundle", flush=True)
+        #     return
         distance_val = s.value if s.is_present else 0.0
         velocity_val = v.value if v.is_present else 0.0
         steer_input = st.value if st.is_present else None
         head_input = h.value if h.is_present and h.value else ["CENTER"]
         eye_input = e.value if e.is_present and e.value else ["CENTER"]
         environment_values = en_states.value if en_states.is_present else []
+        # bundle = coach_inp.value or {}
+        # distance_val = bundle.get("distance", 0.0)
+        # velocity_val = bundle.get("velocity", 0.0)
+        # steer_input = bundle.get("steering")
+        # head_input = bundle.get("head_history") or ["CENTER"]
+        # eye_input = bundle.get("eye_history") or ["CENTER"]
+        # environment_values = bundle.get("environment") or []
 
-        if distance_val <= 0.0:
-            distance_val = 0.0
+        # if distance_val <= 0.0:
+        #     distance_val = 0.0
 
-       
-        print(
-            f"[LLM INPUT] DISTANCE: {distance_val:.2f} m  "
-            f"VELOCITY: {velocity_val} km/h  STEER: {steer_input}",
-            flush=True
-        )
-        print(f"Head history: {head_input}", flush=True)
-        print(f"Eye history: {eye_input}", flush=True)
+
+        # print(
+        #     f"[LLM INPUT] DISTANCE: {distance_val:.2f} m  "
+        #     f"VELOCITY: {velocity_val} km/h  STEER: {steer_input}",
+        #     flush=True
+        # )
+        # print(f"Head history: {head_input}", flush=True)
+        # print(f"Eye history: {eye_input}", flush=True)
         environment_keys = [
             "road_phase",
             "front_car_present",
@@ -149,8 +162,6 @@ reactor AgenticCoach {
             "eye_history": eye_input,
             "environment": environment_input
         }
-        print(f"LLM inputs: {llm_inputs}", flush=True)
-
 
         tok_raw, msg_raw, ms = self.run_llm_message(llm_inputs)
 
@@ -158,30 +169,41 @@ reactor AgenticCoach {
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
         current_tag = lf.tag()
-        print("----------------------------------------------------------")
-        print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ms", flush=True)
-        print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ms", flush=True)
-        print(f"[LLM INFERENCE] LAG: {lag:.2f} ms", flush=True)
-        print(f"[LLM INFERENCE] Tag time: {current_tag.time} ns", flush=True)
-        print(f"[LLM INFERENCE] Microstep: {current_tag.microstep}", flush=True)
-        print("----------------------------------------------------------")
+
 
         tok = (tok_raw or "NONE").strip().upper()
         if tok not in {"NONE", "WARNING", "ACTUATE"}:
             tok = "NONE"
         msg = (msg_raw or "").strip()
-
+        print("----------------------------------------------------------")
+        print(f"LLM inputs: {llm_inputs}", flush=True)
+        print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] LAG: {lag:.2f} ms", flush=True)
+        print(f"[LLM INFERENCE] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[LLM INFERENCE] Microstep: {current_tag.microstep}", flush=True)
         print(f"[LLM RESULT] {tok} | {msg} | {ms:.2f} ms", flush=True)
+        print("----------------------------------------------------------")
 
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
-        rr.log("llm/control", rr.TextLog(tok))
-        rr.log("llm/instruction", rr.TextLog(msg))
-        rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
-        rr.log("llm/inference_ms", rr.Scalars(float(ms)))
+
+
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
+        # rr.log("llm/control", rr.TextLog(tok))
+        # rr.log("llm/instruction", rr.TextLog(msg))
+        # rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
+        # rr.log("llm/inference_ms", rr.Scalars(float(ms)))
 
         control.set(tok)
         instruction.set(msg)
 
-    =} tardy
+    =} tardy{=
+        logical_ms = lf.time.logical_elapsed() / 1e6
+        physical_ms = lf.time.physical_elapsed() / 1e6
+        print(
+            f"[LLM TARDY] reaction started {physical_ms - logical_ms:.2f} ms late; "
+            ,
+            flush=True
+        )
+    =}
 }

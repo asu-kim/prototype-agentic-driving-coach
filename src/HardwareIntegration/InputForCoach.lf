@@ -1,4 +1,4 @@
-target Python 
+target Python
 
 preamble {=
     import json
@@ -9,95 +9,107 @@ preamble {=
 reactor InputForCoach{
     input s
     input v
-    input st 
+    input st
     input h
     input e
     input en_states
-    timer llmclock(4 sec, 400 msec)
+
+    // Local LLM inference is synchronous, so leave enough time between requests
+    // for one inference to finish before the next logical tick.
+    timer llmclock(4 sec, 500 msec)
 
     state s_val = 0.0
     state v_val = 0.0
     state st_val = 2
     state h_val = 5
     state e_val = 5
-    state en_states_val
+    state en_states_val = []
 
     output displacement
     output velocity
-    output steer 
+    output steer
     output head_pos
     output eye_pos
     output environment_states
+    output coach_input
 
-    
+
     reaction(startup){=
-        rr.init(
-            "hardware_integrated_adc",
-            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        )
-        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        print("[RERUN] Coach viewer initialized.", flush=True)
+        # rr.init(
+            # "hardware_integrated_adc",
+            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        # )
+        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
+        # print("[RERUN] Coach viewer initialized.", flush=True)
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
     =}
     reaction(s, v, st, h, e, en_states){=
-         if s.is_present:
-             self.s_val = s.value
-         if v.is_present:
-             self.v_val = v.value
-         if st.is_present:
-             self.st_val = st.value
-         if h.is_present:
-             self.h_val = h.value
+        if s.is_present:
+            self.s_val = s.value
+        if v.is_present:
+            self.v_val = v.value
+        if st.is_present:
+            self.st_val = st.value
+        if h.is_present:
+            self.h_val = h.value
             #  print(f"Head value every 100ms: {self.h_val}")
-             if self.h_val == 0:
-                 self.head_history.append("LEFT")
-             elif self.h_val == 1:
-                 self.head_history.append("CENTER")
-             elif self.h_val == 2:
-                 self.head_history.append("RIGHT")
-             else:
-                 self.head_history.append("CENTER")
-         if e.is_present:
-             self.e_val = e.value
+            if self.h_val == 0:
+                self.head_history.append("LEFT")
+            elif self.h_val == 1:
+                self.head_history.append("CENTER")
+            elif self.h_val == 2:
+                self.head_history.append("RIGHT")
+            else:
+                self.head_history.append("CENTER")
+        if e.is_present:
+            self.e_val = e.value
             #  print(f"EYE value every 100ms: {self.e_val}")
-             if self.e_val == 0:
-                 self.eye_history.append("LEFT")
-             elif self.e_val == 1:
-                 self.eye_history.append("CENTER")
-             elif self.e_val == 2:
-                 self.eye_history.append("RIGHT")
-             else:
-                 self.eye_history.append("CENTER")
-         if en_states.is_present:
-             self.en_states_val = en_states.value
-         self.head_history = self.head_history[-self.max_history:]
-         self.eye_history = self.eye_history[-self.max_history:]
-     =} tardy
+            if self.e_val == 0:
+                self.eye_history.append("LEFT")
+            elif self.e_val == 1:
+                self.eye_history.append("CENTER")
+            elif self.e_val == 2:
+                self.eye_history.append("RIGHT")
+            else:
+                self.eye_history.append("CENTER")
+        if en_states.is_present:
+            self.en_states_val = en_states.value
+        self.head_history = self.head_history[-self.max_history:]
+        self.eye_history = self.eye_history[-self.max_history:]
+    =} tardy
 
-    
+
     reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
+        #reaction(llmclock)->coach_input{=
         displacement.set(self.s_val)
         velocity.set(self.v_val)
         steer.set(self.st_val)
         head_pos.set(self.head_history)
         eye_pos.set(self.eye_history)
-        if self.en_states_val is not None:
-            environment_states.set(self.en_states_val)
+        environment_states.set(self.en_states_val)
+        # coach_input.set({
+        #     "distance": self.s_val,
+        #     "velocity": self.v_val,
+        #     "steering": self.st_val,
+        #     "head_history": list(self.head_history),
+        #     "eye_history": list(self.eye_history),
+        #     "environment": self.en_states_val,
+        # })
 
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
-        rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
-        rr.log("coach/steer", rr.Scalars(float(self.st_val)))
-        rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
-        rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
+        # rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
+        # rr.log("coach/steer", rr.Scalars(float(self.st_val)))
+        # rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
+        # rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
         current_tag = lf.tag()
 
-        
+
         print("----------------------------------------------------------")
         print(f"[InputForCoach] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[InputForCoach] Physical time: {physical_dri:.2f} ms", flush=True)
@@ -108,6 +120,6 @@ reactor InputForCoach{
 
     =}
 
-   
-    
+
+
 }

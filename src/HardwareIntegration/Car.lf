@@ -21,12 +21,12 @@ reactor Car {
     output steer
 
     reaction(startup) {=
-        rr.init(
-            "hardware_integrated_adc",
-            recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        )
-        rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        print("[RERUN] Car viewer initialized.", flush=True)
+        # rr.init(
+            # "hardware_integrated_adc",
+            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
+        # )
+        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
+        # print("[RERUN] Car viewer initialized.", flush=True)
     =}
 
     preamble {=
@@ -105,32 +105,34 @@ reactor Car {
         )
         velocity.set(velocity_kmh)
         steer.set(steer_value)
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
-        rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
+        # rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
     =} tardy {=
         current_car = lf.time.logical_elapsed()/1e6
         physical_car = lf.time.physical_elapsed()/1e6
         lag = physical_car - current_car
         current_tag = lf.tag()
 
-        print("----------------------------------------------------------")
-        print(f"[CAR TARDY] Logical time: {current_car:.2f} ms", flush=True)
-        print(f"[CAR TARDY] Physical time: {physical_car:.2f} ms", flush=True)
-        print(f"[CAR TARDY] LAG: {lag:.2f} ms", flush=True)
-        print(f"[CAR TARDY] Tag time: {current_tag.time} ns", flush=True)
-        print(f"[CAR TARDY] Microstep: {current_tag.microstep}", flush=True)
-        print("----------------------------------------------------------")
+        
         velocity_kmh, steer_value = self.update_car(
             accel_in.value if accel_in.is_present else None,
             brake_in.value if brake_in.is_present else None,
             steer_in.value if steer_in.is_present else None,
             actuate_in.value if actuate_in.is_present else None
         )
+        print("----------------------------------------------------------")
+        print(f"[CAR TARDY] INPUT: accel: {accel_in.value} brake: {brake_in.value} steer_in: {steer_in.value} actuate: {actuate_in.value}")
+        print(f"[CAR TARDY] Logical time: {current_car:.2f} ms", flush=True)
+        print(f"[CAR TARDY] Physical time: {physical_car:.2f} ms", flush=True)
+        print(f"[CAR TARDY] LAG: {lag:.2f} ms", flush=True)
+        print(f"[CAR TARDY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[CAR TARDY] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
         velocity.set(velocity_kmh)
         steer.set(steer_value)
-        rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
-        rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
+        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+        # rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
+        # rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
     =}
 }

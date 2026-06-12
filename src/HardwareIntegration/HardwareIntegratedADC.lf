@@ -54,6 +54,7 @@ federated reactor at 10.218.100.78 {
     adc.velocity -> planner.v
     adc.displacement -> planner.s
     adc.environment_states -> planner.en_states
+    // adc.coach_input -> llm.coach_inp
 
 
     llm.control -> planner.ctrl
