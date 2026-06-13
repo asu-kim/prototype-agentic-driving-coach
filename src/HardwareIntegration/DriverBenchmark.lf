@@ -2,59 +2,134 @@ target Python {
     timeout: 104 sec
 }
 
-import DriverControl from "DriverControl.lf"
-import DriverMonitor from "DriverMonitor.lf"
+import SensorInputs from "SensorInputs.lf"
 
-main reactor DriverBenchmark {
-    control = new DriverControl()
-    monitor = new DriverMonitor()
+reactor BenchmarkDriverControl {
+    state steer_val = 1
+    state accel_val = 0.0
+    state brake_val = 0.0
 
-    state control_count = 0
-    state control_total_ns = 0
-    state control_max_ns = 0
+    state input_count = 0
+    state input_total_ns = 0
+    state input_max_ns = 0
+    state output_count = 0
+    state output_total_ns = 0
+    state output_max_ns = 0
 
-    state monitor_count = 0
-    state monitor_total_ns = 0
-    state monitor_max_ns = 0
+    output steer
+    output accelerator
+    output brake
 
-    reaction(startup) {=
-        print(
-            "[DRIVER BENCHMARK] Started: measuring DriverControl and DriverMonitor separately.",
-            flush=True
-        )
+    timer sensorclock(4 sec, 100 msec)
+    sensors = new SensorInputs()
+
+    reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
+        start_ns = lf.time.physical_elapsed()
+
+        if sensors.steer_msg.is_present:
+            self.steer_val = sensors.steer_msg.value
+        if sensors.accel_msg.is_present:
+            self.accel_val = sensors.accel_msg.value
+        if sensors.brake_msg.is_present:
+            self.brake_val = sensors.brake_msg.value
+
+        execution_ns = lf.time.physical_elapsed() - start_ns
+        self.input_count += 1
+        self.input_total_ns += execution_ns
+        self.input_max_ns = max(self.input_max_ns, execution_ns)
     =}
 
-    reaction(control.steer, control.accelerator, control.brake) {=
-        latency_ns = lf.time.physical_elapsed() - lf.time.logical_elapsed()
-        self.control_count += 1
-        self.control_total_ns += latency_ns
-        self.control_max_ns = max(self.control_max_ns, latency_ns)
-    =}
+    reaction(sensorclock) -> steer, accelerator, brake {=
+        start_ns = lf.time.physical_elapsed()
 
-    reaction(monitor.head, monitor.eye) {=
-        latency_ns = lf.time.physical_elapsed() - lf.time.logical_elapsed()
-        self.monitor_count += 1
-        self.monitor_total_ns += latency_ns
-        self.monitor_max_ns = max(self.monitor_max_ns, latency_ns)
+        steer.set(self.steer_val)
+        accelerator.set(self.accel_val)
+        brake.set(self.brake_val)
+
+        execution_ns = lf.time.physical_elapsed() - start_ns
+        self.output_count += 1
+        self.output_total_ns += execution_ns
+        self.output_max_ns = max(self.output_max_ns, execution_ns)
     =}
 
     reaction(shutdown) {=
-        control_average_ns = self.control_total_ns / self.control_count if self.control_count else 0
-        monitor_average_ns = self.monitor_total_ns / self.monitor_count if self.monitor_count else 0
-
-        print("----------------------------------------------------------", flush=True)
-        print("[DRIVER BENCHMARK SUMMARY]", flush=True)
+        input_average_ns = self.input_total_ns / self.input_count if self.input_count else 0
+        output_average_ns = self.output_total_ns / self.output_count if self.output_count else 0
         print("[DRIVER CONTROL: STEER, ACCELERATOR, BRAKE]", flush=True)
-        print(f"Samples: {self.control_count}", flush=True)
-        print(f"Average observable output latency: {control_average_ns / 1e6:.6f} ms", flush=True)
-        print(f"Observed worst-case output latency: {self.control_max_ns / 1e6:.6f} ms", flush=True)
+        print(f"Input reaction samples: {self.input_count}", flush=True)
+        print(f"Input reaction average execution time: {input_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Input reaction observed WCET: {self.input_max_ns / 1e6:.6f} ms", flush=True)
+        print(f"Output reaction samples: {self.output_count}", flush=True)
+        print(f"Output reaction average execution time: {output_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Output reaction observed WCET: {self.output_max_ns / 1e6:.6f} ms", flush=True)
+    =}
+}
 
+reactor BenchmarkDriverMonitor {
+    state head_val = 1
+    state eye_val = 1
+
+    state input_count = 0
+    state input_total_ns = 0
+    state input_max_ns = 0
+    state output_count = 0
+    state output_total_ns = 0
+    state output_max_ns = 0
+
+    output head
+    output eye
+
+    timer sensorclock(4 sec, 100 msec)
+    sensors = new SensorInputs()
+
+    reaction(sensors.head_msg, sensors.eye_msg) {=
+        start_ns = lf.time.physical_elapsed()
+
+        if sensors.head_msg.is_present:
+            self.head_val = sensors.head_msg.value
+        if sensors.eye_msg.is_present:
+            self.eye_val = sensors.eye_msg.value
+
+        execution_ns = lf.time.physical_elapsed() - start_ns
+        self.input_count += 1
+        self.input_total_ns += execution_ns
+        self.input_max_ns = max(self.input_max_ns, execution_ns)
+    =}
+
+    reaction(sensorclock) -> head, eye {=
+        start_ns = lf.time.physical_elapsed()
+
+        head.set(self.head_val)
+        eye.set(self.eye_val)
+
+        execution_ns = lf.time.physical_elapsed() - start_ns
+        self.output_count += 1
+        self.output_total_ns += execution_ns
+        self.output_max_ns = max(self.output_max_ns, execution_ns)
+    =}
+
+    reaction(shutdown) {=
+        input_average_ns = self.input_total_ns / self.input_count if self.input_count else 0
+        output_average_ns = self.output_total_ns / self.output_count if self.output_count else 0
         print("[DRIVER MONITOR: HEAD, EYE]", flush=True)
-        print(f"Samples: {self.monitor_count}", flush=True)
-        print(f"Average observable output latency: {monitor_average_ns / 1e6:.6f} ms", flush=True)
-        print(f"Observed worst-case output latency: {self.monitor_max_ns / 1e6:.6f} ms", flush=True)
+        print(f"Input reaction samples: {self.input_count}", flush=True)
+        print(f"Input reaction average execution time: {input_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Input reaction observed WCET: {self.input_max_ns / 1e6:.6f} ms", flush=True)
+        print(f"Output reaction samples: {self.output_count}", flush=True)
+        print(f"Output reaction average execution time: {output_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Output reaction observed WCET: {self.output_max_ns / 1e6:.6f} ms", flush=True)
+    =}
+}
 
+main reactor DriverBenchmark {
+    control = new BenchmarkDriverControl()
+    monitor = new BenchmarkDriverMonitor()
+
+    reaction(startup) {=
+        print("[DRIVER BENCHMARK] Started: measuring physical execution time inside each reaction.", flush=True)
+    =}
+
+    reaction(shutdown) {=
         print("[DRIVER BENCHMARK] Finished: the 104-second benchmark timeout was reached.", flush=True)
-        print("----------------------------------------------------------", flush=True)
     =}
 }
