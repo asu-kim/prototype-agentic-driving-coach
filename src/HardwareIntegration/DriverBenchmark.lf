@@ -5,6 +5,10 @@ target Python {
 import SensorInputs from "SensorInputs.lf"
 
 reactor BenchmarkDriverControl {
+    input steer_msg
+    input accel_msg
+    input brake_msg
+
     state steer_val = 1
     state accel_val = 0.0
     state brake_val = 0.0
@@ -21,17 +25,15 @@ reactor BenchmarkDriverControl {
     output brake
 
     timer sensorclock(4 sec, 100 msec)
-    sensors = new SensorInputs()
-
-    reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
+    reaction(steer_msg, accel_msg, brake_msg) {=
         start_ns = lf.time.physical_elapsed()
 
-        if sensors.steer_msg.is_present:
-            self.steer_val = sensors.steer_msg.value
-        if sensors.accel_msg.is_present:
-            self.accel_val = sensors.accel_msg.value
-        if sensors.brake_msg.is_present:
-            self.brake_val = sensors.brake_msg.value
+        if steer_msg.is_present:
+            self.steer_val = steer_msg.value
+        if accel_msg.is_present:
+            self.accel_val = accel_msg.value
+        if brake_msg.is_present:
+            self.brake_val = brake_msg.value
 
         execution_ns = lf.time.physical_elapsed() - start_ns
         self.input_count += 1
@@ -66,6 +68,9 @@ reactor BenchmarkDriverControl {
 }
 
 reactor BenchmarkDriverMonitor {
+    input head_msg
+    input eye_msg
+
     state head_val = 1
     state eye_val = 1
 
@@ -80,15 +85,13 @@ reactor BenchmarkDriverMonitor {
     output eye
 
     timer sensorclock(4 sec, 100 msec)
-    sensors = new SensorInputs()
-
-    reaction(sensors.head_msg, sensors.eye_msg) {=
+    reaction(head_msg, eye_msg) {=
         start_ns = lf.time.physical_elapsed()
 
-        if sensors.head_msg.is_present:
-            self.head_val = sensors.head_msg.value
-        if sensors.eye_msg.is_present:
-            self.eye_val = sensors.eye_msg.value
+        if head_msg.is_present:
+            self.head_val = head_msg.value
+        if eye_msg.is_present:
+            self.eye_val = eye_msg.value
 
         execution_ns = lf.time.physical_elapsed() - start_ns
         self.input_count += 1
@@ -122,11 +125,18 @@ reactor BenchmarkDriverMonitor {
 }
 
 main reactor DriverBenchmark {
+    inputs = new SensorInputs()
     control = new BenchmarkDriverControl()
     monitor = new BenchmarkDriverMonitor()
 
+    inputs.steer_msg -> control.steer_msg
+    inputs.accel_msg -> control.accel_msg
+    inputs.brake_msg -> control.brake_msg
+    inputs.head_msg -> monitor.head_msg
+    inputs.eye_msg -> monitor.eye_msg
+
     reaction(startup) {=
-        print("[DRIVER BENCHMARK] Started: measuring physical execution time inside each reaction.", flush=True)
+        print("[DRIVER BENCHMARK] Started: measuring physical execution time inside each reaction using real sensor inputs.", flush=True)
     =}
 
     reaction(shutdown) {=
