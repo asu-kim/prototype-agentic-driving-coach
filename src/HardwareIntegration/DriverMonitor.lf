@@ -1,0 +1,27 @@
+target Python
+
+import SensorInputs from "SensorInputs.lf"
+
+reactor DriverMonitor {
+    state head_val = 1
+    state eye_val = 1
+
+    output head
+    output eye
+
+    timer sensorclock(4 sec, 100 msec)
+
+    sensors = new SensorInputs()
+
+    reaction(sensors.head_msg, sensors.eye_msg) {=
+        if sensors.head_msg.is_present:
+            self.head_val = sensors.head_msg.value
+        if sensors.eye_msg.is_present:
+            self.eye_val = sensors.eye_msg.value
+    =}
+
+    reaction(sensorclock) -> head, eye {=
+        head.set(self.head_val)
+        eye.set(self.eye_val)
+    =}
+}

@@ -1,0 +1,32 @@
+target Python
+
+import SensorInputs from "SensorInputs.lf"
+
+reactor DriverControl {
+    state steer_val = 1
+    state accel_val = 0.0
+    state brake_val = 0.0
+
+    output steer
+    output accelerator
+    output brake
+
+    timer sensorclock(4 sec, 100 msec)
+
+    sensors = new SensorInputs()
+
+    reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
+        if sensors.steer_msg.is_present:
+            self.steer_val = sensors.steer_msg.value
+        if sensors.accel_msg.is_present:
+            self.accel_val = sensors.accel_msg.value
+        if sensors.brake_msg.is_present:
+            self.brake_val = sensors.brake_msg.value
+    =}
+
+    reaction(sensorclock) -> steer, accelerator, brake {=
+        steer.set(self.steer_val)
+        accelerator.set(self.accel_val)
+        brake.set(self.brake_val)
+    =}
+}

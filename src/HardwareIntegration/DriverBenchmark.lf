@@ -2,90 +2,59 @@ target Python {
     timeout: 104 sec
 }
 
-import Driver from "Driver.lf"
+import DriverControl from "DriverControl.lf"
+import DriverMonitor from "DriverMonitor.lf"
 
 main reactor DriverBenchmark {
-    driver = new Driver()
+    control = new DriverControl()
+    monitor = new DriverMonitor()
 
-    state control_sample_count = 0
-    state control_total_latency_ns = 0
-    state control_max_latency_ns = 0
-    state vision_sample_count = 0
-    state vision_total_latency_ns = 0
-    state vision_max_latency_ns = 0
+    state control_count = 0
+    state control_total_ns = 0
+    state control_max_ns = 0
+
+    state monitor_count = 0
+    state monitor_total_ns = 0
+    state monitor_max_ns = 0
 
     reaction(startup) {=
         print(
-            "[DRIVER BENCHMARK] Started: approximately 1000 Driver timer executions over 104 seconds.",
+            "[DRIVER BENCHMARK] Started: measuring DriverControl and DriverMonitor separately.",
             flush=True
         )
     =}
 
-    reaction(driver.steer, driver.accelerator, driver.brake) {=
-        control_latency_ns = (
-            lf.time.physical_elapsed() - lf.time.logical_elapsed()
-        )
-        self.control_sample_count += 1
-        self.control_total_latency_ns += control_latency_ns
-        self.control_max_latency_ns = max(
-            self.control_max_latency_ns,
-            control_latency_ns
-        )
+    reaction(control.steer, control.accelerator, control.brake) {=
+        latency_ns = lf.time.physical_elapsed() - lf.time.logical_elapsed()
+        self.control_count += 1
+        self.control_total_ns += latency_ns
+        self.control_max_ns = max(self.control_max_ns, latency_ns)
     =}
 
-    reaction(driver.head, driver.eye) {=
-        vision_latency_ns = (
-            lf.time.physical_elapsed() - lf.time.logical_elapsed()
-        )
-        self.vision_sample_count += 1
-        self.vision_total_latency_ns += vision_latency_ns
-        self.vision_max_latency_ns = max(
-            self.vision_max_latency_ns,
-            vision_latency_ns
-        )
+    reaction(monitor.head, monitor.eye) {=
+        latency_ns = lf.time.physical_elapsed() - lf.time.logical_elapsed()
+        self.monitor_count += 1
+        self.monitor_total_ns += latency_ns
+        self.monitor_max_ns = max(self.monitor_max_ns, latency_ns)
     =}
 
     reaction(shutdown) {=
-        control_average_latency_ns = (
-            self.control_total_latency_ns / self.control_sample_count
-            if self.control_sample_count
-            else 0
-        )
-        vision_average_latency_ns = (
-            self.vision_total_latency_ns / self.vision_sample_count
-            if self.vision_sample_count
-            else 0
-        )
+        control_average_ns = self.control_total_ns / self.control_count if self.control_count else 0
+        monitor_average_ns = self.monitor_total_ns / self.monitor_count if self.monitor_count else 0
+
         print("----------------------------------------------------------", flush=True)
         print("[DRIVER BENCHMARK SUMMARY]", flush=True)
-        print("[STEER, ACCELERATOR, BRAKE]", flush=True)
-        print(f"Samples: {self.control_sample_count}", flush=True)
-        print(
-            f"Average observable output latency: "
-            f"{control_average_latency_ns / 1e6:.6f} ms",
-            flush=True
-        )
-        print(
-            f"Maximum observable output latency: "
-            f"{self.control_max_latency_ns / 1e6:.6f} ms",
-            flush=True
-        )
-        print("[HEAD, EYE]", flush=True)
-        print(f"Samples: {self.vision_sample_count}", flush=True)
-        print(
-            f"Average observable output latency: "
-            f"{vision_average_latency_ns / 1e6:.6f} ms",
-            flush=True
-        )
-        print(
-            f"Maximum observable output latency: "
-            f"{self.vision_max_latency_ns / 1e6:.6f} ms",
-            flush=True
-        )
-        print(
-            "[DRIVER BENCHMARK] Finished: the 104-second benchmark timeout was reached.",
-            flush=True
-        )
+        print("[DRIVER CONTROL: STEER, ACCELERATOR, BRAKE]", flush=True)
+        print(f"Samples: {self.control_count}", flush=True)
+        print(f"Average observable output latency: {control_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Observed worst-case output latency: {self.control_max_ns / 1e6:.6f} ms", flush=True)
+
+        print("[DRIVER MONITOR: HEAD, EYE]", flush=True)
+        print(f"Samples: {self.monitor_count}", flush=True)
+        print(f"Average observable output latency: {monitor_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Observed worst-case output latency: {self.monitor_max_ns / 1e6:.6f} ms", flush=True)
+
+        print("[DRIVER BENCHMARK] Finished: the 104-second benchmark timeout was reached.", flush=True)
         print("----------------------------------------------------------", flush=True)
     =}
 }
