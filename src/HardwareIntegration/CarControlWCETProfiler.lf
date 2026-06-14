@@ -77,7 +77,7 @@ reactor ControlArrivalProfiler {
     =}
 }
 
-federated reactor {
+federated reactor at 10.218.100.78 {
     driver = new DriverControl()
 
     @maxwait(100 msec)
