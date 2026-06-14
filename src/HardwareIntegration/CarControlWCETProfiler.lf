@@ -1,0 +1,89 @@
+target Python {
+    timeout: 104 sec,
+    coordination: decentralized
+}
+
+import DriverControl from "DriverControl.lf"
+
+reactor ControlArrivalProfiler {
+    input steer
+    input accel
+    input brake
+
+    state sample_count = 0
+    state complete_count = 0
+    state incomplete_count = 0
+    state tardy_count = 0
+    state arrival_total_ns = 0
+    state arrival_max_ns = 0
+    state observer_total_ns = 0
+    state observer_max_ns = 0
+
+    reaction(startup) {=
+        print("[CONTROL ARRIVAL PROFILER] Profiling steer/accel/brake arrival timing.", flush=True)
+        print(f"Configured maxwait: {lf.get_fed_maxwait() / 1e6:.6f} ms", flush=True)
+    =}
+
+    reaction(steer, accel, brake) {=
+        start_ns = lf.time.physical_elapsed()
+        arrival_lag_ns = max(0, start_ns - lf.time.logical_elapsed())
+
+        self.sample_count += 1
+        self.arrival_total_ns += arrival_lag_ns
+        self.arrival_max_ns = max(self.arrival_max_ns, arrival_lag_ns)
+        if steer.is_present and accel.is_present and brake.is_present:
+            self.complete_count += 1
+        else:
+            self.incomplete_count += 1
+
+        observer_ns = lf.time.physical_elapsed() - start_ns
+        self.observer_total_ns += observer_ns
+        self.observer_max_ns = max(self.observer_max_ns, observer_ns)
+    =} tardy {=
+        start_ns = lf.time.physical_elapsed()
+        arrival_lag_ns = max(0, start_ns - lf.time.logical_elapsed())
+
+        self.sample_count += 1
+        self.tardy_count += 1
+        self.arrival_total_ns += arrival_lag_ns
+        self.arrival_max_ns = max(self.arrival_max_ns, arrival_lag_ns)
+        if steer.is_present and accel.is_present and brake.is_present:
+            self.complete_count += 1
+        else:
+            self.incomplete_count += 1
+
+        observer_ns = lf.time.physical_elapsed() - start_ns
+        self.observer_total_ns += observer_ns
+        self.observer_max_ns = max(self.observer_max_ns, observer_ns)
+    =}
+
+    reaction(shutdown) {=
+        arrival_average_ns = self.arrival_total_ns / self.sample_count if self.sample_count else 0
+        observer_average_ns = self.observer_total_ns / self.sample_count if self.sample_count else 0
+        maxwait_ns = lf.get_fed_maxwait()
+        verified = self.sample_count > 0 and self.incomplete_count == 0 and self.tardy_count == 0 and self.arrival_max_ns <= maxwait_ns
+
+        print("[CONTROL ARRIVAL PROFILE RESULT]", flush=True)
+        print(f"Samples: {self.sample_count}", flush=True)
+        print(f"Complete steer/accel/brake sets: {self.complete_count}", flush=True)
+        print(f"Incomplete sets: {self.incomplete_count}", flush=True)
+        print(f"Tardy reactions: {self.tardy_count}", flush=True)
+        print(f"Average arrival lag: {arrival_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Observed arrival WCET: {self.arrival_max_ns / 1e6:.6f} ms", flush=True)
+        print(f"Configured maxwait: {maxwait_ns / 1e6:.6f} ms", flush=True)
+        print(f"Observed maxwait verification: {'PASS' if verified else 'FAIL'}", flush=True)
+        print(f"Average profiler overhead: {observer_average_ns / 1e6:.6f} ms", flush=True)
+        print(f"Maximum profiler overhead: {self.observer_max_ns / 1e6:.6f} ms", flush=True)
+    =}
+}
+
+federated reactor {
+    driver = new DriverControl()
+
+    @maxwait(100 msec)
+    profiler = new ControlArrivalProfiler()
+
+    driver.steer -> profiler.steer
+    driver.accelerator -> profiler.accel
+    driver.brake -> profiler.brake
+}
