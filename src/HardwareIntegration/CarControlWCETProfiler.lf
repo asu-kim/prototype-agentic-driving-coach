@@ -1,89 +1,169 @@
 target Python {
-    timeout: 104 sec,
-    coordination: decentralized
+    timeout: 104 sec
 }
 
-import DriverControl from "DriverControl.lf"
+preamble {=
+    import threading
+    import time
+    from evdev import InputDevice, ecodes, list_devices
+=}
 
-reactor ControlArrivalProfiler {
-    input steer
-    input accel
-    input brake
+reactor ProfiledSensorReader {
+    output steer_msg
+    output accel_msg
+    output brake_msg
+    physical action sensor
 
-    state sample_count = 0
-    state complete_count = 0
-    state incomplete_count = 0
-    state tardy_count = 0
-    state arrival_total_ns = 0
-    state arrival_max_ns = 0
-    state observer_total_ns = 0
-    state observer_max_ns = 0
+    reaction(startup) -> sensor {=
+        def find_path():
+            for path in list_devices():
+                try:
+                    device = InputDevice(path)
+                    if "shanwan" in device.name.lower() and "gamepad" in device.name.lower():
+                        return path
+                except Exception:
+                    pass
+            return None
 
-    reaction(startup) {=
-        print("[CONTROL ARRIVAL PROFILER] Profiling steer/accel/brake arrival timing.", flush=True)
-        print(f"Configured maxwait: {lf.get_fed_maxwait() / 1e6:.6f} ms", flush=True)
+        def clamp(value, low, high):
+            return max(low, min(high, value))
+
+        def norm(device, code, value):
+            info = device.absinfo(code)
+            if info.max == info.min:
+                return 0.0
+            return (value - info.min) / (info.max - info.min)
+
+        def reader(action, path):
+            device = InputDevice(path)
+            xinfo = device.absinfo(ecodes.ABS_X)
+            print(f"[CONTROL WCET] Reading {device.name} at {device.path}", flush=True)
+
+            for event in device.read_loop():
+                if event.type != ecodes.EV_ABS:
+                    continue
+
+                # Physical measurement starts as soon as the hardware event is read.
+                sensor_start_ns = time.monotonic_ns()
+                if event.code == ecodes.ABS_X:
+                    value = (2 * (event.value - xinfo.min) / (xinfo.max - xinfo.min)) - 1.0
+                    action.schedule(0, ("steer", float(clamp(value, -1.0, 1.0)), sensor_start_ns))
+                elif event.code == ecodes.ABS_BRAKE:
+                    value = float(clamp(norm(device, ecodes.ABS_BRAKE, event.value), 0.0, 1.0))
+                    action.schedule(0, ("brake", value, sensor_start_ns))
+                elif event.code == ecodes.ABS_GAS:
+                    value = float(clamp(norm(device, ecodes.ABS_GAS, event.value), 0.0, 1.0))
+                    action.schedule(0, ("accel", value, sensor_start_ns))
+
+        path = find_path()
+        if path is None:
+            print("[CONTROL WCET] Wheel device not found.", flush=True)
+        else:
+            threading.Thread(target=reader, args=(sensor, path), daemon=True).start()
     =}
 
-    reaction(steer, accel, brake) {=
-        start_ns = lf.time.physical_elapsed()
-        arrival_lag_ns = max(0, start_ns - lf.time.logical_elapsed())
+    reaction(sensor) -> steer_msg, accel_msg, brake_msg {=
+        control, value, sensor_start_ns = sensor.value
+        if control == "steer":
+            deadzone = 0.04
+            processed_value = 0 if value < -deadzone else 2 if value > deadzone else 1
+            steer_msg.set((processed_value, sensor_start_ns))
+        elif control == "accel":
+            accel_msg.set((value, sensor_start_ns))
+        elif control == "brake":
+            brake_msg.set((value, sensor_start_ns))
+    =}
+}
 
-        self.sample_count += 1
-        self.arrival_total_ns += arrival_lag_ns
-        self.arrival_max_ns = max(self.arrival_max_ns, arrival_lag_ns)
-        if steer.is_present and accel.is_present and brake.is_present:
-            self.complete_count += 1
-        else:
-            self.incomplete_count += 1
+reactor ProfiledDriverControl {
+    input steer_msg
+    input accel_msg
+    input brake_msg
 
-        observer_ns = lf.time.physical_elapsed() - start_ns
-        self.observer_total_ns += observer_ns
-        self.observer_max_ns = max(self.observer_max_ns, observer_ns)
-    =} tardy {=
-        start_ns = lf.time.physical_elapsed()
-        arrival_lag_ns = max(0, start_ns - lf.time.logical_elapsed())
+    state log_file
+    state log_path = "car_control_wcet.log"
+    state network_wcet_ns = 7200000
 
-        self.sample_count += 1
-        self.tardy_count += 1
-        self.arrival_total_ns += arrival_lag_ns
-        self.arrival_max_ns = max(self.arrival_max_ns, arrival_lag_ns)
-        if steer.is_present and accel.is_present and brake.is_present:
-            self.complete_count += 1
-        else:
-            self.incomplete_count += 1
+    state steer_count = 0
+    state steer_total_ns = 0
+    state steer_max_ns = 0
+    state accel_count = 0
+    state accel_total_ns = 0
+    state accel_max_ns = 0
+    state brake_count = 0
+    state brake_total_ns = 0
+    state brake_max_ns = 0
 
-        observer_ns = lf.time.physical_elapsed() - start_ns
-        self.observer_total_ns += observer_ns
-        self.observer_max_ns = max(self.observer_max_ns, observer_ns)
+    reaction(startup) {=
+        self.log_file = open(self.log_path, "w", buffering=1)
+        self.log_file.write("control,sensor_start_monotonic_ns,driver_receive_monotonic_ns,elapsed_ns,elapsed_ms\n")
+        print(f"[CONTROL WCET] Logging samples to {self.log_path}", flush=True)
+        print("[CONTROL WCET] Start: SensorReader reads hardware event", flush=True)
+        print("[CONTROL WCET] End: DriverControl receives processed control", flush=True)
+    =}
+
+    reaction(steer_msg, accel_msg, brake_msg) {=
+        # Physical measurement ends when the DriverControl input reaction begins.
+        driver_receive_ns = time.monotonic_ns()
+
+        def record(control, message):
+            value, sensor_start_ns = message.value
+            elapsed_ns = max(0, driver_receive_ns - sensor_start_ns)
+            self.log_file.write(
+                f"{control},{sensor_start_ns},{driver_receive_ns},{elapsed_ns},{elapsed_ns / 1e6:.6f}\n"
+            )
+            return elapsed_ns
+
+        if steer_msg.is_present:
+            elapsed_ns = record("steer", steer_msg)
+            self.steer_count += 1
+            self.steer_total_ns += elapsed_ns
+            self.steer_max_ns = max(self.steer_max_ns, elapsed_ns)
+        if accel_msg.is_present:
+            elapsed_ns = record("accel", accel_msg)
+            self.accel_count += 1
+            self.accel_total_ns += elapsed_ns
+            self.accel_max_ns = max(self.accel_max_ns, elapsed_ns)
+        if brake_msg.is_present:
+            elapsed_ns = record("brake", brake_msg)
+            self.brake_count += 1
+            self.brake_total_ns += elapsed_ns
+            self.brake_max_ns = max(self.brake_max_ns, elapsed_ns)
     =}
 
     reaction(shutdown) {=
-        arrival_average_ns = self.arrival_total_ns / self.sample_count if self.sample_count else 0
-        observer_average_ns = self.observer_total_ns / self.sample_count if self.sample_count else 0
-        maxwait_ns = lf.get_fed_maxwait()
-        verified = self.sample_count > 0 and self.incomplete_count == 0 and self.tardy_count == 0 and self.arrival_max_ns <= maxwait_ns
+        def average(total_ns, count):
+            return total_ns / count if count else 0
 
-        print("[CONTROL ARRIVAL PROFILE RESULT]", flush=True)
-        print(f"Samples: {self.sample_count}", flush=True)
-        print(f"Complete steer/accel/brake sets: {self.complete_count}", flush=True)
-        print(f"Incomplete sets: {self.incomplete_count}", flush=True)
-        print(f"Tardy reactions: {self.tardy_count}", flush=True)
-        print(f"Average arrival lag: {arrival_average_ns / 1e6:.6f} ms", flush=True)
-        print(f"Observed arrival WCET: {self.arrival_max_ns / 1e6:.6f} ms", flush=True)
-        print(f"Configured maxwait: {maxwait_ns / 1e6:.6f} ms", flush=True)
-        print(f"Observed maxwait verification: {'PASS' if verified else 'FAIL'}", flush=True)
-        print(f"Average profiler overhead: {observer_average_ns / 1e6:.6f} ms", flush=True)
-        print(f"Maximum profiler overhead: {self.observer_max_ns / 1e6:.6f} ms", flush=True)
+        control_wcet_ns = max(self.steer_max_ns, self.accel_max_ns, self.brake_max_ns)
+        proposed_maxwait_ns = control_wcet_ns + self.network_wcet_ns
+        summary = [
+            "[CONTROL WCET RESULT]",
+            f"Steer samples: {self.steer_count}",
+            f"Steer average: {average(self.steer_total_ns, self.steer_count) / 1e6:.6f} ms",
+            f"Steer observed WCET: {self.steer_max_ns / 1e6:.6f} ms",
+            f"Accel samples: {self.accel_count}",
+            f"Accel average: {average(self.accel_total_ns, self.accel_count) / 1e6:.6f} ms",
+            f"Accel observed WCET: {self.accel_max_ns / 1e6:.6f} ms",
+            f"Brake samples: {self.brake_count}",
+            f"Brake average: {average(self.brake_total_ns, self.brake_count) / 1e6:.6f} ms",
+            f"Brake observed WCET: {self.brake_max_ns / 1e6:.6f} ms",
+            f"Control-path observed WCET: {control_wcet_ns / 1e6:.6f} ms",
+            f"Network WCET used: {self.network_wcet_ns / 1e6:.6f} ms",
+            f"Proposed maxwait: {proposed_maxwait_ns / 1e6:.6f} ms",
+        ]
+        for line in summary:
+            print(line, flush=True)
+            self.log_file.write(f"# {line}\n")
+        self.log_file.close()
     =}
 }
 
-federated reactor at 10.218.100.78 {
-    driver = new DriverControl()
+main reactor {
+    sensor_reader = new ProfiledSensorReader()
+    driver_control = new ProfiledDriverControl()
 
-    @maxwait(100 msec)
-    profiler = new ControlArrivalProfiler()
-
-    driver.steer -> profiler.steer
-    driver.accelerator -> profiler.accel
-    driver.brake -> profiler.brake
+    sensor_reader.steer_msg -> driver_control.steer_msg
+    sensor_reader.accel_msg -> driver_control.accel_msg
+    sensor_reader.brake_msg -> driver_control.brake_msg
 }
