@@ -2,6 +2,18 @@ target Python
 
 import SensorInputs from "SensorInputs.lf"
 
+preamble {=
+    import csv
+    import os
+    import rerun as rr
+
+    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _BEHAVIOR_LOG_ENABLED = _RUN_MODE == "DataCollect"
+    _BEHAVIOR_LOG_DIR = os.getenv("DRIVER_BEHAVIOR_LOG_DIR", "driver_behavior_logs")
+    _DRIVER_RUN_ID = os.getenv("DRIVER_RUN_ID", "latest")
+=}
+
 reactor DriverControl {
     state steer_val = 1
     state accel_val = 0.0
@@ -14,6 +26,27 @@ reactor DriverControl {
     timer sensorclock(4 sec, 100 msec)
 
     sensors = new SensorInputs()
+
+    reaction(startup) {=
+        if _RERUN_ENABLED:
+            rr.init("hardware_integrated_adc_driver_control", spawn=True)
+            print("[RERUN] DriverControl viewer initialized.", flush=True)
+        print(f"[DRIVER CONTROL MODE] {_RUN_MODE}", flush=True)
+
+        self.behavior_log = None
+        self.behavior_writer = None
+        self.sample_index = 0
+        if _BEHAVIOR_LOG_ENABLED:
+            os.makedirs(_BEHAVIOR_LOG_DIR, exist_ok=True)
+            path = os.path.join(_BEHAVIOR_LOG_DIR, f"{_DRIVER_RUN_ID}_control.csv")
+            self.behavior_log = open(path, "w", newline="", buffering=1)
+            self.behavior_writer = csv.writer(self.behavior_log)
+            self.behavior_writer.writerow([
+                "sample_index", "logical_elapsed_ns", "physical_elapsed_ns",
+                "tag_time_ns", "microstep", "steer", "accelerator", "brake"
+            ])
+            print(f"[DRIVER BEHAVIOR LOG] Controls: {path}", flush=True)
+    =}
 
     reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
         if sensors.steer_msg.is_present:
@@ -28,5 +61,24 @@ reactor DriverControl {
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
+        if _RERUN_ENABLED:
+            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+            rr.log("driver_control/steer", rr.Scalars(float(self.steer_val)))
+            rr.log("driver_control/accelerator", rr.Scalars(float(self.accel_val)))
+            rr.log("driver_control/brake", rr.Scalars(float(self.brake_val)))
+        if self.behavior_writer is not None:
+            tag = lf.tag()
+            self.behavior_writer.writerow([
+                self.sample_index,
+                lf.time.logical_elapsed(),
+                lf.time.physical_elapsed(),
+                tag.time,
+                tag.microstep,
+                self.steer_val,
+                self.accel_val,
+                self.brake_val
+            ])
+            self.sample_index += 1
     =}
+
 }

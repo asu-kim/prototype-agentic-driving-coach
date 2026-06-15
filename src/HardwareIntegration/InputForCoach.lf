@@ -4,6 +4,9 @@ preamble {=
     import json
     import os
     import rerun as rr
+
+    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
 =}
 
 reactor InputForCoach{
@@ -35,12 +38,10 @@ reactor InputForCoach{
 
 
     reaction(startup){=
-        # rr.init(
-            # "hardware_integrated_adc",
-            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        # )
-        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        # print("[RERUN] Coach viewer initialized.", flush=True)
+        if _RERUN_ENABLED:
+            rr.init("hardware_integrated_adc_input_for_coach", spawn=True)
+            print("[RERUN] InputForCoach viewer initialized.", flush=True)
+        print(f"[INPUT FOR COACH MODE] {_RUN_MODE}", flush=True)
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
@@ -98,12 +99,14 @@ reactor InputForCoach{
         #     "environment": self.en_states_val,
         # })
 
-        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        # rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
-        # rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
-        # rr.log("coach/steer", rr.Scalars(float(self.st_val)))
-        # rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
-        # rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
+        if _RERUN_ENABLED:
+            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+            rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
+            rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
+            rr.log("coach/steer", rr.Scalars(float(self.st_val)))
+            rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
+            rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
+            rr.log("coach/environment_states", rr.TextLog(json.dumps(self.en_states_val)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri

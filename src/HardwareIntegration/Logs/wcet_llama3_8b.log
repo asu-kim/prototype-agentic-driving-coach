@@ -1,0 +1,33 @@
+Model: llama3:8b
+Warm-up runs: 5; measured runs: 100
+Warm-up 1/5 complete
+Warm-up 2/5 complete
+Warm-up 3/5 complete
+Warm-up 4/5 complete
+Warm-up 5/5 complete
+Completed 10/100
+Completed 20/100
+Completed 30/100
+Completed 40/100
+Completed 50/100
+Completed 60/100
+Completed 70/100
+Completed 80/100
+Completed 90/100
+Completed 100/100
+
+End-to-end wall time (matches LF measurement) (100 successful runs)
+  Average:        233.03 ms
+  Median:         231.04 ms
+  P95:            249.09 ms
+  P99:            256.56 ms
+  Worst case:     256.60 ms
+
+Ollama server total_duration (100 successful runs)
+  Average:        231.05 ms
+  Median:         229.39 ms
+  P95:            246.03 ms
+  P99:            253.61 ms
+  Worst case:     254.27 ms
+
+Failures: 0

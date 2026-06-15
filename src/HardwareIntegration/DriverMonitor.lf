@@ -2,6 +2,18 @@ target Python
 
 import SensorInputs from "SensorInputs.lf"
 
+preamble {=
+    import csv
+    import os
+    import rerun as rr
+
+    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _BEHAVIOR_LOG_ENABLED = _RUN_MODE == "DataCollect"
+    _BEHAVIOR_LOG_DIR = os.getenv("DRIVER_BEHAVIOR_LOG_DIR", "driver_behavior_logs")
+    _DRIVER_RUN_ID = os.getenv("DRIVER_RUN_ID", "latest")
+=}
+
 reactor DriverMonitor {
     state head_val = 1
     state eye_val = 1
@@ -13,6 +25,27 @@ reactor DriverMonitor {
 
     sensors = new SensorInputs()
 
+    reaction(startup) {=
+        if _RERUN_ENABLED:
+            rr.init("hardware_integrated_adc_driver_monitor", spawn=True)
+            print("[RERUN] DriverMonitor viewer initialized.", flush=True)
+        print(f"[DRIVER MONITOR MODE] {_RUN_MODE}", flush=True)
+
+        self.behavior_log = None
+        self.behavior_writer = None
+        self.sample_index = 0
+        if _BEHAVIOR_LOG_ENABLED:
+            os.makedirs(_BEHAVIOR_LOG_DIR, exist_ok=True)
+            path = os.path.join(_BEHAVIOR_LOG_DIR, f"{_DRIVER_RUN_ID}_monitor.csv")
+            self.behavior_log = open(path, "w", newline="", buffering=1)
+            self.behavior_writer = csv.writer(self.behavior_log)
+            self.behavior_writer.writerow([
+                "sample_index", "logical_elapsed_ns", "physical_elapsed_ns",
+                "tag_time_ns", "microstep", "head", "eye"
+            ])
+            print(f"[DRIVER BEHAVIOR LOG] Monitor: {path}", flush=True)
+    =}
+
     reaction(sensors.head_msg, sensors.eye_msg) {=
         if sensors.head_msg.is_present:
             self.head_val = sensors.head_msg.value
@@ -23,5 +56,22 @@ reactor DriverMonitor {
     reaction(sensorclock) -> head, eye {=
         head.set(self.head_val)
         eye.set(self.eye_val)
+        if _RERUN_ENABLED:
+            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+            rr.log("driver_monitor/head", rr.Scalars(float(self.head_val)))
+            rr.log("driver_monitor/eye", rr.Scalars(float(self.eye_val)))
+        if self.behavior_writer is not None:
+            tag = lf.tag()
+            self.behavior_writer.writerow([
+                self.sample_index,
+                lf.time.logical_elapsed(),
+                lf.time.physical_elapsed(),
+                tag.time,
+                tag.microstep,
+                self.head_val,
+                self.eye_val
+            ])
+            self.sample_index += 1
     =}
+
 }

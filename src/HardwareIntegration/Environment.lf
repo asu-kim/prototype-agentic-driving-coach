@@ -4,6 +4,9 @@ preamble{=
     import json
     import os
     import rerun as rr
+
+    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
 =}
 
 reactor Environment{
@@ -20,12 +23,10 @@ reactor Environment{
     
     state v_val = 0.0
     reaction(startup){=
-        # rr.init(
-            # "hardware_integrated_adc",
-            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        # )
-        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        # print("[RERUN] Environment viewer initialized.", flush=True)
+        if _RERUN_ENABLED:
+            rr.init("hardware_integrated_adc_environment", spawn=True)
+            print("[RERUN] Environment viewer initialized.", flush=True)
+        print(f"[ENVIRONMENT MODE] {_RUN_MODE}", flush=True)
         
         try:
             with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
@@ -96,10 +97,11 @@ reactor Environment{
 
 
 
-        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        # rr.log("environment/displacement_m", rr.Scalars(float(current_displacement)))
-        # rr.log("environment/road_phase", rr.TextLog(road_phase))
-        # rr.log("environment/states", rr.TextLog(json.dumps(en_states)))
+        if _RERUN_ENABLED:
+            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+            rr.log("environment/displacement_m", rr.Scalars(float(current_displacement)))
+            rr.log("environment/road_phase", rr.TextLog(road_phase))
+            rr.log("environment/states", rr.TextLog(json.dumps(en_states)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri

@@ -8,6 +8,8 @@ preamble{=
 
     _OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
     _CONTROL_IDS = {"NONE": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
+    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
 =}
 
 reactor AgenticCoach {
@@ -24,12 +26,10 @@ reactor AgenticCoach {
     output instruction
 
     reaction(startup) {=
-        # rr.init(
-            # "hardware_integrated_adc",
-            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        # )
-        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        # print("[RERUN] LLM viewer initialized.", flush=True)
+        if _RERUN_ENABLED:
+            rr.init("hardware_integrated_adc_agentic_coach", spawn=True)
+            print("[RERUN] AgenticCoach viewer initialized.", flush=True)
+        print(f"[AGENTIC COACH MODE] {_RUN_MODE}", flush=True)
     =}
 
     preamble {=
@@ -187,12 +187,13 @@ reactor AgenticCoach {
 
 
 
-        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        # rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
-        # rr.log("llm/control", rr.TextLog(tok))
-        # rr.log("llm/instruction", rr.TextLog(msg))
-        # rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
-        # rr.log("llm/inference_ms", rr.Scalars(float(ms)))
+        if _RERUN_ENABLED:
+            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+            rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
+            rr.log("llm/control", rr.TextLog(tok))
+            rr.log("llm/instruction", rr.TextLog(msg))
+            rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
+            rr.log("llm/inference_ms", rr.Scalars(float(ms)))
 
         control.set(tok)
         instruction.set(msg)
