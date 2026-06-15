@@ -1,3 +1,4 @@
+from collections import deque
 import cv2
 import numpy as np
 import time
@@ -8,8 +9,10 @@ class FaceDetector:
             cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         )
         self.eye_cascade = cv2.CascadeClassifier(
-            cv2.data.haarcascades + "haarcascade_eye.xml"
+            cv2.data.haarcascades + "haarcascade_eye_tree_eyeglasses.xml"
         )
+        self.head_history = deque(maxlen=5)
+        self.eye_history = deque(maxlen=5)
 
     def process(self, frame):
         if frame is None:
@@ -22,12 +25,13 @@ class FaceDetector:
 
         small = cv2.resize(frame, (320, 240))
         gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        gray = cv2.equalizeHist(gray)
 
         faces = self.face_cascade.detectMultiScale(
             gray,
-            scaleFactor=1.2,
-            minNeighbors=2,
-            minSize=(30, 30)
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(60, 60)
         )
 
         print("Faces:", len(faces), flush=True)
@@ -42,7 +46,7 @@ class FaceDetector:
             print("Saved debug (no face)", flush=True)
             return None
 
-        x_small, y_small, w_small, h_small = faces[0]
+        x_small, y_small, w_small, h_small = max(faces, key=lambda face: face[2] * face[3])
 
         scale_x = frame.shape[1] / 320
         scale_y = frame.shape[0] / 240
@@ -60,13 +64,13 @@ class FaceDetector:
         else:
             head = 1
 
-        roi_gray = gray[y_small:y_small + h_small, x_small:x_small + w_small]
+        roi_gray = gray[y_small:y_small + int(h_small * 0.6), x_small:x_small + w_small]
 
         eyes = self.eye_cascade.detectMultiScale(
             roi_gray,
-            scaleFactor=1.2,
-            minNeighbors=1,
-            minSize=(10, 10)
+            scaleFactor=1.1,
+            minNeighbors=4,
+            minSize=(15, 15)
         )
 
         print("Eyes:", len(eyes), flush=True)
@@ -86,6 +90,11 @@ class FaceDetector:
                 eye = 2
             else:
                 eye = 1
+
+        self.head_history.append(head)
+        self.eye_history.append(eye)
+        head = max(set(self.head_history), key=self.head_history.count)
+        eye = max(set(self.eye_history), key=self.eye_history.count)
 
         x_full = int(x_small * scale_x)
         y_full = int(y_small * scale_y)
