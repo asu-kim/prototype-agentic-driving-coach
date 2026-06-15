@@ -1,0 +1,2036 @@
+******* Using Python version: 3.12.3
+[DRIVER BENCHMARK] Measuring real sensor pipeline and driver reaction execution times.
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 2
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 2
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 2
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 2
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 0
+Faces: 1
+Eyes: 1
+Faces: 1
+Eyes: 1
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+Faces: 1
+Eyes: 0
+Faces: 0
+Saved debug (no face)
+Faces: 0
+Saved debug (no face)
+[DRIVER BENCHMARK] Finished after 104 seconds.
+Faces: 0
+Saved debug (no face)
+[REAL SENSOR PIPELINE]
+[GAMEPAD EVENT TO CONTROL OUTPUT]
+Samples: 100
+Average: 29.048302 ms
+Observed WCET: 82.055528 ms
+[CAMERA CAPTURE]
+Samples: 1001
+Average: 3.342833 ms
+Observed WCET: 53.626838 ms
+[FACE DETECTION]
+Samples: 1001
+Average: 77.227061 ms
+Observed WCET: 347.913171 ms
+[CAMERA CAPTURE + FACE DETECTION]
+Samples: 1001
+Average: 81.180872 ms
+Observed WCET: 350.969120 ms
+[DRIVER CONTROL]
+[INPUT REACTION] Samples: 100
+Average: 0.002461 ms
+Observed WCET: 0.005260 ms
+[OUTPUT REACTION] Samples: 1001
+Average: 0.011628 ms
+Observed WCET: 0.084240 ms
+[DRIVER MONITOR]
+[INPUT REACTION] Samples: 1001
+Average: 0.006674 ms
+Observed WCET: 0.180369 ms
+[OUTPUT REACTION] Samples: 1001
+Average: 0.005348 ms
+Observed WCET: 0.075666 ms
