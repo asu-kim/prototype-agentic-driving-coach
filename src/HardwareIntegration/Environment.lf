@@ -14,7 +14,7 @@ reactor Environment{
 
     state loaded = False
     state distance_to_exit_m = 1600
-    state distance_to_stop_sign_m = 500
+    state distance_to_stop_sign_m = 1000
     state row_idx = 0
 
     state passed = False
@@ -51,17 +51,11 @@ reactor Environment{
         if self.row_idx < len(self.lines) - 1:
             self.row_idx += 1
         road_phase = row["road_phase"]
-        other_car_present = int(row["other_car_present"])
-        other_distance_m = float(row["other_distance_m"])
-        other_velocity_kmh = float(row["other_velocity_kmh"])
+        front_car_present = int(row["front_car_present"])
         right_car_present = int(row["right_car_present"])
-        right_car_position = row["other_lane"]
-        right_car_distance_m = float(row["right_car_distance_m"])
-        right_car_velocity_kmh = float(row["right_car_velocity_kmh"])
+        right_car_position = row["right_car_position"]
         cross_left_car_present = int(row["cross_left_car_present"])
         cross_right_car_present = int(row["cross_right_car_present"])
-        cross_right_car_distance_m = float(row["cross_right_car_distance_m"])
-        cross_right_car_velocity_kmh = float(row["cross_right_car_velocity_kmh"])
 
         #converting the velocity back to m/s for ease of calculation 
         
@@ -83,13 +77,9 @@ reactor Environment{
         
         en_states = [
             road_phase,
-            other_car_present,
-            other_distance_m,
-            other_velocity_kmh,
+            front_car_present,
             right_car_present,
             right_car_position,
-            right_car_distance_m,
-            right_car_velocity_kmh,
             cross_left_car_present,
             cross_right_car_present
         ]

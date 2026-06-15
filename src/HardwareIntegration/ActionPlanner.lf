@@ -30,6 +30,7 @@ reactor ActionPlanner {
     state instruction_val = ""
     state distance_val = 0.0
     state velocity_val = 0.0
+    state stop_completed = False
 
     preamble{=
         import subprocess
@@ -51,19 +52,13 @@ reactor ActionPlanner {
             road_phase,
             velocity_kmh,
             distance_to_target_m,
-            other_car_present, # this is for the car in front after changing lane 
-            other_distance_m,
-            other_velocity_kmh,
-            right_car_present, # this is for the car in on right lane while changing lane 
+            front_car_present,
+            right_car_present,
             right_car_position,
-            right_car_distance_m,
-            right_car_velocity_kmh,
-            cross_left_car_present,# this is for the cars on right cross and left cross for stop sign
+            cross_left_car_present,
             cross_right_car_present
         ):
             SPEED_TOLERANCE_KMH = 2.0
-            MIN_FRONT_DISTANCE_M = 10.0
-            MIN_LANE_CHANGE_DISTANCE_M = 20.0
             lane_command = "KEEP_LANE" # default assuming there is no lane change
 
             if road_phase in ("HIGHWAY", "LANE_CHANGE"):
@@ -75,37 +70,23 @@ reactor ActionPlanner {
             elif road_phase == "STOP_SIGN":
                 target_speed_kmh = 45.0
             elif road_phase == "YIELD":
-                target_speed_kmh = 0.0
+                target_speed_kmh = 25.0
             else:
                 target_speed_kmh = velocity_kmh
 
-            safe_front_distance_m = max(MIN_FRONT_DISTANCE_M,(velocity_kmh / 3.6) * 2.0)
+            if road_phase not in ("STOP_SIGN", "YIELD"):
+                self.stop_completed = False
 
-            # Current-lane lead vehicle ACC
-            if other_car_present:
-                if other_distance_m < safe_front_distance_m:
-                    return "BRAKE", lane_command
-
-                if other_distance_m < safe_front_distance_m * 2.0:
-                    target_speed_kmh = min(target_speed_kmh,other_velocity_kmh)
+            # Presence-only front-car rule for the simplified scenario.
+            if front_car_present:
+                return "BRAKE", lane_command
 
             #Right-lane safety decision
             if road_phase == "LANE_CHANGE":
                 right_lane_safe = True # default for initial
 
                 if right_car_present:
-                    if right_car_position == "RIGHT_SIDE":
-                        right_lane_safe = False
-
-                    elif right_car_position == "RIGHT_REAR":
-                        rear_closing_speed_kmh = (right_car_velocity_kmh - velocity_kmh)
-                        if (right_car_distance_m < MIN_LANE_CHANGE_DISTANCE_M or rear_closing_speed_kmh > 5.0):
-                            right_lane_safe = False
-                    elif right_car_position == "RIGHT_FRONT":
-                        front_closing_speed_kmh = (velocity_kmh - right_car_velocity_kmh)
-
-                        if (right_car_distance_m < MIN_LANE_CHANGE_DISTANCE_M or front_closing_speed_kmh > 5.0):
-                            right_lane_safe = False
+                    right_lane_safe = False
 
                 if right_lane_safe:
                     lane_command = "CHANGE_RIGHT"
@@ -115,13 +96,20 @@ reactor ActionPlanner {
                 velocity_mps = velocity_kmh / 3.6
                 required_stop_distance_m = velocity_mps * 1.0 + (velocity_mps ** 2) / (2.0 * 3.0)
                 if distance_to_target_m <= 1.0 and velocity_kmh <= 0.5:
+                    self.stop_completed = True
                     return "STOP", "KEEP_LANE"
                 if distance_to_target_m <= max(5.0, required_stop_distance_m):
                     return "BRAKE", "KEEP_LANE"
             if road_phase == "YIELD":
-                if velocity_kmh > 0.5:
-                    return "BRAKE", "KEEP_LANE"
-                return "STOP", "KEEP_LANE"
+                cross_traffic_present = cross_left_car_present or cross_right_car_present
+                if not self.stop_completed:
+                    if velocity_kmh > 0.5:
+                        return "BRAKE", "KEEP_LANE"
+                    self.stop_completed = True
+                if cross_traffic_present:
+                    if velocity_kmh > 0.5:
+                        return "BRAKE", "KEEP_LANE"
+                    return "STOP", "KEEP_LANE"
 
             if velocity_kmh > target_speed_kmh + SPEED_TOLERANCE_KMH:
                 speed_command = "BRAKE"
@@ -431,11 +419,11 @@ reactor ActionPlanner {
                     return
 
                 environment_states = self.latest_environment_states
-                if environment_states is None or len(environment_states) != 10:
-                    raise RuntimeError(f"Planner expected 10 environment state values, received: {environment_states}")
-                road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
+                if environment_states is None or len(environment_states) != 6:
+                    raise RuntimeError(f"Planner expected 6 environment state values, received: {environment_states}")
+                road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
 
-                speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
+                speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
                 if _RERUN_ENABLED:
                     rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
@@ -480,11 +468,11 @@ reactor ActionPlanner {
                     monitoring.set()
                     return
                 environment_states = self.latest_environment_states
-                if environment_states is None or len(environment_states) != 10:
+                if environment_states is None or len(environment_states) != 6:
                     print(f"[PLANNER ACTUATE TARDY] Missing environment state; discarding: {environment_states}", flush=True)
                     return
-                road_phase, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present = environment_states
-                speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, other_car_present, other_distance_m, other_velocity_kmh, right_car_present, right_car_position, right_car_distance_m, right_car_velocity_kmh, cross_left_car_present, cross_right_car_present)
+                road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
+                speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
                 if _RERUN_ENABLED:
                     rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)

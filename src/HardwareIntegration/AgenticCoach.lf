@@ -144,12 +144,8 @@ reactor AgenticCoach {
         environment_keys = [
             "road_phase",
             "front_car_present",
-            "front_car_distance_m",
-            "front_car_velocity_kmh",
             "right_car_present",
             "right_car_position",
-            "right_car_distance_m",
-            "right_car_velocity_kmh",
             "cross_left_car_present",
             "cross_right_car_present"
         ]
@@ -202,8 +198,13 @@ reactor AgenticCoach {
         logical_ms = lf.time.logical_elapsed() / 1e6
         physical_ms = lf.time.physical_elapsed() / 1e6
         print(
-            f"[LLM TARDY] reaction started {physical_ms - logical_ms:.2f} ms late; "
-            ,
+            f"[LLM TARDY] reaction started {logical_ms:.2f} ms late\n"
+            f"distance={s.value if s.is_present else 'NOT PRESENT'}\n"
+            f"velocity={v.value if v.is_present else 'NOT PRESENT'}\n"
+            f"steering={st.value if st.is_present else 'NOT PRESENT'}\n"
+            f"head={h.value if h.is_present else 'NOT PRESENT'}\n"
+            f"eye={e.value if e.is_present else 'NOT PRESENT'}\n"
+            f"environment={en_states.value if en_states.is_present else 'NOT PRESENT'}",
             flush=True
         )
     =}
