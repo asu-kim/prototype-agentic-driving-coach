@@ -2,6 +2,8 @@ target Python {files: ["face_detection.py"]}
 
 preamble {=
     from face_detection import FaceDetector
+    import sys
+    _PRINT_CAMERA = "d_monitor" in sys.argv[0]
 =}
 
 reactor FaceLandmark{
@@ -38,11 +40,11 @@ reactor FaceLandmark{
             physical_dri = lf.time.physical_elapsed()/1e6
             lag = physical_dri - current_dri
 
-            print("----------------------------------------------------------")
-            print(f"[FACE DETECTOR] Logical time: {current_dri:.2f} ", flush=True)
-            print(f"[FACE DETECTOR] Physical time: {physical_dri:.2f} ", flush=True)
-            print(f"[FACE DETECTOR] LAG: {lag:.2f} ", flush=True)
-            print("----------------------------------------------------------")
+            if _PRINT_CAMERA: print("----------------------------------------------------------")
+            if _PRINT_CAMERA: print(f"[FACE DETECTOR] Logical time: {current_dri:.2f} ", flush=True)
+            if _PRINT_CAMERA: print(f"[FACE DETECTOR] Physical time: {physical_dri:.2f} ", flush=True)
+            if _PRINT_CAMERA: print(f"[FACE DETECTOR] LAG: {lag:.2f} ", flush=True)
+            if _PRINT_CAMERA: print("----------------------------------------------------------")
         except Exception as e:
             print("Detection error:", e, flush=True)
             return

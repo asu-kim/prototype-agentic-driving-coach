@@ -1,4 +1,6 @@
 from collections import deque
+import sys
+_PRINT_CAMERA = "d_monitor" in sys.argv[0]
 import cv2
 import numpy as np
 import time
@@ -34,7 +36,7 @@ class FaceDetector:
             minSize=(60, 60)
         )
 
-        print("Faces:", len(faces), flush=True)
+        if _PRINT_CAMERA: print("Faces:", len(faces), flush=True)
 
         display = frame.copy()
 
@@ -43,7 +45,7 @@ class FaceDetector:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
             cv2.imwrite("/tmp/debug.png", display)
-            print("Saved debug (no face)", flush=True)
+            if _PRINT_CAMERA: print("Saved debug (no face)", flush=True)
             return None
 
         x_small, y_small, w_small, h_small = max(faces, key=lambda face: face[2] * face[3])
@@ -73,7 +75,7 @@ class FaceDetector:
             minSize=(15, 15)
         )
 
-        print("Eyes:", len(eyes), flush=True)
+        if _PRINT_CAMERA: print("Eyes:", len(eyes), flush=True)
 
         eye = 1
 

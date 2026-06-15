@@ -16,7 +16,8 @@ reactor Environment{
     state distance_to_exit_m = 1600
     state distance_to_stop_sign_m = 1000
     state row_idx = 0
-    state previous_logical_ns = None
+    state previous_logical_ns = 0
+    state has_previous_logical_time = False
 
     state passed = False
     output displacement
@@ -62,10 +63,11 @@ reactor Environment{
         
         car_velocity = float(v.value if v.value is not None else 0.0) / 3.6
         current_logical_ns = lf.time.logical_elapsed()
-        if self.previous_logical_ns is None:
+        if not self.has_previous_logical_time:
             dt_seconds = 0.0
         else:
             dt_seconds = max(0.0, (current_logical_ns - self.previous_logical_ns) / 1e9)
+        self.has_previous_logical_time = True
         self.previous_logical_ns = current_logical_ns
         vdt = car_velocity * dt_seconds
         current_displacement = 0.0

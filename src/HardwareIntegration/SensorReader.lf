@@ -13,6 +13,9 @@ import threading
 import time
 from evdev import InputDevice, ecodes, list_devices
 import cv2
+import sys
+_PRINT_CONTROLS = "d_control" in sys.argv[0]
+_PRINT_CAMERA = "d_monitor" in sys.argv[0]
 import numpy as np
 =}
 
@@ -64,7 +67,7 @@ reactor DeviceReader {
 
       def reader(action, path):
           dev = InputDevice(path)
-          print(f"The {dev.path} is the path and {dev.name} is the name of the device.\n", flush=True)
+          if _PRINT_CONTROLS: print(f"The {dev.path} is the path and {dev.name} is the name of the device.\n", flush=True)
 
           xinfo = dev.absinfo(ecodes.ABS_X)
           xmin, xmax = xinfo.min, xinfo.max
@@ -100,12 +103,12 @@ reactor DeviceReader {
 
               elif e.code == ecodes.ABS_BRAKE:
                   b = float(clamp(norm(dev, ecodes.ABS_BRAKE, e.value), 0.0, 1.0))
-                  print(f"The event throttle: {b}")
+                  if _PRINT_CONTROLS: print(f"The event throttle: {b}")
                   maybe_send("brake", b)
 
               elif e.code == ecodes.ABS_GAS:
                   tval = float(clamp(norm(dev, ecodes.ABS_GAS, e.value), 0.0, 1.0))
-                  print(f"The event throttle: {tval}")
+                  if _PRINT_CONTROLS: print(f"The event throttle: {tval}")
                   maybe_send("throttle", tval)
 
       t = threading.Thread(
@@ -116,7 +119,7 @@ reactor DeviceReader {
       t.start()
       end_time = time.time()
       time_diff = end_time - start_time
-      print(f"Time taken for wheel: {time_diff:.2f}")
+      if _PRINT_CONTROLS: print(f"Time taken for wheel: {time_diff:.2f}")
 
       start_time2 = time.time()
       self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
@@ -129,14 +132,14 @@ reactor DeviceReader {
           self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
           self.cap.set(cv2.CAP_PROP_FPS, 10)
           self.cam_ready = True
-          print("Webcam opened", flush=True)
+          if _PRINT_CAMERA: print("Webcam opened", flush=True)
           #for startup lag warmup
           self.cap.read()
       
       end_time2 = time.time()
       time_diff2 = end_time2 - start_time2
       
-      print(f"Time taken for cam: {time_diff2:.2f}")
+      if _PRINT_CAMERA: print(f"Time taken for cam: {time_diff2:.2f}")
 
       print("The devices are connected\n")
     =}
@@ -280,8 +283,8 @@ reactor DeviceReader {
       ok, img = self.cap.read()
       physical_dri = lf.time.physical_elapsed()/1e6
       lag = physical_dri - current_dri
-      print(f"[DEVICE READER CAM read] Physical time: {physical_dri:.2f} ", flush=True)
-      print(f"[DEVICE READER CAM read] LAG: {lag:.2f} ", flush=True)
+      if _PRINT_CAMERA: print(f"[DEVICE READER CAM read] Physical time: {physical_dri:.2f} ", flush=True)
+      if _PRINT_CAMERA: print(f"[DEVICE READER CAM read] LAG: {lag:.2f} ", flush=True)
       if ok and img is not None:
         img = np.ascontiguousarray(img)
 
@@ -294,11 +297,11 @@ reactor DeviceReader {
     
     physical_dri = lf.time.physical_elapsed()/1e6
     lag = physical_dri - current_dri
-    print("----------------------------------------------------------")
-    print(f"[DEVICE READER CAM TIMER] Logical time: {current_dri:.2f} ", flush=True)
-    print(f"[DEVICE READER CAM TIMER] Physical time: {physical_dri:.2f} ", flush=True)
-    print(f"[DEVICE READER CAM TIMER] LAG: {lag:.2f} ", flush=True)
-    print("----------------------------------------------------------")
+    if _PRINT_CAMERA: print("----------------------------------------------------------")
+    if _PRINT_CAMERA: print(f"[DEVICE READER CAM TIMER] Logical time: {current_dri:.2f} ", flush=True)
+    if _PRINT_CAMERA: print(f"[DEVICE READER CAM TIMER] Physical time: {physical_dri:.2f} ", flush=True)
+    if _PRINT_CAMERA: print(f"[DEVICE READER CAM TIMER] LAG: {lag:.2f} ", flush=True)
+    if _PRINT_CAMERA: print("----------------------------------------------------------")
   =}
 
   reaction(sensor) -> steer, brake, throttle{=
@@ -313,11 +316,11 @@ reactor DeviceReader {
   current_dri = lf.time.logical_elapsed()/1e6
   physical_dri = lf.time.physical_elapsed()/1e6
   lag = physical_dri - current_dri
-  print("----------------------------------------------------------")
-  print(f"[sterr,brake,accel] Logical time: {current_dri:.2f} ", flush=True)
-  print(f"[sterr,brake,accel] Physical time: {physical_dri:.2f} ", flush=True)
-  print(f"[sterr,brake,accel] LAG: {lag:.2f} ", flush=True)
-  print("----------------------------------------------------------")
+  if _PRINT_CONTROLS: print("----------------------------------------------------------")
+  if _PRINT_CONTROLS: print(f"[sterr,brake,accel] Logical time: {current_dri:.2f} ", flush=True)
+  if _PRINT_CONTROLS: print(f"[sterr,brake,accel] Physical time: {physical_dri:.2f} ", flush=True)
+  if _PRINT_CONTROLS: print(f"[sterr,brake,accel] LAG: {lag:.2f} ", flush=True)
+  if _PRINT_CONTROLS: print("----------------------------------------------------------")
 
 =}
 
