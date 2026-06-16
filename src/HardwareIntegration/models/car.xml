@@ -5,22 +5,26 @@
        Prevents the massive camera jump on mouse scroll since the initial track was huge. -->
   <statistic extent="3.0" center="0 0 0"/>
 
-  <asset>
-    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
-    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
-    <!-- Speed limit sign texture (path relative to this XML file's directory) -->
-    <!-- <texture name="speed_limit_tex" type="2d" file="speed_limit.png"/> -->
-    <texture name="speed_limit_tex" type="2d" file="stopsign.png"/>
-    <material name="speed_limit_mat" texture="speed_limit_tex" texrepeat="1 1" texuniform="false"/>
+  <asset> 
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/> 
+    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/> 
+    
+    <!-- Sign textures (paths relative to this XML file directory) -->
+    <texture name="exit_sign_tex" type="2d" file="exitsign.png"/>
+    <material name="exit_sign_mat" texture="exit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+    <texture name="lane_change_sign_tex" type="2d" file="lanechange.png"/>
+    <material name="lane_change_sign_mat" texture="lane_change_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+    <texture name="speed_limit_sign_tex" type="2d" file="speed_limit.png"/>
+    <material name="speed_limit_sign_mat" texture="speed_limit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+    <texture name="stop_sign_tex" type="2d" file="stopsign.png"/>
+    <material name="stop_sign_mat" texture="stop_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
   </asset>
+
 
   <default>
     <joint damping=".03" />
     <default class="wheel">
       <geom type="cylinder" size=".03 .01" rgba=".5 .5 1 1"/>
-    </default>
-    <default class="decor">
-      <site type="box" rgba=".5 1 .5 1"/>
     </default>
     <!-- Steer knuckle joint: larger force range so position actuator can hold angle -->
     <default class="steer">
@@ -29,11 +33,11 @@
   </default>
 
   <worldbody>
-    <!-- Wide grassy background -->
-    <geom name="grass" type="plane" pos="15 0 -0.01" size="30 20 .01" rgba="0.15 0.4 0.15 1"/>
+    <!-- Wide grassy background for the extended 6 km highway segment. -->
+    <geom name="grass" type="plane" pos="30 0 -0.01" size="45 20 .01" rgba="0.15 0.4 0.15 1"/>
     
-    <!-- 3-lane asphalt road (based on 15cm car width, 25cm lane width. Total width 75cm -> half-width 0.375) -->
-    <geom name="road_asphalt" type="plane" pos="15 0 0" size="20 0.375 .01" rgba="0.2 0.2 0.2 1"/>
+    <!-- Straight 6 km, 3-lane road. Scale: 1 MuJoCo meter = 100 real meters; lane centers are y=0.25, y=0.0, y=-0.25. -->
+    <geom name="road_asphalt" type="plane" pos="30 0 0" size="30 0.375 .01" rgba="0.2 0.2 0.2 1"/>
     
     <!-- White dashed lane lines (2cm thick, 1.5m dash length, 1.5m gap) -->
     <geom name="dash_-4.0_L" type="box" pos="-4.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
@@ -194,115 +198,206 @@
     <geom name="dash_34.5_R" type="box" pos="34.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
     <geom name="dash_35.0_L" type="box" pos="35.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
     <geom name="dash_35.0_R" type="box" pos="35.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.5_L" type="box" pos="35.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.5_R" type="box" pos="35.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.0_L" type="box" pos="36.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.0_R" type="box" pos="36.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.5_L" type="box" pos="36.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.5_R" type="box" pos="36.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.0_L" type="box" pos="37.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.0_R" type="box" pos="37.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.5_L" type="box" pos="37.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.5_R" type="box" pos="37.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.0_L" type="box" pos="38.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.0_R" type="box" pos="38.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.5_L" type="box" pos="38.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.5_R" type="box" pos="38.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.0_L" type="box" pos="39.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.0_R" type="box" pos="39.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.5_L" type="box" pos="39.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.5_R" type="box" pos="39.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_40.0_L" type="box" pos="40.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_40.0_R" type="box" pos="40.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
     
-    <!-- Yellow edge lines (matched to road width) -->
-    <geom name="edge_line_L" type="box" pos="15 -0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="edge_line_R" type="box" pos="15  0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <!-- Yellow edge lines (matched to road width and 4 km length) -->
+    <geom name="edge_line_L" type="box" pos="20 -0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="edge_line_R" type="box" pos="20  0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
     
     <!--
-      environment.csv route mapping (1 MuJoCo meter = 100 real meters):
-        x=0.0..12.8   HIGHWAY
-        x=12.8..16.0  LANE_CHANGE
-        x=16.0..21.0  EXIT / approach to STOP_SIGN
-        x=21.0        STOP_SIGN / YIELD intersection
-        x=21.0..23.0  MOVE
+      Scenario route mapping (1 MuJoCo meter = 100 real meters):
+        x=0.0..40.0   straight highway road, 4 km total
+        x=0.0         ego car starts in center lane, y=0.0
+        x=5.0         right-lane car appears after 0.5 km, y=-0.25
+        x=16.0        exit sign appears after 1.6 km
+        x=16.0..35.6  right-side exit road, 2 km total
 
       The XML provides the static road context. Simulation logic will later move/show
       the traffic bodies from the current environment.csv row.
     -->
 
-    <!-- Phase-boundary road markers. -->
-    <site name="lane_change_zone_start" type="box" pos="12.8 0 0.004"
-          size="0.025 0.375 0.002" rgba="0.2 0.6 1 0.8"/>
-    <site name="exit_zone_start" type="box" pos="16.0 0 0.004"
-          size="0.035 0.375 0.002" rgba="1 0.55 0 0.9"/>
-    <site name="stop_line" type="box" pos="20.8 0 0.005"
-          size="0.035 0.375 0.003" rgba="1 1 1 1"/>
 
-    <!-- Crossroad used by the STOP_SIGN and YIELD rows. -->
-    <geom name="intersection_asphalt" type="box" pos="21.0 0 -0.002"
-          size="0.45 2.0 0.01" rgba="0.2 0.2 0.2 1" contype="0" conaffinity="0"/>
-    <geom name="crossroad_edge_before" type="box" pos="20.55 0 0.002"
-          size="0.01 2.0 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="crossroad_edge_after" type="box" pos="21.45 0 0.002"
-          size="0.01 2.0 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
 
-    <!-- Representative right-lane vehicle from LANE_CHANGE rows 641-760. -->
-    <body name="csv_right_lane_car" pos="13.15 -0.25 0.045">
-      <geom name="csv_right_lane_car_body" type="box" size="0.09 0.045 0.025"
-            rgba="0.85 0.15 0.15 1" contype="0" conaffinity="0"/>
-      <geom name="csv_right_lane_car_cabin" type="box" pos="-0.01 0 0.035"
-            size="0.045 0.037 0.02" rgba="0.55 0.1 0.1 1"
-            contype="0" conaffinity="0"/>
-    </body>
-
-    <!-- Representative cross traffic from YIELD rows 3215-3264. -->
-    <body name="csv_cross_left_car" pos="21.0 0.80 0.045" euler="0 0 -90">
-      <geom name="csv_cross_left_car_body" type="box" size="0.09 0.045 0.025"
-            rgba="0.15 0.35 0.9 1" contype="0" conaffinity="0"/>
-      <geom name="csv_cross_left_car_cabin" type="box" pos="-0.01 0 0.035"
-            size="0.045 0.037 0.02" rgba="0.1 0.2 0.6 1"
-            contype="0" conaffinity="0"/>
-    </body>
-    <body name="csv_cross_right_car" pos="21.0 -0.80 0.045" euler="0 0 90">
-      <geom name="csv_cross_right_car_body" type="box" size="0.09 0.045 0.025"
-            rgba="0.8 0.7 0.1 1" contype="0" conaffinity="0"/>
-      <geom name="csv_cross_right_car_cabin" type="box" pos="-0.01 0 0.035"
-            size="0.045 0.037 0.02" rgba="0.55 0.45 0.05 1"
-            contype="0" conaffinity="0"/>
-    </body>
-
-    <!-- Goal line and visual arch at 23.0m (scaled proportionally to the narrowed width) -->
-    <site name="goal_site" pos="23.0 0 0.005" size="0.2 0.375 0.005" type="box" rgba="0 1 0 0.8"/>
-    <geom name="goal_pole_L" type="cylinder" pos="23.0 -0.375 0.4" size="0.02 0.4" rgba="1 0.2 0.2 1"/>
-    <geom name="goal_pole_R" type="cylinder" pos="23.0  0.375 0.4" size="0.02 0.4" rgba="1 0.2 0.2 1"/>
-    <geom name="goal_top" type="box" pos="23.0 0 0.82" size="0.02 0.375 0.02" rgba="1 0.2 0.2 1"/>
-
-    <!-- === Stop Sign mapped to the STOP_SIGN phase at x=21.0m ===
-         The sign faces the approaching driver (visible on ±X faces of the thin box). -->
-    <!-- Metal post -->
-    <geom name="sign_post" type="cylinder"
-          pos="20.75 -0.62 0.40" size="0.022 0.40"
+    <!-- Lane-change sign at 0.5 km from start. -->
+    <geom name="lane_change_sign_post" type="cylinder"
+          pos="30.0 -0.50 0.30" size="0.006 0.30"
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
-    <!-- Sign board: thin in X (0.025m), wide in Y (0.36m total), tall in Z (0.48m total)
-         texture mapped on the large ±X faces via YZ coordinates -->
-    <geom name="sign_board" type="box"
-          pos="20.75 -0.62 0.73" size="0.24 0.18 0.025"
-          euler="0 -90 0"
-          material="speed_limit_mat"
+    <geom name="lane_change_sign_board" type="box"
+          pos="29.98 -0.50 0.60" size="0.006 0.250 0.180"
+          material="lane_change_sign_mat" rgba="1 1 1 1"
           contype="0" conaffinity="0"/>
 
-    <!-- Floating "GOAL" text (bright yellow neon sign effect, hovering above the goal arch) -->
-    <!-- "G" (Y center: 0.3) -->
-    <geom name="G_top" type="box" pos="23.0 0.3 1.025" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="G_bot" type="box" pos="23.0 0.3 0.875" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="G_left" type="box" pos="23.0 0.35 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="G_right_bot" type="box" pos="23.0 0.25 0.9125" size="0.005 0.01 0.0375" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="G_mid" type="box" pos="23.0 0.275 0.95" size="0.005 0.025 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="G_nub" type="box" pos="23.0 0.25 1.0125" size="0.005 0.01 0.0125" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
+    <!-- Red traffic car starts behind ego in the rightmost lane (y=-0.25) and is moved by the Python script. -->
+    <body name="csv_right_lane_car" pos="-1.5 -0.25 0.023">
+      <freejoint name="right_lane_car_free"/>
+      <geom name="csv_right_lane_car_body" type="box" pos="0 0 0.015"
+            size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
+      <geom name="csv_right_lane_car_nose" type="box" pos="0.105 0 0.033"
+            size="0.045 0.052 0.018" rgba="0.95 0.12 0.08 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_cabin" type="box" pos="-0.015 0 0.060"
+            size="0.060 0.047 0.028" rgba="0.45 0.04 0.04 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_windshield" type="box" pos="0.030 0 0.082"
+            size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_rear_window" type="box" pos="-0.055 0 0.082"
+            size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_front_light_l" type="box" pos="0.152 0.034 0.031"
+            size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_front_light_r" type="box" pos="0.152 -0.034 0.031"
+            size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_wheel_fl" type="cylinder" pos="0.075 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_wheel_fr" type="cylinder" pos="0.075 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_wheel_rl" type="cylinder" pos="-0.080 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="csv_right_lane_car_wheel_rr" type="cylinder" pos="-0.080 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+    </body>
 
-    <!-- "O" (Y center: 0.1) -->
-    <geom name="O_top" type="box" pos="23.0 0.1 1.025" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="O_bot" type="box" pos="23.0 0.1 0.875" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="O_left" type="box" pos="23.0 0.15 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="O_right" type="box" pos="23.0 0.05 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
+    <!-- Exit sign placed behind the exit road connector. -->
+    <geom name="exit_sign_post" type="cylinder"
+          pos="41.00 -0.50 0.30" size="0.006 0.30"
+          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
+    <geom name="exit_sign_board" type="box"
+          pos="40.98 -0.50 0.60" size="0.006 0.250 0.180"
+          material="exit_sign_mat" rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
 
-    <!-- "A" (Y center: -0.1) -->
-    <geom name="A_top" type="box" pos="23.0 -0.1 1.025" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="A_mid" type="box" pos="23.0 -0.1 0.95" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="A_left" type="box" pos="23.0 -0.05 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="A_right" type="box" pos="23.0 -0.15 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
+    <!-- Paved connector from the right lane into the horizontal exit road, made of 6 segments for a smoother curve. -->
+    <geom name="exit_connector_asphalt_1" type="box" pos="40.098 -0.256 0.006" size="0.098 0.160 0.004" euler="0 0 -7.5"  rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_connector_asphalt_2" type="box" pos="40.287 -0.307 0.006" size="0.098 0.160 0.004" euler="0 0 -22.5" rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_connector_asphalt_3" type="box" pos="40.457 -0.405 0.006" size="0.098 0.160 0.004" euler="0 0 -37.5" rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_connector_asphalt_4" type="box" pos="40.595 -0.543 0.006" size="0.098 0.160 0.004" euler="0 0 -52.5" rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_connector_asphalt_5" type="box" pos="40.693 -0.713 0.006" size="0.098 0.160 0.004" euler="0 0 -67.5" rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_connector_asphalt_6" type="box" pos="40.744 -0.902 0.006" size="0.098 0.160 0.004" euler="0 0 -82.5" rgba="0.19 0.19 0.19 1"/>
 
-    <!-- "L" (Y center: -0.3) -->
-    <geom name="L_left" type="box" pos="23.0 -0.25 0.95" size="0.005 0.01 0.075" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
-    <geom name="L_bot" type="box" pos="23.0 -0.3 0.875" size="0.005 0.05 0.01" rgba="1 0.9 0 1" contype="0" conaffinity="0"/>
+    <!-- Smoother edge lines for the connector curve. -->
+    <geom name="exit_connector_yellow_edge_1" type="box" pos="40.119 -0.098 0.010" size="0.119 0.004 0.002" euler="0 0 -7.5"  rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_yellow_edge_2" type="box" pos="40.347 -0.160 0.010" size="0.119 0.004 0.002" euler="0 0 -22.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_yellow_edge_3" type="box" pos="40.554 -0.280 0.010" size="0.119 0.004 0.002" euler="0 0 -37.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_yellow_edge_4" type="box" pos="40.722 -0.446 0.010" size="0.119 0.004 0.002" euler="0 0 -52.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_yellow_edge_5" type="box" pos="40.840 -0.651 0.010" size="0.119 0.004 0.002" euler="0 0 -67.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_yellow_edge_6" type="box" pos="40.902 -0.881 0.010" size="0.119 0.004 0.002" euler="0 0 -82.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+
+    <geom name="exit_connector_white_edge_1" type="box" pos="40.077 -0.415 0.010" size="0.077 0.004 0.002" euler="0 0 -7.5"  rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_white_edge_2" type="box" pos="40.226 -0.454 0.010" size="0.077 0.004 0.002" euler="0 0 -22.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_white_edge_3" type="box" pos="40.360 -0.530 0.010" size="0.077 0.004 0.002" euler="0 0 -37.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_white_edge_4" type="box" pos="40.468 -0.640 0.010" size="0.077 0.004 0.002" euler="0 0 -52.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_white_edge_5" type="box" pos="40.546 -0.775 0.010" size="0.077 0.004 0.002" euler="0 0 -67.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="exit_connector_white_edge_6" type="box" pos="40.585 -0.923 0.010" size="0.077 0.004 0.002" euler="0 0 -82.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+
+    <!-- Exit road stretching 1600m real (16.0 sim meters). -->
+    <geom name="exit_road_asphalt" type="box"
+          pos="40.75 -9.12 0.004" size="8.0 0.16 0.004"
+          euler="0 0 -90" rgba="0.19 0.19 0.19 1"/>
+    <geom name="exit_road_left_edge" type="box"
+          pos="40.59 -9.12 0.010" size="8.0 0.008 0.002"
+          euler="0 0 -90" rgba="1 0.8 0 1"
+          contype="0" conaffinity="0"/>
+    <geom name="exit_road_right_edge" type="box"
+          pos="40.91 -9.12 0.010" size="8.0 0.008 0.002"
+          euler="0 0 -90" rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
+
+    <!-- Speed limit sign on the exit road. -->
+    <geom name="speed_limit_sign_post" type="cylinder"
+          pos="40.32 -6.12 0.22" size="0.005 0.22"
+          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
+    <geom name="speed_limit_sign_board" type="box"
+          pos="40.32 -6.12 0.43" size="0.100 0.006 0.080"
+          material="speed_limit_sign_mat" rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
+
+    <!-- Cross horizontal road at the stop sign (y = -12.12). -->
+    <geom name="cross_road_asphalt" type="box"
+          pos="40.75 -12.12 0.003" size="10.0 0.16 0.003"
+          rgba="0.19 0.19 0.19 1"/>
+    <geom name="cross_road_top_edge" type="box"
+          pos="40.75 -11.96 0.009" size="10.0 0.008 0.002"
+          rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
+    <geom name="cross_road_bottom_edge" type="box"
+          pos="40.75 -12.28 0.009" size="10.0 0.008 0.002"
+          rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
+
+    <!-- Stop sign on the exit road. -->
+    <geom name="stop_sign_post" type="cylinder"
+          pos="40.32 -12.12 0.22" size="0.005 0.22"
+          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
+    <geom name="stop_sign_board" type="box"
+          pos="40.32 -12.12 0.44" size="0.090 0.006 0.100"
+          material="stop_sign_mat" rgba="1 1 1 1"
+          contype="0" conaffinity="0"/>
+
+    <!-- One car on the left side of the cross road -->
+    <body name="cross_car_left" pos="38.0 -12.12 0.023">
+      <!-- Full detailed model, colored red -->
+      <geom type="box" pos="0 0 0.015" size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
+      <geom type="box" pos="0.105 0 0.033" size="0.045 0.052 0.018" rgba="0.95 0.12 0.08 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="-0.015 0 0.060" size="0.060 0.047 0.028" rgba="0.45 0.04 0.04 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.030 0 0.082" size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="-0.055 0 0.082" size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.152 0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.152 -0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="0.075 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="0.075 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="-0.080 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="-0.080 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+    </body>
+
+    <!-- One car on the right side of the cross road -->
+    <body name="cross_car_right" pos="43.5 -12.12 0.023" euler="0 0 180">
+      <!-- Full detailed model, colored yellow -->
+      <geom type="box" pos="0 0 0.015" size="0.145 0.060 0.028" rgba="0.8 0.8 0.2 1"/>
+      <geom type="box" pos="0.105 0 0.033" size="0.045 0.052 0.018" rgba="0.9 0.9 0.2 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="-0.015 0 0.060" size="0.060 0.047 0.028" rgba="0.5 0.5 0.1 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.030 0 0.082" size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="-0.055 0 0.082" size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.152 0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
+      <geom type="box" pos="0.152 -0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="0.075 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="0.075 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="-0.080 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom type="cylinder" pos="-0.080 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+    </body>
+
     <body name="car" pos="0 0 .03">
-      <freejoint/>
+      <freejoint name="ego_free"/>
       <light name="top light" pos="0 0 2" mode="trackcom" diffuse=".4 .4 .4"/>
       <!-- Box chassis: main body slab (taller floor) -->
       <geom name="chassis_body" type="box" pos="0.005 0 0.012" size="0.077 0.040 0.020" rgba=".45 .45 .5 1"/>
-      <!-- Tall cabin enclosure -->
-      <geom name="chassis_cabin" type="box" pos="0.00 0 0.068" size="0.045 0.033 0.034" rgba=".38 .38 .43 1"/>
+      <!-- Rear cabin block kept behind the driver camera so first-person view is not occluded while steering. -->
+      <geom name="chassis_cabin" type="box" pos="-0.035 0 0.065" size="0.024 0.033 0.030" rgba=".38 .38 .43 1"/>
       <!-- Front axle strut (non-collideable visual) -->
       <geom name="axle_front" type="box" pos="0.08 0 0" size="0.010 0.058 0.007" rgba=".3 .3 .35 1" contype="0" conaffinity="0"/>
       <!-- Rear axle strut (non-collideable visual) -->
@@ -316,8 +411,8 @@
            All child geoms are in the local XY-plane (a circle of radius 0.018). -->
       <body name="steer_wheel_body" pos="0.028 0 0.058" zaxis="-0.707 0 0.707">
         <inertial pos="0 0 0" mass="0.005" diaginertia="1e-6 1e-6 1e-6"/>
-        <!-- Joint: hinge around local Z = steering-column axis; high damping to resist drift -->
-        <joint name="steer_visual" type="hinge" axis="0 0 1" damping="500" actuatorfrcrange="-0 0"/>
+        <!-- Joint: hinge around local Z = steering-column axis; driven by equality constraint -->
+        <joint name="steer_visual" type="hinge" axis="0 0 1" damping="0.01"/>
         <!-- Hub -->
         <geom name="sw_hub" type="sphere" pos="0 0 0"
               size="0.006" rgba=".25 .25 .25 1" contype="0" conaffinity="0"/>
@@ -344,9 +439,9 @@
         <geom name="sw_sp1" type="capsule" pos=" 0.00450 -0.00779 0" size="0.0020 0.0090" zaxis=" 0.500 -0.866 0" rgba=".25 .25 .25 1" contype="0" conaffinity="0"/>
         <geom name="sw_sp2" type="capsule" pos=" 0.00450  0.00779 0" size="0.0020 0.0090" zaxis=" 0.500  0.866 0" rgba=".25 .25 .25 1" contype="0" conaffinity="0"/>
       </body>
-      <!-- Driver first-person camera: looking forward ~20° downward to see steering wheel -->
-      <!-- xyaxes: cam_x=(0,-1,0)=car_right, cam_y=(0.342,0,0.940)=up-tilted-fwd → looks in +X and -Z -->
-      <camera name="driver_cam" pos="0.005 0 0.092" xyaxes="0 -1 0 0.342 0 0.940" fovy="75"/>
+      <!-- Driver camera just above the cockpit, tilted slightly down to see the road ahead. -->
+      <camera name="driver_cam" pos="0.005 0 0.105" xyaxes="0 -1 0 0.174 0 0.985" fovy="75"/>
+
       <!-- Front-left: outer body = steer (yaw), inner body = roll (spin) -->
       <body name="front_left_steer" pos=".08 .06 0">
         <inertial pos="0 0 0" mass="0.001" diaginertia="1e-6 1e-6 1e-6"/>
@@ -354,8 +449,6 @@
         <body name="front_left_wheel" zaxis="0 1 0">
           <joint name="roll_front_left" type="hinge" axis="0 0 1" damping="0.002"/>
           <geom class="wheel" priority="1"/>
-          <site class="decor" size=".006 .025 .012"/>
-          <site class="decor" size=".025 .006 .012"/>
         </body>
       </body>
       <!-- Front-right: outer body = steer (yaw), inner body = roll (spin) -->
@@ -365,25 +458,24 @@
         <body name="front_right_wheel" zaxis="0 1 0">
           <joint name="roll_front_right" type="hinge" axis="0 0 1" damping="0.002"/>
           <geom class="wheel" priority="1"/>
-          <site class="decor" size=".006 .025 .012"/>
-          <site class="decor" size=".025 .006 .012"/>
         </body>
       </body>
       <light name="front light" pos=".1 0 .02" dir="2 0 -1" diffuse="1 1 1"/>
       <body name="left wheel" pos="-.07 .06 0" zaxis="0 1 0">
         <joint name="left"/>
         <geom class="wheel"/>
-        <site class="decor" size=".006 .025 .012"/>
-        <site class="decor" size=".025 .006 .012"/>
       </body>
       <body name="right wheel" pos="-.07 -.06 0" zaxis="0 1 0">
         <joint name="right"/>
         <geom class="wheel"/>
-        <site class="decor" size=".006 .025 .012"/>
-        <site class="decor" size=".025 .006 .012"/>
       </body>
     </body>
   </worldbody>
+
+  <equality>
+    <!-- Make the steering wheel visually rotate 4x the angle of the front wheels -->
+    <joint joint1="steer_visual" joint2="steer_left" polycoef="0 4 0 0 0"/>
+  </equality>
 
   <tendon>
     <!-- Rear wheel drive: both rear wheels spin together -->

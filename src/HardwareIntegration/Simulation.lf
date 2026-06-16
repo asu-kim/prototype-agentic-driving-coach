@@ -30,12 +30,12 @@ reactor Simulation {
             self.remaining_distance_m = float(rem_dist.value)
 
         # MuJoCo's forward motor accepts a normalized command in [-1, 1].
-        forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 35.0))
+        forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 120.0))
  
         if self.steer_value == 2:
-            turn_cmd = -0.05
+            turn_cmd = -0.25
         elif self.steer_value == 0:
-            turn_cmd = 0.05
+            turn_cmd = 0.25
         else:
             turn_cmd = 0.0
 
