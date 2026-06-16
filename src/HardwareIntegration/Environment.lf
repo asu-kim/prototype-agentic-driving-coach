@@ -15,6 +15,7 @@ reactor Environment{
     state loaded = False
     state distance_to_exit_m = 1600
     state distance_to_stop_sign_m = 1000
+    state distance_after_stop_m = 100
     state row_idx = 0
     state previous_logical_ns = 0
     state has_previous_logical_time = False
@@ -22,14 +23,14 @@ reactor Environment{
     state passed = False
     output displacement
     output environment_states
-    
+
     state v_val = 0.0
     reaction(startup){=
         if _RERUN_ENABLED:
             rr.init("hardware_integrated_adc_environment", spawn=True)
             print("[RERUN] Environment viewer initialized.", flush=True)
         print(f"[ENVIRONMENT MODE] {_RUN_MODE}", flush=True)
-        
+
         try:
             with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
                 reader = csv.DictReader(f)
@@ -45,7 +46,7 @@ reactor Environment{
     =}
 
     reaction(v) -> displacement, environment_states{=
-        #reading the csv for the environment variables 
+        #reading the csv for the environment variables
         if not self.loaded or len(self.lines) == 0:
             raise RuntimeError("Environment reaction cannot run because environment.csv is not loaded")
 
@@ -59,8 +60,8 @@ reactor Environment{
         cross_left_car_present = int(row["cross_left_car_present"])
         cross_right_car_present = int(row["cross_right_car_present"])
 
-        #converting the velocity back to m/s for ease of calculation 
-        
+        #converting the velocity back to m/s for ease of calculation
+
         car_velocity = float(v.value if v.value is not None else 0.0) / 3.6
         current_logical_ns = lf.time.logical_elapsed()
         if not self.has_previous_logical_time:
@@ -75,15 +76,20 @@ reactor Environment{
             self.distance_to_exit_m = max(0.0, self.distance_to_exit_m - vdt)
             current_displacement = self.distance_to_exit_m
             displacement.set(current_displacement)
-            
-        elif road_phase in ("EXIT", "STOP_SIGN"):
+
+        elif road_phase in ("EXIT", "STOP_SIGN", "YIELD"):
             self.distance_to_stop_sign_m = max(0.0, self.distance_to_stop_sign_m - vdt)
             current_displacement = self.distance_to_stop_sign_m
             displacement.set(current_displacement)
-        
+
+        elif road_phase == "MOVE":
+            self.distance_after_stop_m = max(0.0, self.distance_after_stop_m - vdt)
+            current_displacement = self.distance_after_stop_m
+            displacement.set(current_displacement)
+
         else:
             displacement.set(0.0)
-        
+
         en_states = [
             road_phase,
             front_car_present,
@@ -92,7 +98,7 @@ reactor Environment{
             cross_left_car_present,
             cross_right_car_present
         ]
-        environment_states.set(en_states)        
+        environment_states.set(en_states)
 
 
 
@@ -115,7 +121,7 @@ reactor Environment{
         print(f"[ENVIRONMENT] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
     =}
- 
-    
-    
+
+
+
 }

@@ -185,7 +185,7 @@ reactor ActionPlanner {
 
 
     initial mode monitoring {
-            reaction(ctrl, instr, s, v) -> reset(warning), reset(actuate), planned_instr {=
+            reaction(ctrl, instr, s, v) -> warning, actuate, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -289,7 +289,7 @@ reactor ActionPlanner {
     }
 
     mode warning {
-            reaction(ctrl, instr, s, v) -> reset(monitoring), reset(actuate), planned_instr {=
+            reaction(ctrl, instr, s, v) -> monitoring, actuate, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -384,7 +384,7 @@ reactor ActionPlanner {
     }
 
     mode actuate {
-            reaction(ctrl, instr, s, v, en_states) -> act, reset(monitoring), planned_instr {=
+            reaction(ctrl, instr, s, v, en_states) -> act, monitoring, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:

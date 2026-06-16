@@ -65,18 +65,20 @@ cd fed-gen/HardwareIntegratedADC
 Start the RTI on the server:
 
 ```bash
-./bin/RTI -n 6
+./bin/RTI -n 8
 ```
 
 Then start the federates. The driver federate should run on the Raspberry Pi or hardware input machine; the remaining federates usually run on the server.
 
 ```bash
-./bin/federate__d
+./bin/federate__d_control
+./bin/federate__d_monitor
 ./bin/federate__c
 ./bin/federate__en
 ./bin/federate__adc
 ./bin/federate__llm
 ./bin/federate__planner
+./bin/federate__sim
 ```
 
 Each separately launched federate opens its own Rerun viewer automatically. No

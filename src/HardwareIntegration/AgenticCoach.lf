@@ -25,6 +25,8 @@ reactor AgenticCoach {
     output control
     output instruction
 
+    state exit_prepare_announced = False
+
     reaction(startup) {=
         if _RERUN_ENABLED:
             rr.init("hardware_integrated_adc_agentic_coach", spawn=True)
@@ -55,10 +57,12 @@ reactor AgenticCoach {
 
                             Apply only the requirements for the current road_phase:
 
-                            - HIGHWAY: Maintain 85-90 km/h. Do not request a right-lane check during HIGHWAY.
+                            - HIGHWAY: Maintain 85-90 km/h. When distance_to_target_m is at most 1000, instruct the driver to prepare to change right for the exit. Do not request a right-lane check before that 1 km point.
                             - LANE_CHANGE: Look right before changing lanes. A right look is satisfied when RIGHT appears in either head_history or eye_history. The right lane is unsafe when right_car_present is 1.
-                            - EXIT: Reduce speed toward 45 km/h.
+                            - EXIT: Reduce speed toward 45 km/h. distance_to_target_m is distance to the stop sign at the crossroad.
                             - STOP_SIGN: Stop before the sign and look LEFT and RIGHT before moving ahead.
+                            - YIELD: Yield until cross traffic has cleared, especially right-side cross traffic.
+                            - MOVE: Move ahead for the final 100 m.
 
                             Choose exactly one TOKEN using this priority:
 
@@ -68,6 +72,7 @@ reactor AgenticCoach {
                                - road_phase is STOP_SIGN, distance_to_target_m is at most 5 m, and velocity_kmh is above 5.
 
                             2. WARNING for a recoverable unmet requirement:
+                               - HIGHWAY distance_to_target_m is at most 1000 and the driver has not been told to prepare for the exit,
                                - HIGHWAY velocity is below 85 or above 90 km/h,
                                - LANE_CHANGE has no recent RIGHT look,
                                - EXIT velocity is outside 40-50 km/h, or
@@ -78,6 +83,7 @@ reactor AgenticCoach {
                             Instruction rules:
                             - For low speed, say increase speed. Never say slow down.
                             - For high speed, say reduce speed.
+                            - At the HIGHWAY 1 km point, say prepare to change right for the exit.
                             - Do not mention a right-lane vehicle when right_car_present is 0.
                             - For NONE, leave the instruction empty.
 
@@ -156,6 +162,20 @@ reactor AgenticCoach {
             "cross_right_car_present"
         ]
         environment_input = dict(zip(environment_keys, environment_values))
+        road_phase = environment_input.get("road_phase", "")
+
+        if road_phase not in ("HIGHWAY", "LANE_CHANGE"):
+            self.exit_prepare_announced = False
+        if (
+            road_phase == "HIGHWAY"
+            and distance_val <= 1000.0
+            and not self.exit_prepare_announced
+        ):
+            self.exit_prepare_announced = True
+            control.set("WARNING")
+            instruction.set("Exit is about 1 kilometer away. Prepare to change right.")
+            return
+
         llm_inputs = {
             "distance_to_target_m": distance_val,
             "velocity_kmh": velocity_val,

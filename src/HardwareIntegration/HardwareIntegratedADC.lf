@@ -11,6 +11,7 @@ import Environment from "Environment.lf"
 import InputForCoach from "InputForCoach.lf"
 import AgenticCoach from "AgenticCoach.lf"
 import ActionPlanner from "ActionPlanner.lf"
+import Simulation from "Simulation.lf"
 
 preamble{=
     import argparse
@@ -25,8 +26,6 @@ preamble{=
     args, unknown = parser.parse_known_args()
     RUN_MODE = args.mode
 =}
-
-// import Simulation from "Simulation.lf"
 
 
 federated reactor at 10.218.100.78 {
@@ -52,7 +51,7 @@ federated reactor at 10.218.100.78 {
 
     @maxwait(260 msec)
     planner = new ActionPlanner()
-    // sim = new Simulation()
+    sim = new Simulation()
     d_control.steer -> c.steer_in
     d_control.accelerator -> c.accel_in
     d_control.brake -> c.brake_in
@@ -66,12 +65,13 @@ federated reactor at 10.218.100.78 {
     c.steer -> adc.st
 
      
-    // c.velocity -> sim.velocity_in
-    // c.steer -> sim.steer_in
+    c.velocity -> sim.velocity_in
+    c.steer -> sim.steer_in
 
     en.displacement -> adc.s
     en.environment_states -> adc.en_states
-    // en.displacement -> sim.rem_dist
+    en.displacement -> sim.rem_dist
+    // en.environment_states -> sim.en_states
 
 
     adc.displacement -> llm.s
@@ -90,7 +90,7 @@ federated reactor at 10.218.100.78 {
     llm.instruction -> planner.instr
    
    
-    planner.act -> c.actuate_in after 200 ms
+    planner.act -> c.actuate_in after 20 ms
     // planner.lane_act -> c.lane_actuate_in after 200 ms
 
     

@@ -1,4 +1,9 @@
-target Python
+target Python {
+    files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
+    cmake-args: {
+        Python_EXECUTABLE: "python3"
+    }
+}
 
 import MuJoCoCarAuto from "../../mujoco-py/src/lib/MuJoCoCarAutoHardware.lf"
 
@@ -23,7 +28,6 @@ reactor Simulation {
             self.steer_value = steer_in.value
         if rem_dist.is_present:
             self.remaining_distance_m = float(rem_dist.value)
-            print(f"The value of rd into simulation : {self.remaining_distance_m}")
 
         # MuJoCo's forward motor accepts a normalized command in [-1, 1].
         forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 35.0))
