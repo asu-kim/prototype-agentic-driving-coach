@@ -426,10 +426,10 @@ reactor ActionPlanner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-            if RUN_MODE == "DataCollect":
-                rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                rr.log("planner/actuator_command", rr.TextLog(speed_command))
+                if RUN_MODE == "DataCollect":
+                    rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+                    rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
+                    rr.log("planner/actuator_command", rr.TextLog(speed_command))
 
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -475,10 +475,10 @@ reactor ActionPlanner {
                 road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-            if RUN_MODE == "DataCollect":
-                rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                rr.log("planner/actuator_command", rr.TextLog(speed_command))
+                if RUN_MODE == "DataCollect":
+                    rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
+                    rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
+                    rr.log("planner/actuator_command", rr.TextLog(speed_command))
             =}
     } 
 }
