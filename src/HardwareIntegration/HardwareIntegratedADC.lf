@@ -53,7 +53,7 @@ federated reactor at 10.218.100.78 {
     @maxwait(260 msec)
     planner = new ActionPlanner()
 
-    
+    @maxwait(100 msec)
     sim = new Simulation()
     d_control.steer -> c.steer_in
     d_control.accelerator -> c.accel_in

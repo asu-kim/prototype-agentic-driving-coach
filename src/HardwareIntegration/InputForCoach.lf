@@ -19,7 +19,7 @@ reactor InputForCoach{
 
     // Local LLM inference is synchronous, so leave enough time between requests
     // for one inference to finish before the next logical tick.
-    timer llmclock(4 sec, 500 msec)
+    timer llmclock(15 sec, 500 msec)
 
     state s_val = 0.0
     state v_val = 0.0

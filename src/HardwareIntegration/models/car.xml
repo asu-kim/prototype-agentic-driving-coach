@@ -6,18 +6,21 @@
   <statistic extent="3.0" center="0 0 0"/>
 
   <asset> 
-    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/> 
-    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/> 
+      <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/> 
+      <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/> 
     
     <!-- Sign textures (paths relative to this XML file directory) -->
-    <texture name="exit_sign_tex" type="2d" file="exitsign.png"/>
-    <material name="exit_sign_mat" texture="exit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
-    <texture name="lane_change_sign_tex" type="2d" file="lanechange.png"/>
-    <material name="lane_change_sign_mat" texture="lane_change_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
-    <texture name="speed_limit_sign_tex" type="2d" file="speed_limit.png"/>
-    <material name="speed_limit_sign_mat" texture="speed_limit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
-    <texture name="stop_sign_tex" type="2d" file="stopsign.png"/>
-    <material name="stop_sign_mat" texture="stop_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+      <texture name="exit_sign_tex" type="2d" file="exitsign.png"/>
+      <material name="exit_sign_mat" texture="exit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+
+      <texture name="lane_change_sign_tex" type="2d" file="lanechange.png"/>
+      <material name="lane_change_sign_mat" texture="lane_change_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+
+      <texture name="speed_limit_sign_tex" type="2d" file="speed_limit.png"/>
+      <material name="speed_limit_sign_mat" texture="speed_limit_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
+
+      <texture name="stop_sign_tex" type="2d" file="stopsign.png"/>
+      <material name="stop_sign_mat" texture="stop_sign_tex" texrepeat="1 1" texuniform="true" emission="0.35"/>
   </asset>
 
 
@@ -37,191 +40,191 @@
     <geom name="grass" type="plane" pos="30 0 -0.01" size="45 20 .01" rgba="0.15 0.4 0.15 1"/>
     
     <!-- Straight 6 km, 3-lane road. Scale: 1 MuJoCo meter = 100 real meters; lane centers are y=0.25, y=0.0, y=-0.25. -->
-    <geom name="road_asphalt" type="plane" pos="30 0 0" size="30 0.375 .01" rgba="0.2 0.2 0.2 1"/>
+    <geom name="road_asphalt" type="plane" pos="30 0 0" size="45 0.60 .01" rgba="0.2 0.2 0.2 1"/>
     
     <!-- White dashed lane lines (2cm thick, 1.5m dash length, 1.5m gap) -->
-    <geom name="dash_-4.0_L" type="box" pos="-4.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-4.0_R" type="box" pos="-4.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-3.5_L" type="box" pos="-3.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-3.5_R" type="box" pos="-3.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-3.0_L" type="box" pos="-3.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-3.0_R" type="box" pos="-3.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-2.5_L" type="box" pos="-2.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-2.5_R" type="box" pos="-2.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-2.0_L" type="box" pos="-2.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-2.0_R" type="box" pos="-2.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-1.5_L" type="box" pos="-1.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-1.5_R" type="box" pos="-1.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-1.0_L" type="box" pos="-1.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-1.0_R" type="box" pos="-1.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-0.5_L" type="box" pos="-0.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_-0.5_R" type="box" pos="-0.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_0.0_L" type="box" pos="0.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_0.0_R" type="box" pos="0.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_0.5_L" type="box" pos="0.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_0.5_R" type="box" pos="0.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_1.0_L" type="box" pos="1.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_1.0_R" type="box" pos="1.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_1.5_L" type="box" pos="1.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_1.5_R" type="box" pos="1.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_2.0_L" type="box" pos="2.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_2.0_R" type="box" pos="2.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_2.5_L" type="box" pos="2.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_2.5_R" type="box" pos="2.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_3.0_L" type="box" pos="3.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_3.0_R" type="box" pos="3.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_3.5_L" type="box" pos="3.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_3.5_R" type="box" pos="3.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_4.0_L" type="box" pos="4.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_4.0_R" type="box" pos="4.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_4.5_L" type="box" pos="4.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_4.5_R" type="box" pos="4.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_5.0_L" type="box" pos="5.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_5.0_R" type="box" pos="5.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_5.5_L" type="box" pos="5.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_5.5_R" type="box" pos="5.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_6.0_L" type="box" pos="6.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_6.0_R" type="box" pos="6.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_6.5_L" type="box" pos="6.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_6.5_R" type="box" pos="6.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_7.0_L" type="box" pos="7.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_7.0_R" type="box" pos="7.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_7.5_L" type="box" pos="7.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_7.5_R" type="box" pos="7.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_8.0_L" type="box" pos="8.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_8.0_R" type="box" pos="8.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_8.5_L" type="box" pos="8.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_8.5_R" type="box" pos="8.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_9.0_L" type="box" pos="9.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_9.0_R" type="box" pos="9.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_9.5_L" type="box" pos="9.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_9.5_R" type="box" pos="9.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_10.0_L" type="box" pos="10.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_10.0_R" type="box" pos="10.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_10.5_L" type="box" pos="10.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_10.5_R" type="box" pos="10.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_11.0_L" type="box" pos="11.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_11.0_R" type="box" pos="11.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_11.5_L" type="box" pos="11.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_11.5_R" type="box" pos="11.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_12.0_L" type="box" pos="12.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_12.0_R" type="box" pos="12.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_12.5_L" type="box" pos="12.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_12.5_R" type="box" pos="12.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_13.0_L" type="box" pos="13.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_13.0_R" type="box" pos="13.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_13.5_L" type="box" pos="13.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_13.5_R" type="box" pos="13.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_14.0_L" type="box" pos="14.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_14.0_R" type="box" pos="14.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_14.5_L" type="box" pos="14.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_14.5_R" type="box" pos="14.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_15.0_L" type="box" pos="15.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_15.0_R" type="box" pos="15.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_15.5_L" type="box" pos="15.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_15.5_R" type="box" pos="15.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_16.0_L" type="box" pos="16.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_16.0_R" type="box" pos="16.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_16.5_L" type="box" pos="16.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_16.5_R" type="box" pos="16.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_17.0_L" type="box" pos="17.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_17.0_R" type="box" pos="17.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_17.5_L" type="box" pos="17.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_17.5_R" type="box" pos="17.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_18.0_L" type="box" pos="18.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_18.0_R" type="box" pos="18.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_18.5_L" type="box" pos="18.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_18.5_R" type="box" pos="18.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_19.0_L" type="box" pos="19.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_19.0_R" type="box" pos="19.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_19.5_L" type="box" pos="19.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_19.5_R" type="box" pos="19.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_20.0_L" type="box" pos="20.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_20.0_R" type="box" pos="20.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_20.5_L" type="box" pos="20.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_20.5_R" type="box" pos="20.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_21.0_L" type="box" pos="21.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_21.0_R" type="box" pos="21.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_21.5_L" type="box" pos="21.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_21.5_R" type="box" pos="21.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_22.0_L" type="box" pos="22.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_22.0_R" type="box" pos="22.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_22.5_L" type="box" pos="22.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_22.5_R" type="box" pos="22.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_23.0_L" type="box" pos="23.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_23.0_R" type="box" pos="23.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_23.5_L" type="box" pos="23.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_23.5_R" type="box" pos="23.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_24.0_L" type="box" pos="24.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_24.0_R" type="box" pos="24.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_24.5_L" type="box" pos="24.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_24.5_R" type="box" pos="24.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_25.0_L" type="box" pos="25.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_25.0_R" type="box" pos="25.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_25.5_L" type="box" pos="25.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_25.5_R" type="box" pos="25.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_26.0_L" type="box" pos="26.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_26.0_R" type="box" pos="26.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_26.5_L" type="box" pos="26.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_26.5_R" type="box" pos="26.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_27.0_L" type="box" pos="27.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_27.0_R" type="box" pos="27.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_27.5_L" type="box" pos="27.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_27.5_R" type="box" pos="27.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_28.0_L" type="box" pos="28.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_28.0_R" type="box" pos="28.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_28.5_L" type="box" pos="28.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_28.5_R" type="box" pos="28.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_29.0_L" type="box" pos="29.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_29.0_R" type="box" pos="29.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_29.5_L" type="box" pos="29.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_29.5_R" type="box" pos="29.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_30.0_L" type="box" pos="30.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_30.0_R" type="box" pos="30.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_30.5_L" type="box" pos="30.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_30.5_R" type="box" pos="30.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_31.0_L" type="box" pos="31.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_31.0_R" type="box" pos="31.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_31.5_L" type="box" pos="31.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_31.5_R" type="box" pos="31.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_32.0_L" type="box" pos="32.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_32.0_R" type="box" pos="32.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_32.5_L" type="box" pos="32.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_32.5_R" type="box" pos="32.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_33.0_L" type="box" pos="33.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_33.0_R" type="box" pos="33.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_33.5_L" type="box" pos="33.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_33.5_R" type="box" pos="33.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_34.0_L" type="box" pos="34.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_34.0_R" type="box" pos="34.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_34.5_L" type="box" pos="34.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_34.5_R" type="box" pos="34.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_35.0_L" type="box" pos="35.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_35.0_R" type="box" pos="35.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_35.5_L" type="box" pos="35.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_35.5_R" type="box" pos="35.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_36.0_L" type="box" pos="36.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_36.0_R" type="box" pos="36.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_36.5_L" type="box" pos="36.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_36.5_R" type="box" pos="36.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_37.0_L" type="box" pos="37.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_37.0_R" type="box" pos="37.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_37.5_L" type="box" pos="37.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_37.5_R" type="box" pos="37.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_38.0_L" type="box" pos="38.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_38.0_R" type="box" pos="38.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_38.5_L" type="box" pos="38.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_38.5_R" type="box" pos="38.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_39.0_L" type="box" pos="39.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_39.0_R" type="box" pos="39.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_39.5_L" type="box" pos="39.5 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_39.5_R" type="box" pos="39.5  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_40.0_L" type="box" pos="40.0 -0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="dash_40.0_R" type="box" pos="40.0  0.125 0.002" size="0.125 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-4.0_L" type="box" pos="-4.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-4.0_R" type="box" pos="-4.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-3.5_L" type="box" pos="-3.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-3.5_R" type="box" pos="-3.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-3.0_L" type="box" pos="-3.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-3.0_R" type="box" pos="-3.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-2.5_L" type="box" pos="-2.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-2.5_R" type="box" pos="-2.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-2.0_L" type="box" pos="-2.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-2.0_R" type="box" pos="-2.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-1.5_L" type="box" pos="-1.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-1.5_R" type="box" pos="-1.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-1.0_L" type="box" pos="-1.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-1.0_R" type="box" pos="-1.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-0.5_L" type="box" pos="-0.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_-0.5_R" type="box" pos="-0.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_0.0_L" type="box" pos="0.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_0.0_R" type="box" pos="0.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_0.5_L" type="box" pos="0.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_0.5_R" type="box" pos="0.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_1.0_L" type="box" pos="1.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_1.0_R" type="box" pos="1.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_1.5_L" type="box" pos="1.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_1.5_R" type="box" pos="1.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_2.0_L" type="box" pos="2.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_2.0_R" type="box" pos="2.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_2.5_L" type="box" pos="2.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_2.5_R" type="box" pos="2.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_3.0_L" type="box" pos="3.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_3.0_R" type="box" pos="3.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_3.5_L" type="box" pos="3.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_3.5_R" type="box" pos="3.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_4.0_L" type="box" pos="4.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_4.0_R" type="box" pos="4.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_4.5_L" type="box" pos="4.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_4.5_R" type="box" pos="4.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_5.0_L" type="box" pos="5.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_5.0_R" type="box" pos="5.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_5.5_L" type="box" pos="5.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_5.5_R" type="box" pos="5.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_6.0_L" type="box" pos="6.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_6.0_R" type="box" pos="6.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_6.5_L" type="box" pos="6.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_6.5_R" type="box" pos="6.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_7.0_L" type="box" pos="7.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_7.0_R" type="box" pos="7.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_7.5_L" type="box" pos="7.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_7.5_R" type="box" pos="7.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_8.0_L" type="box" pos="8.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_8.0_R" type="box" pos="8.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_8.5_L" type="box" pos="8.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_8.5_R" type="box" pos="8.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_9.0_L" type="box" pos="9.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_9.0_R" type="box" pos="9.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_9.5_L" type="box" pos="9.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_9.5_R" type="box" pos="9.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_10.0_L" type="box" pos="10.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_10.0_R" type="box" pos="10.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_10.5_L" type="box" pos="10.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_10.5_R" type="box" pos="10.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_11.0_L" type="box" pos="11.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_11.0_R" type="box" pos="11.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_11.5_L" type="box" pos="11.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_11.5_R" type="box" pos="11.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_12.0_L" type="box" pos="12.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_12.0_R" type="box" pos="12.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_12.5_L" type="box" pos="12.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_12.5_R" type="box" pos="12.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_13.0_L" type="box" pos="13.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_13.0_R" type="box" pos="13.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_13.5_L" type="box" pos="13.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_13.5_R" type="box" pos="13.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_14.0_L" type="box" pos="14.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_14.0_R" type="box" pos="14.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_14.5_L" type="box" pos="14.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_14.5_R" type="box" pos="14.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_15.0_L" type="box" pos="15.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_15.0_R" type="box" pos="15.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_15.5_L" type="box" pos="15.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_15.5_R" type="box" pos="15.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_16.0_L" type="box" pos="16.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_16.0_R" type="box" pos="16.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_16.5_L" type="box" pos="16.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_16.5_R" type="box" pos="16.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_17.0_L" type="box" pos="17.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_17.0_R" type="box" pos="17.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_17.5_L" type="box" pos="17.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_17.5_R" type="box" pos="17.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_18.0_L" type="box" pos="18.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_18.0_R" type="box" pos="18.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_18.5_L" type="box" pos="18.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_18.5_R" type="box" pos="18.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_19.0_L" type="box" pos="19.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_19.0_R" type="box" pos="19.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_19.5_L" type="box" pos="19.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_19.5_R" type="box" pos="19.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_20.0_L" type="box" pos="20.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_20.0_R" type="box" pos="20.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_20.5_L" type="box" pos="20.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_20.5_R" type="box" pos="20.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_21.0_L" type="box" pos="21.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_21.0_R" type="box" pos="21.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_21.5_L" type="box" pos="21.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_21.5_R" type="box" pos="21.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_22.0_L" type="box" pos="22.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_22.0_R" type="box" pos="22.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_22.5_L" type="box" pos="22.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_22.5_R" type="box" pos="22.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_23.0_L" type="box" pos="23.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_23.0_R" type="box" pos="23.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_23.5_L" type="box" pos="23.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_23.5_R" type="box" pos="23.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_24.0_L" type="box" pos="24.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_24.0_R" type="box" pos="24.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_24.5_L" type="box" pos="24.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_24.5_R" type="box" pos="24.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_25.0_L" type="box" pos="25.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_25.0_R" type="box" pos="25.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_25.5_L" type="box" pos="25.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_25.5_R" type="box" pos="25.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_26.0_L" type="box" pos="26.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_26.0_R" type="box" pos="26.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_26.5_L" type="box" pos="26.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_26.5_R" type="box" pos="26.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_27.0_L" type="box" pos="27.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_27.0_R" type="box" pos="27.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_27.5_L" type="box" pos="27.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_27.5_R" type="box" pos="27.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_28.0_L" type="box" pos="28.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_28.0_R" type="box" pos="28.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_28.5_L" type="box" pos="28.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_28.5_R" type="box" pos="28.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_29.0_L" type="box" pos="29.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_29.0_R" type="box" pos="29.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_29.5_L" type="box" pos="29.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_29.5_R" type="box" pos="29.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_30.0_L" type="box" pos="30.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_30.0_R" type="box" pos="30.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_30.5_L" type="box" pos="30.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_30.5_R" type="box" pos="30.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_31.0_L" type="box" pos="31.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_31.0_R" type="box" pos="31.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_31.5_L" type="box" pos="31.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_31.5_R" type="box" pos="31.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_32.0_L" type="box" pos="32.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_32.0_R" type="box" pos="32.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_32.5_L" type="box" pos="32.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_32.5_R" type="box" pos="32.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_33.0_L" type="box" pos="33.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_33.0_R" type="box" pos="33.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_33.5_L" type="box" pos="33.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_33.5_R" type="box" pos="33.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_34.0_L" type="box" pos="34.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_34.0_R" type="box" pos="34.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_34.5_L" type="box" pos="34.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_34.5_R" type="box" pos="34.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.0_L" type="box" pos="35.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.0_R" type="box" pos="35.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.5_L" type="box" pos="35.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_35.5_R" type="box" pos="35.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.0_L" type="box" pos="36.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.0_R" type="box" pos="36.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.5_L" type="box" pos="36.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_36.5_R" type="box" pos="36.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.0_L" type="box" pos="37.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.0_R" type="box" pos="37.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.5_L" type="box" pos="37.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_37.5_R" type="box" pos="37.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.0_L" type="box" pos="38.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.0_R" type="box" pos="38.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.5_L" type="box" pos="38.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_38.5_R" type="box" pos="38.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.0_L" type="box" pos="39.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.0_R" type="box" pos="39.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.5_L" type="box" pos="39.5 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_39.5_R" type="box" pos="39.5  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_40.0_L" type="box" pos="40.0 -0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+    <geom name="dash_40.0_R" type="box" pos="40.0  0.2 0.002" size="0.2 0.01 0.001" rgba="1 1 1 1" contype="0" conaffinity="0"/>
     
     <!-- Yellow edge lines (matched to road width and 4 km length) -->
-    <geom name="edge_line_L" type="box" pos="20 -0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="edge_line_R" type="box" pos="20  0.37 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="edge_line_L" type="box" pos="20 -0.60 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+    <geom name="edge_line_R" type="box" pos="20  0.60 0.002" size="20 0.01 0.001" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
     
     <!--
       Scenario route mapping (1 MuJoCo meter = 100 real meters):
@@ -234,24 +237,60 @@
       The XML provides the static road context. Simulation logic will later move/show
       the traffic bodies from the current environment.csv row.
     -->
-
+      <!-- Red car passing by in the right lane before lane-change sign -->
+      <body name="passing_red_car" pos="28.5 -0.40 0.023">
+      <geom name="passing_red_car_body" type="box" pos="0 0 0.015"
+            size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
+      <geom name="passing_red_car_nose" type="box" pos="0.105 0 0.033"
+            size="0.045 0.052 0.018" rgba="0.95 0.12 0.08 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_cabin" type="box" pos="-0.015 0 0.060"
+            size="0.060 0.047 0.028" rgba="0.45 0.04 0.04 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_windshield" type="box" pos="0.030 0 0.082"
+            size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_rear_window" type="box" pos="-0.055 0 0.082"
+            size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_front_light_l" type="box" pos="0.152 0.034 0.031"
+            size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_front_light_r" type="box" pos="0.152 -0.034 0.031"
+            size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_wheel_fl" type="cylinder" pos="0.075 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_wheel_fr" type="cylinder" pos="0.075 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_wheel_rl" type="cylinder" pos="-0.080 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      <geom name="passing_red_car_wheel_rr" type="cylinder" pos="-0.080 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1"
+            contype="0" conaffinity="0"/>
+      </body>
 
 
     <!-- Lane-change sign at 0.5 km from start. -->
-    <geom name="lane_change_sign_post" type="cylinder"
-          pos="30.0 -0.50 0.30" size="0.006 0.30"
-          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
-    <geom name="lane_change_sign_board" type="box"
-          pos="29.98 -0.50 0.60" size="0.006 0.250 0.180"
-          rgba="0.8 0.8 0.8 1"
-          contype="0" conaffinity="0"/>
-    <geom name="lane_change_sign_face" type="plane"
-          pos="29.973 -0.50 0.60" size="0.250 0.180 1"
-          xyaxes="0 -1 0 0 0 1" material="lane_change_sign_mat"
-          contype="0" conaffinity="0"/>
+      <geom name="lane_change_sign_post" type="cylinder"
+            pos="30.0 -0.85 0.30" size="0.006 0.30"
+            rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
+
+      <geom name="lane_change_sign_board" type="box"
+            pos="29.98 -0.85 0.60" size="0.006 0.254 0.180"
+            rgba="0.8 0.8 0.8 1"
+            contype="0" conaffinity="0"/>
+
+      <geom name="lane_change_sign_face" type="plane"
+            pos="29.973 -0.85 0.60" size="0.254 0.180 1"
+            xyaxes="0 -1 0 0 0 1" material="lane_change_sign_mat"
+            contype="0" conaffinity="0"/>
 
     <!-- Red traffic car starts behind ego in the rightmost lane (y=-0.25) and is moved by the Python script. -->
-    <body name="csv_right_lane_car" pos="-1.5 -0.25 0.023">
+    <body name="csv_right_lane_car" pos="-1.5 -0.40 0.023">
       <freejoint name="right_lane_car_free"/>
       <geom name="csv_right_lane_car_body" type="box" pos="0 0 0.015"
             size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
@@ -288,124 +327,141 @@
     </body>
 
     <!-- Exit sign placed behind the exit road connector. -->
-    <geom name="exit_sign_post" type="cylinder"
-          pos="41.00 -0.50 0.30" size="0.006 0.30"
+      <geom name="exit_sign_post" type="cylinder"
+          pos="42.00 -0.85 0.30" size="0.006 0.30"
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
-    <geom name="exit_sign_board" type="box"
-          pos="40.98 -0.50 0.60" size="0.006 0.250 0.180"
+      <geom name="exit_sign_board" type="box"
+          pos="41.98 -0.85 0.60" size="0.006 0.250 0.127"
           rgba="0.8 0.8 0.8 1"
           contype="0" conaffinity="0"/>
-    <geom name="exit_sign_face" type="plane"
-          pos="40.973 -0.50 0.60" size="0.250 0.180 1"
-          xyaxes="0 -1 0 0 0 1" material="exit_sign_mat"
-          contype="0" conaffinity="0"/>
+      <geom name="exit_sign_face" type="plane"
+            pos="41.973 -0.85 0.60" size="0.250 0.127 1"
+            xyaxes="0 -1 0 0 0 1" material="exit_sign_mat"
+            contype="0" conaffinity="0"/>
 
-    <!-- Paved connector from the right lane into the horizontal exit road, made of 6 segments for a smoother curve. -->
-    <geom name="exit_connector_asphalt_1" type="box" pos="40.098 -0.256 0.006" size="0.098 0.160 0.004" euler="0 0 -7.5"  rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_connector_asphalt_2" type="box" pos="40.287 -0.307 0.006" size="0.098 0.160 0.004" euler="0 0 -22.5" rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_connector_asphalt_3" type="box" pos="40.457 -0.405 0.006" size="0.098 0.160 0.004" euler="0 0 -37.5" rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_connector_asphalt_4" type="box" pos="40.595 -0.543 0.006" size="0.098 0.160 0.004" euler="0 0 -52.5" rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_connector_asphalt_5" type="box" pos="40.693 -0.713 0.006" size="0.098 0.160 0.004" euler="0 0 -67.5" rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_connector_asphalt_6" type="box" pos="40.744 -0.902 0.006" size="0.098 0.160 0.004" euler="0 0 -82.5" rgba="0.19 0.19 0.19 1"/>
+    <!-- Smooth right exit: 30 degrees from main road -->
+     <!-- Smooth right exit connector: overlapping patches to avoid visible gaps -->
+      <geom name="exit_connector_asphalt_1"  type="box" pos="40.18 -0.42 0.002" size="0.24 0.34 0.002" euler="0 0 -3"  rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_2"  type="box" pos="40.42 -0.44 0.002" size="0.24 0.34 0.002" euler="0 0 -6"  rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_3"  type="box" pos="40.66 -0.49 0.002" size="0.24 0.34 0.002" euler="0 0 -9"  rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_4"  type="box" pos="40.90 -0.56 0.002" size="0.24 0.34 0.002" euler="0 0 -12" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_5"  type="box" pos="41.13 -0.66 0.002" size="0.24 0.34 0.002" euler="0 0 -15" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_6"  type="box" pos="41.35 -0.78 0.002" size="0.24 0.34 0.002" euler="0 0 -18" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_7"  type="box" pos="41.56 -0.93 0.002" size="0.24 0.34 0.002" euler="0 0 -21" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_8"  type="box" pos="41.76 -1.10 0.002" size="0.24 0.34 0.002" euler="0 0 -24" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_9"  type="box" pos="41.95 -1.29 0.002" size="0.24 0.34 0.002" euler="0 0 -27" rgba="0.19 0.19 0.19 1"/>
+      <geom name="exit_connector_asphalt_10" type="box" pos="42.13 -1.50 0.002" size="0.24 0.34 0.002" euler="0 0 -30" rgba="0.19 0.19 0.19 1"/>
 
-    <!-- Smoother edge lines for the connector curve. -->
-    <geom name="exit_connector_yellow_edge_1" type="box" pos="40.119 -0.098 0.010" size="0.119 0.004 0.002" euler="0 0 -7.5"  rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_yellow_edge_2" type="box" pos="40.347 -0.160 0.010" size="0.119 0.004 0.002" euler="0 0 -22.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_yellow_edge_3" type="box" pos="40.554 -0.280 0.010" size="0.119 0.004 0.002" euler="0 0 -37.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_yellow_edge_4" type="box" pos="40.722 -0.446 0.010" size="0.119 0.004 0.002" euler="0 0 -52.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_yellow_edge_5" type="box" pos="40.840 -0.651 0.010" size="0.119 0.004 0.002" euler="0 0 -67.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_yellow_edge_6" type="box" pos="40.902 -0.881 0.010" size="0.119 0.004 0.002" euler="0 0 -82.5" rgba="1 0.8 0 1" contype="0" conaffinity="0"/>
+      <!-- Diagonal exit road aligned with connector -->
+      <!-- Diagonal exit road aligned with smooth connector -->
+      <geom name="exit_road_asphalt" type="box"
+            pos="48.65 -5.27 0.002"
+            size="7.5 0.30 0.002"
+            euler="0 0 -30"
+            rgba="0.19 0.19 0.19 1"/>
 
-    <geom name="exit_connector_white_edge_1" type="box" pos="40.077 -0.415 0.010" size="0.077 0.004 0.002" euler="0 0 -7.5"  rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_white_edge_2" type="box" pos="40.226 -0.454 0.010" size="0.077 0.004 0.002" euler="0 0 -22.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_white_edge_3" type="box" pos="40.360 -0.530 0.010" size="0.077 0.004 0.002" euler="0 0 -37.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_white_edge_4" type="box" pos="40.468 -0.640 0.010" size="0.077 0.004 0.002" euler="0 0 -52.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_white_edge_5" type="box" pos="40.546 -0.775 0.010" size="0.077 0.004 0.002" euler="0 0 -67.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
-    <geom name="exit_connector_white_edge_6" type="box" pos="40.585 -0.923 0.010" size="0.077 0.004 0.002" euler="0 0 -82.5" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+      <geom name="exit_road_left_edge" type="box"
+            pos="48.80 -5.01 0.005"
+            size="7.5 0.008 0.001"
+            euler="0 0 -30"
+            rgba="1 0.8 0 1"
+            contype="0"
+            conaffinity="0"/>
 
-    <!-- Exit road stretching 1600m real (16.0 sim meters). -->
-    <geom name="exit_road_asphalt" type="box"
-          pos="40.75 -9.12 0.004" size="8.0 0.16 0.004"
-          euler="0 0 -90" rgba="0.19 0.19 0.19 1"/>
-    <geom name="exit_road_left_edge" type="box"
-          pos="40.59 -9.12 0.010" size="8.0 0.008 0.002"
-          euler="0 0 -90" rgba="1 0.8 0 1"
-          contype="0" conaffinity="0"/>
-    <geom name="exit_road_right_edge" type="box"
-          pos="40.91 -9.12 0.010" size="8.0 0.008 0.002"
-          euler="0 0 -90" rgba="1 1 1 1"
-          contype="0" conaffinity="0"/>
+      <geom name="exit_road_right_edge" type="box"
+            pos="48.50 -5.53 0.005"
+            size="7.5 0.008 0.001"
+            euler="0 0 -30"
+            rgba="1 1 1 1"
+            contype="0"
+            conaffinity="0"/>
 
     <!-- Speed limit sign on the exit road. -->
-    <geom name="speed_limit_sign_post" type="cylinder"
-          pos="40.32 -6.12 0.22" size="0.005 0.22"
-          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
-    <geom name="speed_limit_sign_board" type="box"
-          pos="40.32 -6.12 0.43" size="0.080 0.006 0.100"
-          rgba="0.8 0.8 0.8 1"
-          contype="0" conaffinity="0"/>
-    <geom name="speed_limit_sign_face" type="plane"
-          pos="40.32 -6.113 0.43" size="0.100 0.080 1"
-          xyaxes="0 0 1 1 0 0" material="speed_limit_sign_mat"
-          contype="0" conaffinity="0"/>
+    <!-- Speed limit sign on diagonal exit road -->
+      <geom name="speed_limit_sign_post" type="cylinder"
+            pos="45.60 -2.85 0.22" size="0.005 0.22"
+            rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
 
+      <geom name="speed_limit_sign_board" type="box"
+            pos="45.60 -2.85 0.43" size="0.080 0.006 0.100"
+            rgba="0.8 0.8 0.8 1"
+            contype="0" conaffinity="0"/>
+
+     <geom name="speed_limit_sign_face" type="plane"
+            pos="45.60 -2.843 0.43" size="0.080 0.100 1"
+            xyaxes="-1 0 0 0 0 1" material="speed_limit_sign_mat"
+            contype="0" conaffinity="0"/>
     <!-- Cross horizontal road at the stop sign (y = -12.12). -->
-    <geom name="cross_road_asphalt" type="box"
-          pos="40.75 -12.12 0.003" size="10.0 0.16 0.003"
-          rgba="0.19 0.19 0.19 1"/>
-    <geom name="cross_road_top_edge" type="box"
-          pos="40.75 -11.96 0.009" size="10.0 0.008 0.002"
-          rgba="1 1 1 1"
-          contype="0" conaffinity="0"/>
-    <geom name="cross_road_bottom_edge" type="box"
-          pos="40.75 -12.28 0.009" size="10.0 0.008 0.002"
-          rgba="1 1 1 1"
-          contype="0" conaffinity="0"/>
+<!-- Cross road at the stop sign, perpendicular to diagonal exit road -->
+      <geom name="cross_road_asphalt" type="box"
+            pos="52.40 -7.10 0.003" size="5.0 0.18 0.003"
+            euler="0 0 60" rgba="0.19 0.19 0.19 1"/>
 
-    <!-- Stop sign on the exit road. -->
-    <geom name="stop_sign_post" type="cylinder"
-          pos="40.32 -12.12 0.22" size="0.005 0.22"
-          rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
-    <geom name="stop_sign_board" type="box"
-          pos="40.32 -12.12 0.44" size="0.090 0.006 0.100"
-          rgba="0.8 0.8 0.8 1"
-          contype="0" conaffinity="0"/>
-    <geom name="stop_sign_face" type="plane"
-          pos="40.32 -12.113 0.44" size="0.090 0.100 1"
-          xyaxes="-1 0 0 0 0 1" material="stop_sign_mat"
-          contype="0" conaffinity="0"/>
+      <geom name="cross_road_top_edge" type="box"
+            pos="52.25 -6.84 0.009" size="5.0 0.008 0.002"
+            euler="0 0 60" rgba="1 1 1 1"
+            contype="0" conaffinity="0"/>
+
+      <geom name="cross_road_bottom_edge" type="box"
+            pos="52.55 -7.36 0.009" size="5.0 0.008 0.002"
+            euler="0 0 60" rgba="1 1 1 1"
+            contype="0" conaffinity="0"/>
+
+      <!-- Stop sign on diagonal exit road -->
+      <geom name="stop_sign_post" type="cylinder"
+            pos="52.10 -6.60 0.22" size="0.005 0.22"
+            rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
+
+      <geom name="stop_sign_board" type="box"
+            pos="52.10 -6.60 0.44" size="0.111 0.006 0.100"
+            rgba="0.8 0.8 0.8 1"
+            contype="0" conaffinity="0"/>
+
+      <geom name="stop_sign_face" type="plane"
+            pos="52.10 -6.593 0.44" size="0.111 0.100 1"
+            xyaxes="-1 0 0 0 0 1" material="stop_sign_mat"
+            contype="0" conaffinity="0"/>
 
     <!-- One car on the left side of the cross road -->
-    <body name="cross_car_left" pos="38.0 -12.12 0.023">
-      <!-- Full detailed model, colored red -->
-      <geom type="box" pos="0 0 0.015" size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
-      <geom type="box" pos="0.105 0 0.033" size="0.045 0.052 0.018" rgba="0.95 0.12 0.08 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="-0.015 0 0.060" size="0.060 0.047 0.028" rgba="0.45 0.04 0.04 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.030 0 0.082" size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="-0.055 0 0.082" size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.152 0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.152 -0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="0.075 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="0.075 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="-0.080 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="-0.080 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-    </body>
+    <!-- Car on left side of cross road near stop sign -->
+      <body name="stop_cross_car_left" pos="51.68 -8.53 0.023" euler="0 0 60">
+      <geom name="stop_cross_car_left_body" type="box" pos="0 0 0.015"
+            size="0.145 0.060 0.028" rgba="0.86 0.08 0.06 1"/>
+      <geom name="stop_cross_car_left_nose" type="box" pos="0.105 0 0.033"
+            size="0.045 0.052 0.018" rgba="0.95 0.12 0.08 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_cabin" type="box" pos="-0.015 0 0.060"
+            size="0.060 0.047 0.028" rgba="0.45 0.04 0.04 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_windshield" type="box" pos="0.030 0 0.082"
+            size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_wheel_fl" type="cylinder" pos="0.075 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_wheel_fr" type="cylinder" pos="0.075 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_wheel_rl" type="cylinder" pos="-0.080 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_left_wheel_rr" type="cylinder" pos="-0.080 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      </body>
 
-    <!-- One car on the right side of the cross road -->
-    <body name="cross_car_right" pos="43.5 -12.12 0.023" euler="0 0 180">
-      <!-- Full detailed model, colored yellow -->
-      <geom type="box" pos="0 0 0.015" size="0.145 0.060 0.028" rgba="0.8 0.8 0.2 1"/>
-      <geom type="box" pos="0.105 0 0.033" size="0.045 0.052 0.018" rgba="0.9 0.9 0.2 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="-0.015 0 0.060" size="0.060 0.047 0.028" rgba="0.5 0.5 0.1 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.030 0 0.082" size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="-0.055 0 0.082" size="0.018 0.038 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.152 0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
-      <geom type="box" pos="0.152 -0.034 0.031" size="0.006 0.010 0.006" rgba="1.0 0.90 0.45 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="0.075 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="0.075 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="-0.080 0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-      <geom type="cylinder" pos="-0.080 -0.064 0.000" size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
-    </body>
+      <!-- Car on right side of cross road near stop sign -->
+      <body name="stop_cross_car_right" pos="53.12 -5.67 0.023" euler="0 0 240">
+      <geom name="stop_cross_car_right_body" type="box" pos="0 0 0.015"
+            size="0.145 0.060 0.028" rgba="0.8 0.8 0.2 1"/>
+      <geom name="stop_cross_car_right_nose" type="box" pos="0.105 0 0.033"
+            size="0.045 0.052 0.018" rgba="0.9 0.9 0.2 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_cabin" type="box" pos="-0.015 0 0.060"
+            size="0.060 0.047 0.028" rgba="0.5 0.5 0.1 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_windshield" type="box" pos="0.030 0 0.082"
+            size="0.020 0.040 0.003" rgba="0.08 0.11 0.14 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_wheel_fl" type="cylinder" pos="0.075 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_wheel_fr" type="cylinder" pos="0.075 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_wheel_rl" type="cylinder" pos="-0.080 0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      <geom name="stop_cross_car_right_wheel_rr" type="cylinder" pos="-0.080 -0.064 0.000"
+            size="0.023 0.010" zaxis="0 1 0" rgba="0.02 0.02 0.025 1" contype="0" conaffinity="0"/>
+      </body>
 
     <body name="car" pos="0 0 .03">
       <freejoint name="ego_free"/>
