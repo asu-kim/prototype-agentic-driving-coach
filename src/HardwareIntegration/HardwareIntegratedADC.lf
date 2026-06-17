@@ -13,18 +13,15 @@ import AgenticCoach from "AgenticCoach.lf"
 import ActionPlanner from "ActionPlanner.lf"
 import Simulation from "Simulation.lf"
 
-preamble{=
-    import os
-    import sys
-    import rerun as rr
-
-    RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
-=}
-
-
 federated reactor at 10.218.100.78 {
     reaction(startup) {=
+        import os
+        import sys
+        import rerun as rr
+
+        RUN_MODE = os.getenv("RUN_MODE", "Testing")
+        SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
+
         if RUN_MODE == "DataCollect":
             print("[MODE] Data collection mode", flush=True)
             if SAVE_RERUN:
