@@ -29,8 +29,9 @@ reactor AgenticCoach {
 
     reaction(startup) {=
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_agentic_coach", spawn=True)
-            print("[RERUN] AgenticCoach viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] AgenticCoach connected to Rerun viewer.", flush=True)
         print(f"[AGENTIC COACH MODE] {_RUN_MODE}", flush=True)
     =}
 

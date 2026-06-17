@@ -43,8 +43,9 @@ reactor Car {
         )
 
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_car", spawn=True)
-            print("[RERUN] Car viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] Car connected to Rerun viewer.", flush=True)
     =}
 
     preamble {=

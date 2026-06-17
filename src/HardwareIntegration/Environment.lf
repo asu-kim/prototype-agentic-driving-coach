@@ -27,8 +27,9 @@ reactor Environment{
     state v_val = 0.0
     reaction(startup){=
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_environment", spawn=True)
-            print("[RERUN] Environment viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] Environment connected to Rerun viewer.", flush=True)
         print(f"[ENVIRONMENT MODE] {_RUN_MODE}", flush=True)
 
         try:

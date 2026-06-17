@@ -29,8 +29,9 @@ reactor DriverControl {
 
     reaction(startup) {=
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_driver_control", spawn=True)
-            print("[RERUN] DriverControl viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] DriverControl connected to Rerun viewer.", flush=True)
         print(f"[DRIVER CONTROL MODE] {_RUN_MODE}", flush=True)
 
         self.behavior_log = None

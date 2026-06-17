@@ -243,7 +243,11 @@
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
     <geom name="lane_change_sign_board" type="box"
           pos="29.98 -0.50 0.60" size="0.006 0.250 0.180"
-          material="lane_change_sign_mat" rgba="1 1 1 1"
+          rgba="0.8 0.8 0.8 1"
+          contype="0" conaffinity="0"/>
+    <geom name="lane_change_sign_face" type="plane"
+          pos="29.973 -0.50 0.60" size="0.250 0.180 1"
+          xyaxes="0 -1 0 0 0 1" material="lane_change_sign_mat"
           contype="0" conaffinity="0"/>
 
     <!-- Red traffic car starts behind ego in the rightmost lane (y=-0.25) and is moved by the Python script. -->
@@ -289,7 +293,11 @@
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
     <geom name="exit_sign_board" type="box"
           pos="40.98 -0.50 0.60" size="0.006 0.250 0.180"
-          material="exit_sign_mat" rgba="1 1 1 1"
+          rgba="0.8 0.8 0.8 1"
+          contype="0" conaffinity="0"/>
+    <geom name="exit_sign_face" type="plane"
+          pos="40.973 -0.50 0.60" size="0.250 0.180 1"
+          xyaxes="0 -1 0 0 0 1" material="exit_sign_mat"
           contype="0" conaffinity="0"/>
 
     <!-- Paved connector from the right lane into the horizontal exit road, made of 6 segments for a smoother curve. -->
@@ -333,8 +341,12 @@
           pos="40.32 -6.12 0.22" size="0.005 0.22"
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
     <geom name="speed_limit_sign_board" type="box"
-          pos="40.32 -6.12 0.43" size="0.100 0.006 0.080"
-          material="speed_limit_sign_mat" rgba="1 1 1 1"
+          pos="40.32 -6.12 0.43" size="0.080 0.006 0.100"
+          rgba="0.8 0.8 0.8 1"
+          contype="0" conaffinity="0"/>
+    <geom name="speed_limit_sign_face" type="plane"
+          pos="40.32 -6.113 0.43" size="0.100 0.080 1"
+          xyaxes="0 0 1 1 0 0" material="speed_limit_sign_mat"
           contype="0" conaffinity="0"/>
 
     <!-- Cross horizontal road at the stop sign (y = -12.12). -->
@@ -356,7 +368,11 @@
           rgba="0.65 0.65 0.68 1" contype="0" conaffinity="0"/>
     <geom name="stop_sign_board" type="box"
           pos="40.32 -12.12 0.44" size="0.090 0.006 0.100"
-          material="stop_sign_mat" rgba="1 1 1 1"
+          rgba="0.8 0.8 0.8 1"
+          contype="0" conaffinity="0"/>
+    <geom name="stop_sign_face" type="plane"
+          pos="40.32 -12.113 0.44" size="0.090 0.100 1"
+          xyaxes="-1 0 0 0 0 1" material="stop_sign_mat"
           contype="0" conaffinity="0"/>
 
     <!-- One car on the left side of the cross road -->

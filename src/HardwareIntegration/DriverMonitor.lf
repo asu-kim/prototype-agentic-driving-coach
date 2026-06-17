@@ -27,8 +27,9 @@ reactor DriverMonitor {
 
     reaction(startup) {=
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_driver_monitor", spawn=True)
-            print("[RERUN] DriverMonitor viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] DriverMonitor connected to Rerun viewer.", flush=True)
         print(f"[DRIVER MONITOR MODE] {_RUN_MODE}", flush=True)
 
         self.behavior_log = None

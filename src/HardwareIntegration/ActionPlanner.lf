@@ -170,8 +170,9 @@ reactor ActionPlanner {
 
     reaction(startup) {=
         if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_action_planner", spawn=True)
-            print("[RERUN] ActionPlanner viewer initialized.", flush=True)
+            rr.init("TCRS_Federated", spawn=False)
+            rr.connect()
+            print("[RERUN] ActionPlanner connected to Rerun viewer.", flush=True)
         print(f"[ACTION PLANNER MODE] {_RUN_MODE}", flush=True)
         self.speech_proc = None
         self.speech_lock = threading.Lock()
@@ -481,4 +482,3 @@ reactor ActionPlanner {
             =}
     } 
 }
-

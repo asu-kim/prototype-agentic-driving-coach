@@ -1,7 +1,7 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "python3"
+        Python_EXECUTABLE: "mjpython"
     }
 }
 
@@ -33,9 +33,9 @@ reactor Simulation {
         forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 120.0))
  
         if self.steer_value == 2:
-            turn_cmd = -0.25
+            turn_cmd = -0.05
         elif self.steer_value == 0:
-            turn_cmd = 0.25
+            turn_cmd = 0.05
         else:
             turn_cmd = 0.0
 
