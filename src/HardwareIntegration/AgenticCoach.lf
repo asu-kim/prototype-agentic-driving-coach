@@ -26,8 +26,6 @@ reactor AgenticCoach {
     output control
     output instruction
 
-    state exit_prepare_announced = False
-
     reaction(startup) {=
         if RUN_MODE == "DataCollect" and not SAVE_RERUN:
             rr.connect()
@@ -143,18 +141,6 @@ reactor AgenticCoach {
         ]
         environment_input = dict(zip(environment_keys, environment_values))
         road_phase = environment_input.get("road_phase", "")
-
-        if road_phase not in ("HIGHWAY", "LANE_CHANGE"):
-            self.exit_prepare_announced = False
-        if (
-            road_phase == "HIGHWAY"
-            and distance_val <= 1000.0
-            and not self.exit_prepare_announced
-        ):
-            self.exit_prepare_announced = True
-            control.set("WARNING")
-            instruction.set("Exit is about 1 kilometer away. Prepare to change right.")
-            return
 
         llm_inputs = {
             "distance_to_target_m": distance_val,
