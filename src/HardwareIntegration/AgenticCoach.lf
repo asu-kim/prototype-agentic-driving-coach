@@ -125,35 +125,14 @@ reactor AgenticCoach {
 
 
     reaction(s, v, st, h, e, en_states) -> control, instruction {=
-        #reaction(coach_inp) -> control, instruction {=
-        # if not (s.is_present and v.is_present and st.is_present and h.is_present and e.is_present):
-        #     print("[LLM SKIP] incomplete input bundle", flush=True)
-        #     return
+
         distance_val = s.value if s.is_present else 0.0
         velocity_val = v.value if v.is_present else 0.0
         steer_input = st.value if st.is_present else None
         head_input = h.value if h.is_present and h.value else ["CENTER"]
         eye_input = e.value if e.is_present and e.value else ["CENTER"]
         environment_values = en_states.value if en_states.is_present else []
-        # bundle = coach_inp.value or {}
-        # distance_val = bundle.get("distance", 0.0)
-        # velocity_val = bundle.get("velocity", 0.0)
-        # steer_input = bundle.get("steering")
-        # head_input = bundle.get("head_history") or ["CENTER"]
-        # eye_input = bundle.get("eye_history") or ["CENTER"]
-        # environment_values = bundle.get("environment") or []
 
-        # if distance_val <= 0.0:
-        #     distance_val = 0.0
-
-
-        # print(
-        #     f"[LLM INPUT] DISTANCE: {distance_val:.2f} m  "
-        #     f"VELOCITY: {velocity_val} km/h  STEER: {steer_input}",
-        #     flush=True
-        # )
-        # print(f"Head history: {head_input}", flush=True)
-        # print(f"Eye history: {eye_input}", flush=True)
         environment_keys = [
             "road_phase",
             "front_car_present",

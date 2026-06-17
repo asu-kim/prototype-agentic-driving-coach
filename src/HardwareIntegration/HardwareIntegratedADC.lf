@@ -46,13 +46,17 @@ federated reactor at 10.218.100.78 {
     @maxwait(25 msec)
     c = new Car()
 
+    @maxwait(0 msec)
     en = new Environment()
-    @maxwait(250 msec)
+    @maxwait(0 msec)
     adc = new InputForCoach()
+    @maxwait(0 msec)
     llm = new AgenticCoach()
 
     @maxwait(260 msec)
     planner = new ActionPlanner()
+
+    @maxwait(0 msec)
     sim = new Simulation()
     d_control.steer -> c.steer_in
     d_control.accelerator -> c.accel_in
