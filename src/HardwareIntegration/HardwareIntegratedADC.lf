@@ -14,25 +14,12 @@ import ActionPlanner from "ActionPlanner.lf"
 import Simulation from "Simulation.lf"
 
 preamble{=
-    import argparse
     import os
     import sys
     import rerun as rr
 
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument(
-        "--mode",
-        choices=["DataCollect", "Testing"],
-        default=os.getenv("RUN_MODE", "Testing")
-    )
-    parser.add_argument(
-        "--save",
-        action="store_true",
-        help="Save rerun logs directly to an .rrd file instead of spawning the UI"
-    )
-    args, unknown = parser.parse_known_args()
-    RUN_MODE = args.mode
-    SAVE_RERUN = args.save
+    RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
 =}
 
 

@@ -4,15 +4,10 @@ preamble{=
     import json
     import os
     import sys
-    import argparse
     import rerun as rr
 
-    _parser = argparse.ArgumentParser(add_help=False)
-    _parser.add_argument("--mode", choices=["DataCollect", "Testing"], default=os.getenv("RUN_MODE", "Testing"))
-    _parser.add_argument("--save", action="store_true")
-    _args, _ = _parser.parse_known_args()
-    RUN_MODE = _args.mode
-    SAVE_RERUN = _args.save
+    RUN_MODE = os.getenv("RUN_MODE", "Testing")
+    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
 =}
 
 reactor Environment{
