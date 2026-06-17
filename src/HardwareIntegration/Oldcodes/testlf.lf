@@ -1,140 +1,90 @@
-target Python {coordination: decentralized}
+target Python {keepalive: true, 
+    // logging: DEBUG,
+    coordination: decentralized,
+    DNET: False,
+    // tracing:True
+    }
+import DriverControl from "../DriverControl.lf"
+import DriverMonitor from "../DriverMonitor.lf"
 
-preamble {=
-    import random
-    import time
-=}
+import Simulation from "../Simulation.lf"
 
-reactor LLM {
-    timer llm_clock(0, 400 msec)
-    state count = 0
-    output control
-    output instruction
+reactor VelocityDisplacement{
+    input accel
+    input brake
+    output velocity
+    output displacement
+    preamble{=
+        def update_car(self, accel_input, brake_input):
+            if accel_input is not None:
+                self.accel_val = float(accel_input)
+            if brake_input is not None:
+                self.brake_val = float(brake_input)
+          
+            amsg = self.accel_val
+            bmsg = self.brake_val
 
-    reaction(llm_clock) -> control, instruction {=
-        self.count += 1
-        sleep_seconds = 0.3
-        print(f"[LLM] Sleeping for {sleep_seconds * 1000:.2f} ms", flush=True)
-        time.sleep(sleep_seconds)
+            amsg = max(0.0, min(1.0, amsg))
+            bmsg = max(0.0, min(1.0, bmsg))
 
-        # The first ACTUATE enters actuate mode; the second executes actuation.
-        tokens = ["NONE", "WARNING", "ACTUATE", "ACTUATE"]
-        token = tokens[(self.count - 1) % len(tokens)]
-        control.set(token)
-        instruction.set(f"Dummy {token} message")
+            MAX_BRAKE = -10.0
+            MAX_ACCEL = 4.0
+            A_DRAG_COEF = -0.002
+            A_FRIC_COEFF = -0.022
+            DT = 0.1
+            MAX_VEL = 35.0
 
-        logical_ms = lf.time.logical_elapsed()/1e6
-        print(f"[LLM] {token} | logical={logical_ms:.2f} ms", flush=True)
-    =} tardy {=
-        print(f"[LLM TARDY] logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
+            accel_brake = bmsg * MAX_BRAKE
+            accel_throt = (0.6 * amsg + 0.4 * amsg * amsg) * MAX_ACCEL
+            accel_drag = A_DRAG_COEF * self.velocity_init ** 2
+            accel_net = accel_brake + accel_throt + accel_drag + A_FRIC_COEFF
+
+            vel = max(0.0, min(MAX_VEL, self.velocity_init + accel_net * DT))
+            dist = self.dist_init + vel * DT
+            self.velocity_init = vel
+            self.dist_init = dist
+
+            velocity_kmh = vel * 3.6
+            print(f"The accel pedal position: {amsg:.2f}, The brake pedal: {bmsg:.2f}", flush=True)
+            print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
+            print(f"Distance travelled={dist:.2f} m", flush=True)
+            return velocity_kmh, dist
     =}
-}
-
-reactor Planner {
-    state logical_time_ms = -1.0
-    input ctrl
-    input instr
-    output act
-
-    initial mode monitoring {
-        reaction(ctrl, instr) -> warning, reset(actuate) {=
-            token = ctrl.value if ctrl.is_present else "NONE"
-            print(f"[PLANNER MONITORING] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
-            if token == "WARNING":
-                warning.set()
-            elif token == "ACTUATE":
-                actuate.set()
-        =} tardy {=
-            logical_ms = lf.time.logical_elapsed()/1e6
-            physical_ms = lf.time.physical_elapsed()/1e6
-            message_age_ms = physical_ms - logical_ms
-            if message_age_ms > 400.0:
-                print(f"[PLANNER MONITORING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
-                return
-
-            token = ctrl.value if ctrl.is_present else "NONE"
-            print(f"[PLANNER MONITORING TARDY] Processing {token}: age={message_age_ms:.2f} ms", flush=True)
-            if token == "WARNING":
-                warning.set()
-            elif token == "ACTUATE":
-                actuate.set()
-        =}
-    }
-
-    mode warning {
-        reaction(ctrl, instr) -> monitoring, reset(actuate) {=
-            token = ctrl.value if ctrl.is_present else "NONE"
-            print(f"[PLANNER WARNING] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
-            if token == "ACTUATE":
-                actuate.set()
-            elif token != "WARNING":
-                monitoring.set()
-        =} tardy {=
-            logical_ms = lf.time.logical_elapsed()/1e6
-            physical_ms = lf.time.physical_elapsed()/1e6
-            message_age_ms = physical_ms - logical_ms
-            if message_age_ms > 400.0:
-                print(f"[PLANNER WARNING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
-                return
-
-            token = ctrl.value if ctrl.is_present else "NONE"
-            print(f"[PLANNER WARNING TARDY] Processing {token}: age={message_age_ms:.2f} ms", flush=True)
-            if token == "ACTUATE":
-                actuate.set()
-            elif token != "WARNING":
-                monitoring.set()
-        =}
-    }
-
-    mode actuate {
-        reaction(reset){=
-            print(f"[PLANNER ACTUATE] RESET REACTION ")
-        =}
-        reaction(ctrl, instr) -> act, monitoring {=
-            
-            print(ctrl.is_present)
-            if  (ctrl.is_present and instr.is_present):
-                print(f"Tokens are not available")
-            token = ctrl.value if ctrl.is_present else "NONE"
-            print(f"[PLANNER ACTUATE] {token} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
-            if token == "ACTUATE":
-                act.set("DUMMY_ACTUATE")
-            else:
-                monitoring.set()
-        =} tardy {=
-            logical_ms = lf.time.logical_elapsed()/1e6
-            physical_ms = lf.time.physical_elapsed()/1e6
-            message_age_ms = physical_ms - logical_ms
-            if message_age_ms > 400.0:
-                print(f"[PLANNER ACTUATE TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
-                return
-
-            print(f"[PLANNER ACTUATE TARDY] BRAKE: age={message_age_ms:.2f} ms", flush=True)
-            act.set("BRAKE")
-        =}
+    reaction(accel, brake)-> velocity, displacement{=
         
-    }
-}
+        self.velocity_init = 0.0
+        self.dist_init = 0.0
+        vel, dist = self.update_car(accel.value, brake.value)   
+        velocity.set(vel)
+        displacement.set(dist) 
 
-reactor Car {
-    input actuate_in
-
-    reaction(actuate_in) {=
-        print(f"[CAR] Received: {actuate_in.value} | logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
-    =} tardy {=
-        print(f"[CAR TARDY] logical={lf.time.logical_elapsed()/1e6:.2f} ms", flush=True)
     =}
 }
 
-federated reactor {
-    llm = new LLM()
+federated reactor at  10.155.116.242{
 
-    @maxwait(350 msec)
-    planner = new Planner()
 
-    car = new Car()
+    d_control = new DriverControl()
+   
+    veldist = new VelocityDisplacement()
 
-    llm.control -> planner.ctrl
-    llm.instruction -> planner.instr
-    planner.act -> car.actuate_in after 200 ms
+   
+    @maxwait(20 msec)
+    sim = new Simulation()
+    d_control.steer -> sim.steer_in
+    d_control.accelerator -> veldist.accel
+    d_control.brake -> veldist.brake
+    veldist.velocity -> sim.velocity_in
+    veldist.displacement -> sim.rem_dist
+    
+
+   
+    
+
+
+
+
+
+    
+
 }
