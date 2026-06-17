@@ -3,6 +3,7 @@ target Python
 preamble {=
     import argparse
     import os
+    import sys
     import rerun as rr
 
     _mode_parser = argparse.ArgumentParser(add_help=False)
@@ -11,9 +12,10 @@ preamble {=
         choices=["DataCollect", "Testing"],
         default=os.getenv("RUN_MODE", "Testing")
     )
+    _mode_parser.add_argument("--save", action="store_true")
     _mode_args, _mode_unknown = _mode_parser.parse_known_args()
-    _RUN_MODE = _mode_args.mode
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    RUN_MODE = _mode_args.mode
+    SAVE_RERUN = _mode_args.save
 =}
 
 reactor Car {
@@ -32,18 +34,17 @@ reactor Car {
     output steer
 
     reaction(startup) {=
-        if _RUN_MODE == "DataCollect":
+        if RUN_MODE == "DataCollect":
             lf.set_fed_maxwait(100_000_000)
-        elif _RUN_MODE == "Testing":
+        elif RUN_MODE == "Testing":
             lf.set_fed_maxwait(25_000_000)
 
         print(
-            f"[CAR MODE] {_RUN_MODE}; maxwait={lf.get_fed_maxwait() / 1e6:.1f} ms",
+            f"[CAR MODE] {RUN_MODE}; maxwait={lf.get_fed_maxwait() / 1e6:.1f} ms",
             flush=True
         )
 
-        if _RERUN_ENABLED:
-            rr.init("TCRS_Federated", spawn=False)
+        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
             rr.connect()
             print("[RERUN] Car connected to Rerun viewer.", flush=True)
     =}
@@ -133,7 +134,7 @@ reactor Car {
         )
         velocity.set(velocity_kmh)
         steer.set(steer_value)
-        if _RERUN_ENABLED:
+    if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
             rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
@@ -168,7 +169,7 @@ reactor Car {
         print("----------------------------------------------------------")
         velocity.set(velocity_kmh)
         steer.set(steer_value)
-        if _RERUN_ENABLED:
+    if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
             rr.log("vehicle/steer", rr.Scalars(float(steer_value)))

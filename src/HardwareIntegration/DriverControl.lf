@@ -5,11 +5,16 @@ import SensorInputs from "SensorInputs.lf"
 preamble {=
     import csv
     import os
+    import sys
+    import argparse
     import rerun as rr
 
-    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
-    _BEHAVIOR_LOG_ENABLED = _RUN_MODE == "DataCollect"
+    _parser = argparse.ArgumentParser(add_help=False)
+    _parser.add_argument("--mode", choices=["DataCollect", "Testing"], default=os.getenv("RUN_MODE", "Testing"))
+    _parser.add_argument("--save", action="store_true")
+    _args, _ = _parser.parse_known_args()
+    RUN_MODE = _args.mode
+    SAVE_RERUN = _args.save
     _BEHAVIOR_LOG_DIR = os.getenv("DRIVER_BEHAVIOR_LOG_DIR", "driver_behavior_logs")
     _DRIVER_RUN_ID = os.getenv("DRIVER_RUN_ID", "latest")
 =}
@@ -28,16 +33,15 @@ reactor DriverControl {
     sensors = new SensorInputs()
 
     reaction(startup) {=
-        if _RERUN_ENABLED:
-            rr.init("TCRS_Federated", spawn=False)
+        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
             rr.connect()
             print("[RERUN] DriverControl connected to Rerun viewer.", flush=True)
-        print(f"[DRIVER CONTROL MODE] {_RUN_MODE}", flush=True)
+        print(f"[DRIVER CONTROL MODE] {RUN_MODE}", flush=True)
 
         self.behavior_log = None
         self.behavior_writer = None
         self.sample_index = 0
-        if _BEHAVIOR_LOG_ENABLED:
+        if RUN_MODE == "DataCollect":
             os.makedirs(_BEHAVIOR_LOG_DIR, exist_ok=True)
             path = os.path.join(_BEHAVIOR_LOG_DIR, f"{_DRIVER_RUN_ID}_control.csv")
             self.behavior_log = open(path, "w", newline="", buffering=1)
@@ -62,7 +66,7 @@ reactor DriverControl {
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
-        if _RERUN_ENABLED:
+        if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("driver_control/steer", rr.Scalars(float(self.steer_val)))
             rr.log("driver_control/accelerator", rr.Scalars(float(self.accel_val)))

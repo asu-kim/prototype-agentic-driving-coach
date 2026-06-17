@@ -2,14 +2,20 @@ target Python
 
 preamble{=
     import os
+    import sys
+    import argparse
     import rerun as rr
     import time
     import ollama
 
     _OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
     _CONTROL_IDS = {"NONE": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
-    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _parser = argparse.ArgumentParser(add_help=False)
+    _parser.add_argument("--mode", choices=["DataCollect", "Testing"], default=os.getenv("RUN_MODE", "Testing"))
+    _parser.add_argument("--save", action="store_true")
+    _args, _ = _parser.parse_known_args()
+    RUN_MODE = _args.mode
+    SAVE_RERUN = _args.save
 =}
 
 reactor AgenticCoach {
@@ -28,11 +34,10 @@ reactor AgenticCoach {
     state exit_prepare_announced = False
 
     reaction(startup) {=
-        if _RERUN_ENABLED:
-            rr.init("TCRS_Federated", spawn=False)
+        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
             rr.connect()
             print("[RERUN] AgenticCoach connected to Rerun viewer.", flush=True)
-        print(f"[AGENTIC COACH MODE] {_RUN_MODE}", flush=True)
+        print(f"[AGENTIC COACH MODE] {RUN_MODE}", flush=True)
     =}
 
     preamble {=
@@ -210,7 +215,7 @@ reactor AgenticCoach {
 
 
 
-        if _RERUN_ENABLED:
+        if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
             rr.log("llm/control", rr.TextLog(tok))

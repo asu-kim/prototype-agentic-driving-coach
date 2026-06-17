@@ -3,10 +3,16 @@ preamble{=
     import csv
     import json
     import os
+    import sys
+    import argparse
     import rerun as rr
 
-    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _parser = argparse.ArgumentParser(add_help=False)
+    _parser.add_argument("--mode", choices=["DataCollect", "Testing"], default=os.getenv("RUN_MODE", "Testing"))
+    _parser.add_argument("--save", action="store_true")
+    _args, _ = _parser.parse_known_args()
+    RUN_MODE = _args.mode
+    SAVE_RERUN = _args.save
 =}
 
 reactor Environment{
@@ -26,11 +32,11 @@ reactor Environment{
 
     state v_val = 0.0
     reaction(startup){=
-        if _RERUN_ENABLED:
-            rr.init("TCRS_Federated", spawn=False)
+        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
+            # rr.init is handled by the main federated reactor. We only connect.
             rr.connect()
             print("[RERUN] Environment connected to Rerun viewer.", flush=True)
-        print(f"[ENVIRONMENT MODE] {_RUN_MODE}", flush=True)
+        print(f"[ENVIRONMENT MODE] {RUN_MODE}", flush=True)
 
         try:
             with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
@@ -103,7 +109,7 @@ reactor Environment{
 
 
 
-        if _RERUN_ENABLED:
+        if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("environment/displacement_m", rr.Scalars(float(current_displacement)))
             rr.log("environment/road_phase", rr.TextLog(road_phase))

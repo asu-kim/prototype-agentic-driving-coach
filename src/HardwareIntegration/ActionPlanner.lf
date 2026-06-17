@@ -2,6 +2,8 @@ target Python
 
 preamble{=
     import os
+    import sys
+    import argparse
     import rerun as rr
     import time
     import subprocess
@@ -9,8 +11,12 @@ preamble{=
     import csv
     _ACTUATOR_IDS = {"STOP": 0.0, "BRAKE": 1.0, "HOLD": 2.0, "ACCEL": 3.0}
     _MODE_IDS = {"MONITORING": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
-    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _parser = argparse.ArgumentParser(add_help=False)
+    _parser.add_argument("--mode", choices=["DataCollect", "Testing"], default=os.getenv("RUN_MODE", "Testing"))
+    _parser.add_argument("--save", action="store_true")
+    _args, _ = _parser.parse_known_args()
+    RUN_MODE = _args.mode
+    SAVE_RERUN = _args.save
 =}
 
 
@@ -40,7 +46,7 @@ reactor ActionPlanner {
 
         def log_mode_transition(self, from_mode, to_mode, reason):
             logical_ms = lf.time.logical_elapsed() / 1_000_000
-            if _RERUN_ENABLED:
+            if RUN_MODE == "DataCollect":
                 rr.set_time("logical_time_ms", sequence=int(logical_ms))
                 rr.log("planner/mode", rr.TextLog(to_mode))
                 rr.log("planner/mode_id", rr.Scalars(_MODE_IDS[to_mode]))
@@ -169,15 +175,14 @@ reactor ActionPlanner {
     =}
 
     reaction(startup) {=
-        if _RERUN_ENABLED:
-            rr.init("TCRS_Federated", spawn=False)
+        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
             rr.connect()
             print("[RERUN] ActionPlanner connected to Rerun viewer.", flush=True)
-        print(f"[ACTION PLANNER MODE] {_RUN_MODE}", flush=True)
+        print(f"[ACTION PLANNER MODE] {RUN_MODE}", flush=True)
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
-        if _RERUN_ENABLED:
+        if RUN_MODE == "DataCollect":
             rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
             rr.log("planner/mode", rr.TextLog("MONITORING"))
             rr.log("planner/mode_id", rr.Scalars(_MODE_IDS["MONITORING"]))
@@ -426,7 +431,7 @@ reactor ActionPlanner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                if _RERUN_ENABLED:
+            if RUN_MODE == "DataCollect":
                     rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
                     rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
                     rr.log("planner/actuator_command", rr.TextLog(speed_command))
@@ -475,7 +480,7 @@ reactor ActionPlanner {
                 road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                if _RERUN_ENABLED:
+            if RUN_MODE == "DataCollect":
                     rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
                     rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
                     rr.log("planner/actuator_command", rr.TextLog(speed_command))

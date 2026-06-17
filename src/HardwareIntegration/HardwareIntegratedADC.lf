@@ -16,6 +16,7 @@ import Simulation from "Simulation.lf"
 preamble{=
     import argparse
     import os
+    import sys
     import rerun as rr
 
     parser = argparse.ArgumentParser(add_help=False)
@@ -24,8 +25,14 @@ preamble{=
         choices=["DataCollect", "Testing"],
         default=os.getenv("RUN_MODE", "Testing")
     )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save rerun logs directly to an .rrd file instead of spawning the UI"
+    )
     args, unknown = parser.parse_known_args()
     RUN_MODE = args.mode
+    SAVE_RERUN = args.save
 =}
 
 
@@ -33,8 +40,14 @@ federated reactor at 10.218.100.78 {
     reaction(startup) {=
         if RUN_MODE == "DataCollect":
             print("[MODE] Data collection mode", flush=True)
-            print("[MODE] Rerun and tracing should be enabled", flush=True)
-            rr.init("TCRS_Federated", spawn=True)
+            if SAVE_RERUN:
+                fed_name = os.path.basename(sys.argv[0])
+                print(f"[MODE] Saving rerun log to {fed_name}.rrd", flush=True)
+                rr.init("TCRS_Federated", spawn=False)
+                rr.save(f"{fed_name}.rrd")
+            else:
+                print("[MODE] Rerun and tracing should be enabled", flush=True)
+                rr.init("TCRS_Federated", spawn=True)
         elif RUN_MODE == "Testing":
             print("[MODE] Testing mode", flush=True)
             print("[MODE] Using previously collected inputs", flush=True)
