@@ -1,37 +1,38 @@
-target Python {keepalive: true, 
-    // logging: DEBUG,
-    coordination: decentralized,
-    DNET: False,
-    // tracing:True
-    }
-import DriverControl from "DriverControl.lf"
+target Python {
+    timeout: 5 sec,
+    logging: LOG,
+    // coordination: decentralized,
+    DNET: false,
+    tracing: true
+}
 
+preamble {=
+    import random
+=}
 
-import Simulation from "Simulation.lf"
-
-reactor VelocityDisplacement{
+reactor VelocityDisplacement {
     input accel
     input brake
-    output velocity
-    output displacement
 
     state velocity_init = 25.0
     state dist_init = 0.0
     state accel_val = 0.0
     state brake_val = 0.0
 
-    preamble{=
+    state reaction_handle = 0
+    state velocity_handle = 0
+    state distance_handle = 0
+    state lag_handle = 0
+
+    preamble {=
         def update_car(self, accel_input, brake_input):
             if accel_input is not None:
                 self.accel_val = float(accel_input)
             if brake_input is not None:
                 self.brake_val = float(brake_input)
-          
-            amsg = self.accel_val
-            bmsg = self.brake_val
 
-            amsg = max(0.0, min(1.0, amsg))
-            bmsg = max(0.0, min(1.0, bmsg))
+            amsg = max(0.0, min(1.0, self.accel_val))
+            bmsg = max(0.0, min(1.0, self.brake_val))
 
             MAX_BRAKE = -10.0
             MAX_ACCEL = 4.0
@@ -47,66 +48,110 @@ reactor VelocityDisplacement{
 
             vel = max(0.0, min(MAX_VEL, self.velocity_init + accel_net * DT))
             dist = self.dist_init + vel * DT
+
             self.velocity_init = vel
             self.dist_init = dist
 
             velocity_kmh = vel * 3.6
+
             print(f"The accel pedal position: {amsg:.2f}, The brake pedal: {bmsg:.2f}", flush=True)
             print(f"velocity={velocity_kmh:.2f} km/h acceleration={accel_net:.2f} m/s^2", flush=True)
             print(f"Distance travelled={dist:.2f} m", flush=True)
+
             return velocity_kmh, dist
     =}
-    reaction(accel, brake)-> velocity, displacement{=
-        
+
+    reaction(startup) {=
+        print("[VelocityDisplacement] startup", flush=True)
+
+        self.reaction_handle = self.register_user_trace_event("VelocityDisplacement reaction invoked")
+        self.velocity_handle = self.register_user_trace_event("VelocityDisplacement velocity x100")
+        self.distance_handle = self.register_user_trace_event("VelocityDisplacement distance x100")
+        self.lag_handle = self.register_user_trace_event("VelocityDisplacement lag x100")
+
+        print(f"[VelocityDisplacement] reaction_handle={self.reaction_handle}", flush=True)
+        print(f"[VelocityDisplacement] velocity_handle={self.velocity_handle}", flush=True)
+        print(f"[VelocityDisplacement] distance_handle={self.distance_handle}", flush=True)
+        print(f"[VelocityDisplacement] lag_handle={self.lag_handle}", flush=True)
+    =}
+
+    reaction(accel, brake) {=
+        if self.reaction_handle != 0:
+            self.tracepoint_user_event(self.reaction_handle)
+
         vel, dist = self.update_car(
-            accel.value if accel.is_present else None, 
+            accel.value if accel.is_present else None,
             brake.value if brake.is_present else None
-        )   
-        velocity.set(vel)
-        displacement.set(dist) 
-        current_dri = lf.time.logical_elapsed()/1e6
-        physical_dri = lf.time.physical_elapsed()/1e6
+        )
+
+        current_dri = lf.time.logical_elapsed() / 1e6
+        physical_dri = lf.time.physical_elapsed() / 1e6
         lag = physical_dri - current_dri
         current_tag = lf.tag()
 
+        if self.velocity_handle != 0:
+            self.tracepoint_user_value(self.velocity_handle, int(vel * 100))
+        if self.distance_handle != 0:
+            self.tracepoint_user_value(self.distance_handle, int(dist * 100))
+        if self.lag_handle != 0:
+            self.tracepoint_user_value(self.lag_handle, int(lag * 100))
 
-        
-        print("----------------------------------------------------------")
-       
+        print("----------------------------------------------------------", flush=True)
+        print(f"[VelocityDisplacement] Velocity: {vel:.2f} km/h", flush=True)
+        print(f"[VelocityDisplacement] Distance: {dist:.2f} m", flush=True)
         print(f"[VelocityDisplacement] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[VelocityDisplacement] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[VelocityDisplacement] LAG: {lag:.2f} ms", flush=True)
         print(f"[VelocityDisplacement] Tag time: {current_tag.time} ns", flush=True)
         print(f"[VelocityDisplacement] Microstep: {current_tag.microstep}", flush=True)
-        print("----------------------------------------------------------")
-
-    =}tardy
+        print("----------------------------------------------------------", flush=True)
+    =}
 }
 
-federated reactor at  100.126.10.42{
+reactor Producer {
+    output accel
+    output brake
 
+    timer t(0, 100 msec)
 
-    d_control = new DriverControl()
-    @maxwait(100 msec)
-    veldist = new VelocityDisplacement()
+    state produce_handle = 0
+    state accel_handle = 0
+    state brake_handle = 0
 
-   
-    @maxwait(100 msec)
-    sim = new Simulation()
-    d_control.steer -> sim.steer_in
-    d_control.accelerator -> veldist.accel
-    d_control.brake -> veldist.brake
-    veldist.velocity -> sim.velocity_in
-    veldist.displacement -> sim.rem_dist
-    
+    reaction(startup) {=
+        print("[Producer] startup", flush=True)
 
-   
-    
+        self.produce_handle = self.register_user_trace_event("Producer generated input")
+        self.accel_handle = self.register_user_trace_event("Producer accel x100")
+        self.brake_handle = self.register_user_trace_event("Producer brake x100")
 
+        print(f"[Producer] produce_handle={self.produce_handle}", flush=True)
+        print(f"[Producer] accel_handle={self.accel_handle}", flush=True)
+        print(f"[Producer] brake_handle={self.brake_handle}", flush=True)
+    =}
 
+    reaction(t) -> accel, brake {=
+        a = random.random()
+        b = random.random()
 
+        if self.produce_handle != 0:
+            self.tracepoint_user_event(self.produce_handle)
+        if self.accel_handle != 0:
+            self.tracepoint_user_value(self.accel_handle, int(a * 100))
+        if self.brake_handle != 0:
+            self.tracepoint_user_value(self.brake_handle, int(b * 100))
 
+        print(f"[Producer] accel={a:.2f}, brake={b:.2f}", flush=True)
 
-    
+        accel.set(a)
+        brake.set(b)
+    =}
+}
 
+federated reactor {
+    p = new Producer()
+    v = new VelocityDisplacement()
+
+    p.accel -> v.accel
+    p.brake -> v.brake
 }
