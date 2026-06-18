@@ -2,7 +2,15 @@ target Python
 
 import SensorInputs from "SensorInputs.lf"
 
+preamble {=
+    import csv
+    import os
 
+    _DRIVER_MONITOR_LOG_PATH = os.getenv(
+        "DRIVER_MONITOR_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/driver_monitor_inputs.csv",
+    )
+=}
 
 reactor DriverMonitor {
     state head_val = 1
@@ -15,19 +23,76 @@ reactor DriverMonitor {
 
     sensors = new SensorInputs()
 
-   
+
+    reaction(startup) {=
+        os.makedirs(os.path.dirname(_DRIVER_MONITOR_LOG_PATH), exist_ok=True)
+        self.driver_monitor_log_file = open(_DRIVER_MONITOR_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.driver_monitor_log_writer = csv.writer(self.driver_monitor_log_file)
+        self.driver_monitor_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "head_present",
+            "eye_present",
+            "head",
+            "eye",
+        ])
+        self.driver_monitor_log_file.flush()
+        print(f"[DRIVER MONITOR LOG] Writing inputs to {_DRIVER_MONITOR_LOG_PATH}", flush=True)
+    =}
 
     reaction(sensors.head_msg, sensors.eye_msg) {=
         if sensors.head_msg.is_present:
             self.head_val = sensors.head_msg.value
         if sensors.eye_msg.is_present:
             self.eye_val = sensors.eye_msg.value
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.driver_monitor_log_writer.writerow([
+            "sensor_arrival",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            int(sensors.head_msg.is_present),
+            int(sensors.eye_msg.is_present),
+            self.head_val,
+            self.eye_val,
+        ])
+        self.driver_monitor_log_file.flush()
     =}
 
     reaction(sensorclock) -> head, eye {=
         head.set(self.head_val)
         eye.set(self.eye_val)
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.driver_monitor_log_writer.writerow([
+            "output_tick",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            1,
+            1,
+            self.head_val,
+            self.eye_val,
+        ])
+        self.driver_monitor_log_file.flush()
       
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "driver_monitor_log_file") and not self.driver_monitor_log_file.closed:
+            self.driver_monitor_log_file.flush()
+            self.driver_monitor_log_file.close()
     =}
 
 }

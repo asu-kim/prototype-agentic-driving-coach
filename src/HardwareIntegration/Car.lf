@@ -1,8 +1,14 @@
 target Python
 
 preamble {=
+    import csv
     import os
     import sys
+
+    _CAR_LOG_PATH = os.getenv(
+        "CAR_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/car_inputs.csv",
+    )
 =}
 
 reactor Car {
@@ -20,7 +26,31 @@ reactor Car {
     output velocity
     output steer
 
-
+    reaction(startup) {=
+        os.makedirs(os.path.dirname(_CAR_LOG_PATH), exist_ok=True)
+        self.car_log_file = open(_CAR_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.car_log_writer = csv.writer(self.car_log_file)
+        self.car_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "steer_in_present",
+            "accel_in_present",
+            "brake_in_present",
+            "actuate_in_present",
+            "steer_in",
+            "accel_in",
+            "brake_in",
+            "actuate_in",
+            "car_velocity",
+            "car_steer",
+        ])
+        self.car_log_file.flush()
+        print(f"[CAR LOG] Writing inputs to {_CAR_LOG_PATH}", flush=True)
+    =}
 
     preamble {=
         def actuate_logic(self, cmd):
@@ -107,10 +137,25 @@ reactor Car {
         )
         velocity.set(velocity_kmh)
         steer.set(steer_value)
-        if RUN_MODE == "DataCollect":
-            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-            rr.log("vehicle/velocity_kmh", rr.Scalars(float(velocity_kmh)))
-            rr.log("vehicle/steer", rr.Scalars(float(steer_value)))
+        self.car_log_writer.writerow([
+            "reaction",
+            lf.time.logical_elapsed(),
+            lf.time.logical_elapsed() / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            int(steer_in.is_present),
+            int(accel_in.is_present),
+            int(brake_in.is_present),
+            int(actuate_in.is_present),
+            steer_in.value if steer_in.is_present else "",
+            accel_in.value if accel_in.is_present else "",
+            brake_in.value if brake_in.is_present else "",
+            actuate_in.value if actuate_in.is_present else "",
+            velocity_kmh,
+            steer_value,
+        ])
+        self.car_log_file.flush()
     =} tardy {=
         current_car = lf.time.logical_elapsed()/1e6
         physical_car = lf.time.physical_elapsed()/1e6
@@ -142,6 +187,31 @@ reactor Car {
         print("----------------------------------------------------------")
         velocity.set(velocity_kmh)
         steer.set(steer_value)
+        self.car_log_writer.writerow([
+            "tardy",
+            lf.time.logical_elapsed(),
+            lf.time.logical_elapsed() / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            int(steer_in.is_present),
+            int(accel_in.is_present),
+            int(brake_in.is_present),
+            int(actuate_in.is_present),
+            steer_in.value if steer_in.is_present else "",
+            accel_in.value if accel_in.is_present else "",
+            brake_in.value if brake_in.is_present else "",
+            actuate_in.value if actuate_in.is_present else "",
+            velocity_kmh,
+            steer_value,
+        ])
+        self.car_log_file.flush()
 
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "car_log_file") and not self.car_log_file.closed:
+            self.car_log_file.flush()
+            self.car_log_file.close()
     =}
 }

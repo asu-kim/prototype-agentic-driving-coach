@@ -167,21 +167,15 @@ reactor ActionPlanner {
 
 
     initial mode monitoring {
-            reaction(ctrl, instr, s, v) -> warning, actuate, planned_instr {=
+            reaction(ctrl, instr) -> warning, actuate, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
                     self.instruction_val = (instr.value or "").strip()
-                if s.is_present:
-                    self.distance_val = s.value
-                if v.is_present:
-                    self.velocity_val = v.value
                 token_keyword = self.control_token
                 instruction = self.instruction_val
-                rd = self.distance_val
-                v_val = self.velocity_val
                 now_ns = lf.time.physical_elapsed()
-                print(f"[RD PLANNER]: {rd:.2f}")
+         
 
                 if token_keyword == "ACTUATE":
                     if instruction:
@@ -241,23 +235,14 @@ reactor ActionPlanner {
                 print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
-                logical_ms = lf.time.logical_elapsed()/1e6
-                physical_ms = lf.time.physical_elapsed()/1e6
-                message_age_ms = physical_ms - logical_ms
-                if message_age_ms > 400.0:
-                    print(f"[PLANNER MONITORING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
-                    return
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
                     self.instruction_val = (instr.value or "").strip()
-                if s.is_present:
-                    self.distance_val = s.value
-                if v.is_present:
-                    self.velocity_val = v.value
+
                 token_keyword = self.control_token
                 instruction = self.instruction_val
-                print(f"[PLANNER MONITORING TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
+                print(f"[PLANNER MONITORING TARDY] Processing {token_keyword}", flush=True)
                 if instruction:
                     planned_instr.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
@@ -271,20 +256,15 @@ reactor ActionPlanner {
     }
 
     mode warning {
-            reaction(ctrl, instr, s, v) -> monitoring, actuate, planned_instr {=
+            reaction(ctrl, instr) -> monitoring, actuate, planned_instr {=
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
                     self.instruction_val = (instr.value or "").strip()
-                if s.is_present:
-                    self.distance_val = s.value
-                if v.is_present:
-                    self.velocity_val = v.value
                 token_keyword = self.control_token
                 instruction = self.instruction_val
                 now_ns = lf.time.physical_elapsed()
-                rd = self.distance_val
-                print(f"[RD PLANNER]: {rd:.2f}")
+   
 
                 if token_keyword == "ACTUATE":
                     if instruction:
@@ -336,23 +316,15 @@ reactor ActionPlanner {
                 print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
             =} tardy {=
-                logical_ms = lf.time.logical_elapsed()/1e6
-                physical_ms = lf.time.physical_elapsed()/1e6
-                message_age_ms = physical_ms - logical_ms
-                if message_age_ms > 400.0:
-                    print(f"[PLANNER WARNING TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
-                    return
+
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
                     self.instruction_val = (instr.value or "").strip()
-                if s.is_present:
-                    self.distance_val = s.value
-                if v.is_present:
-                    self.velocity_val = v.value
+
                 token_keyword = self.control_token
                 instruction = self.instruction_val
-                print(f"[PLANNER WARNING TARDY] Processing {token_keyword}: age={message_age_ms:.2f} ms", flush=True)
+                print(f"[PLANNER WARNING TARDY] Processing {token_keyword}", flush=True)
                 if instruction:
                     planned_instr.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
@@ -407,10 +379,6 @@ reactor ActionPlanner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                if RUN_MODE == "DataCollect":
-                    rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                    rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                    rr.log("planner/actuator_command", rr.TextLog(speed_command))
 
                 if instruction:
                     self.try_speak(now_ns, instruction)

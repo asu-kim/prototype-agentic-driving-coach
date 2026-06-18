@@ -230,12 +230,15 @@
       Scenario route mapping (1 MuJoCo meter = 100 real meters):
         x=0.0..40.0   straight highway road, 4 km total
         x=0.0         ego car starts in center lane, y=0.0
-        x=5.0         right-lane car appears after 0.5 km, y=-0.25
-        x=16.0        exit sign appears after 1.6 km
-        x=16.0..35.6  right-side exit road, 2 km total
+        x=5.0         right-lane traffic appears after 0.5 km
+        x=30.0        lane-change sign appears after 3.0 km
+        x=40.0        right-side exit connector begins after 4.0 km
+        x=42.0        exit sign appears after 4.2 km
+        x=45.6        speed-limit sign appears after 4.56 km
+        x=52.1        stop sign/cross traffic appears after 5.21 km
 
-      The XML provides the static road context. Simulation logic will later move/show
-      the traffic bodies from the current environment.csv row.
+      environment.csv uses these same real-distance landmarks. Simulation logic can
+      move/show the traffic bodies from the current environment.csv row.
     -->
       <!-- Red car passing by in the right lane before lane-change sign -->
       <body name="passing_red_car" pos="28.5 -0.40 0.023">

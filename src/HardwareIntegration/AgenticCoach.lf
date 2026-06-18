@@ -16,7 +16,7 @@ reactor AgenticCoach {
     input h
     input e
     input en_states
-    input coach_inp
+
 
     // output ready
     output control
@@ -33,7 +33,7 @@ reactor AgenticCoach {
 
             try:
                 r = ollama.chat(
-                    model=_OLLAMA_MODEL,
+                    model="llama3.1:8b",
                     messages=[
                             {
 
@@ -121,16 +121,16 @@ reactor AgenticCoach {
         eye_input = e.value if e.is_present and e.value else ["CENTER"]
         environment_values = en_states.value if en_states.is_present else []
 
-        environment_keys = [
-            "road_phase",
-            "front_car_present",
-            "right_car_present",
-            "right_car_position",
-            "cross_left_car_present",
-            "cross_right_car_present"
-        ]
-        environment_input = dict(zip(environment_keys, environment_values))
-        road_phase = environment_input.get("road_phase", "")
+        environment_input = {
+            "road_phase": environment_values[0],
+            "front_car_present": environment_values[1],
+            "right_car_present": environment_values[2],
+            "right_car_position": environment_values[3],
+            "cross_left_car_present": environment_values[4],
+            "cross_right_car_present": environment_values[5],
+        }
+
+        road_phase = environment_input["road_phase"]
 
         llm_inputs = {
             "distance_to_target_m": distance_val,

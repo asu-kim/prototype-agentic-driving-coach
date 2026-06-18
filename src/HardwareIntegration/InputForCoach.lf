@@ -1,12 +1,14 @@
 target Python
 
 preamble {=
+    import csv
     import json
     import os
-    import rerun as rr
 
-    _RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    _RERUN_ENABLED = _RUN_MODE == "DataCollect"
+    _LLM_INPUT_LOG_PATH = os.getenv(
+        "LLM_INPUT_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/llm_inputs.csv",
+    )
 =}
 
 reactor InputForCoach{
@@ -34,17 +36,40 @@ reactor InputForCoach{
     output head_pos
     output eye_pos
     output environment_states
-    output coach_input
+ 
 
 
     reaction(startup){=
-        if _RERUN_ENABLED:
-            rr.init("hardware_integrated_adc_input_for_coach", spawn=True)
-            print("[RERUN] InputForCoach viewer initialized.", flush=True)
-        print(f"[INPUT FOR COACH MODE] {_RUN_MODE}", flush=True)
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
+        os.makedirs(os.path.dirname(_LLM_INPUT_LOG_PATH), exist_ok=True)
+        self.llm_input_log_file = open(_LLM_INPUT_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.llm_input_log_writer = csv.writer(self.llm_input_log_file)
+        self.llm_input_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "displacement_present",
+            "velocity_present",
+            "car_steer_present",
+            "head_present",
+            "eye_present",
+            "environment_states_present",
+            "environment_distance",
+            "car_velocity",
+            "car_steer",
+            "head",
+            "eye",
+            "head_history_json",
+            "eye_history_json",
+            "environment_states_json",
+        ])
+        self.llm_input_log_file.flush()
+        print(f"[LLM INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
     =}
     reaction(s, v, st, h, e, en_states){=
         if s.is_present:
@@ -79,6 +104,32 @@ reactor InputForCoach{
             self.en_states_val = en_states.value
         self.head_history = self.head_history[-self.max_history:]
         self.eye_history = self.eye_history[-self.max_history:]
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.llm_input_log_writer.writerow([
+            "input_arrival",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            int(s.is_present),
+            int(v.is_present),
+            int(st.is_present),
+            int(h.is_present),
+            int(e.is_present),
+            int(en_states.is_present),
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
     =} tardy
 
 
@@ -90,6 +141,32 @@ reactor InputForCoach{
         head_pos.set(self.head_history)
         eye_pos.set(self.eye_history)
         environment_states.set(self.en_states_val)
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.llm_input_log_writer.writerow([
+            "llm_output_tick",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
         # coach_input.set({
         #     "distance": self.s_val,
         #     "velocity": self.v_val,
@@ -99,14 +176,6 @@ reactor InputForCoach{
         #     "environment": self.en_states_val,
         # })
 
-        if _RERUN_ENABLED:
-            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-            rr.log("coach/displacement_m", rr.Scalars(float(self.s_val)))
-            rr.log("coach/velocity_kmh", rr.Scalars(float(self.v_val)))
-            rr.log("coach/steer", rr.Scalars(float(self.st_val)))
-            rr.log("coach/head_history", rr.TextLog(json.dumps(self.head_history)))
-            rr.log("coach/eye_history", rr.TextLog(json.dumps(self.eye_history)))
-            rr.log("coach/environment_states", rr.TextLog(json.dumps(self.en_states_val)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
@@ -124,5 +193,10 @@ reactor InputForCoach{
     =}
 
 
+    reaction(shutdown) {=
+        if hasattr(self, "llm_input_log_file") and not self.llm_input_log_file.closed:
+            self.llm_input_log_file.flush()
+            self.llm_input_log_file.close()
+    =}
 
 }

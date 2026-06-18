@@ -6,6 +6,11 @@ preamble {=
     import csv
     import os
     import sys
+
+    _DRIVER_CONTROL_LOG_PATH = os.getenv(
+        "DRIVER_CONTROL_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/driver_control_inputs.csv",
+    )
    
 =}
 
@@ -22,7 +27,28 @@ reactor DriverControl {
 
     sensors = new SensorInputs()
 
-   
+
+    reaction(startup) {=
+        os.makedirs(os.path.dirname(_DRIVER_CONTROL_LOG_PATH), exist_ok=True)
+        self.driver_control_log_file = open(_DRIVER_CONTROL_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.driver_control_log_writer = csv.writer(self.driver_control_log_file)
+        self.driver_control_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "steer_present",
+            "accelerator_present",
+            "brake_present",
+            "steer",
+            "accelerator",
+            "brake",
+        ])
+        self.driver_control_log_file.flush()
+        print(f"[DRIVER CONTROL LOG] Writing inputs to {_DRIVER_CONTROL_LOG_PATH}", flush=True)
+    =}
 
     reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
         if sensors.steer_msg.is_present:
@@ -31,13 +57,55 @@ reactor DriverControl {
             self.accel_val = sensors.accel_msg.value
         if sensors.brake_msg.is_present:
             self.brake_val = sensors.brake_msg.value
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.driver_control_log_writer.writerow([
+            "sensor_arrival",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            int(sensors.steer_msg.is_present),
+            int(sensors.accel_msg.is_present),
+            int(sensors.brake_msg.is_present),
+            self.steer_val,
+            self.accel_val,
+            self.brake_val,
+        ])
+        self.driver_control_log_file.flush()
     =}
 
     reaction(sensorclock) -> steer, accelerator, brake {=
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.driver_control_log_writer.writerow([
+            "output_tick",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            1,
+            1,
+            1,
+            self.steer_val,
+            self.accel_val,
+            self.brake_val,
+        ])
+        self.driver_control_log_file.flush()
     
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "driver_control_log_file") and not self.driver_control_log_file.closed:
+            self.driver_control_log_file.flush()
+            self.driver_control_log_file.close()
     =}
 
 }

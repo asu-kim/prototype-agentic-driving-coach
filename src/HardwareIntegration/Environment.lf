@@ -5,14 +5,19 @@ preamble{=
     import os
     import sys
 
+    _ENVIRONMENT_LOG_PATH = os.getenv(
+        "ENVIRONMENT_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/environment_inputs.csv",
+    )
+
 =}
 
 reactor Environment{
     input v
 
     state loaded = False
-    state distance_to_exit_m = 1600
-    state distance_to_stop_sign_m = 1000
+    state distance_to_exit_m = 4000
+    state distance_to_stop_sign_m = 1210
     state distance_after_stop_m = 100
     state row_idx = 0
     state previous_logical_ns = 0
@@ -34,7 +39,30 @@ reactor Environment{
             if len(self.lines) == 0:
                 raise RuntimeError("environment.csv contains no data rows")
             self.loaded = True
+            os.makedirs(os.path.dirname(_ENVIRONMENT_LOG_PATH), exist_ok=True)
+            self.environment_log_file = open(_ENVIRONMENT_LOG_PATH, "w", newline="", encoding="utf-8")
+            self.environment_log_writer = csv.writer(self.environment_log_file)
+            self.environment_log_writer.writerow([
+                "logical_time_ns",
+                "logical_time_ms",
+                "physical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "velocity_present",
+                "input_velocity_kmh",
+                "dt_seconds",
+                "road_phase",
+                "environment_distance",
+                "front_car_present",
+                "right_car_present",
+                "right_car_position",
+                "cross_left_car_present",
+                "cross_right_car_present",
+                "environment_states_json",
+            ])
+            self.environment_log_file.flush()
             print("Environment Loaded", flush=True)
+            print(f"[ENVIRONMENT LOG] Writing inputs to {_ENVIRONMENT_LOG_PATH}", flush=True)
         except Exception as e:
             self.loaded = False
             raise RuntimeError(f"Environment is not loaded: {e}") from e
@@ -107,10 +135,35 @@ reactor Environment{
         print(f"[ENVIRONMENT] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[ENVIRONMENT] LAG: {lag:.2f} ms", flush=True)
         print(f"[ENVIRONMENT] Tag time: {current_tag.time} ns", flush=True)
+        self.environment_log_writer.writerow([
+            current_logical_ns,
+            current_logical_ns / 1e6,
+            physical_dri,
+            current_tag.time,
+            current_tag.microstep,
+            int(v.is_present),
+            v.value if v.is_present else "",
+            dt_seconds,
+            road_phase,
+            current_displacement,
+            front_car_present,
+            right_car_present,
+            right_car_position,
+            cross_left_car_present,
+            cross_right_car_present,
+            json.dumps(en_states),
+        ])
+        self.environment_log_file.flush()
+
         print(f"[ENVIRONMENT] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
     =}
 
 
+    reaction(shutdown) {=
+        if hasattr(self, "environment_log_file") and not self.environment_log_file.closed:
+            self.environment_log_file.flush()
+            self.environment_log_file.close()
+    =}
 
 }

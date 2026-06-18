@@ -1,7 +1,7 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "mjpython"
+        Python_EXECUTABLE: "python"
     }
 }
 
