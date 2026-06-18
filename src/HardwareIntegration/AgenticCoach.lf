@@ -3,14 +3,10 @@ target Python
 preamble{=
     import os
     import sys
-    import rerun as rr
     import time
     import ollama
 
-    _OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
-    _CONTROL_IDS = {"NONE": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
-    RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
+
 =}
 
 reactor AgenticCoach {
@@ -26,12 +22,6 @@ reactor AgenticCoach {
     output control
     output instruction
 
-    reaction(startup) {=
-        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
-            rr.connect()
-            print("[RERUN] AgenticCoach connected to Rerun viewer.", flush=True)
-        print(f"[AGENTIC COACH MODE] {RUN_MODE}", flush=True)
-    =}
 
     preamble {=
         def run_llm_message(self, llm_inputs):
@@ -175,14 +165,7 @@ reactor AgenticCoach {
 
 
 
-        if RUN_MODE == "DataCollect":
-            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-            rr.log("llm/control_id", rr.Scalars(_CONTROL_IDS[tok]))
-            rr.log("llm/control", rr.TextLog(tok))
-            rr.log("llm/instruction", rr.TextLog(msg))
-            rr.log("llm/model", rr.TextLog(_OLLAMA_MODEL))
-            rr.log("llm/inference_ms", rr.Scalars(float(ms)))
-
+        
         control.set(tok)
         instruction.set(msg)
 

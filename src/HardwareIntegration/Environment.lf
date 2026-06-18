@@ -4,10 +4,7 @@ preamble{=
     import json
     import os
     import sys
-    import rerun as rr
 
-    RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
 =}
 
 reactor Environment{
@@ -27,11 +24,7 @@ reactor Environment{
 
     state v_val = 0.0
     reaction(startup){=
-        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
-            # rr.init is handled by the main federated reactor. We only connect.
-            rr.connect()
-            print("[RERUN] Environment connected to Rerun viewer.", flush=True)
-        print(f"[ENVIRONMENT MODE] {RUN_MODE}", flush=True)
+
 
         try:
             with open("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/environment.csv", "r", newline="") as f:
@@ -103,12 +96,6 @@ reactor Environment{
         environment_states.set(en_states)
 
 
-
-        if RUN_MODE == "DataCollect":
-            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-            rr.log("environment/displacement_m", rr.Scalars(float(current_displacement)))
-            rr.log("environment/road_phase", rr.TextLog(road_phase))
-            rr.log("environment/states", rr.TextLog(json.dumps(en_states)))
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri

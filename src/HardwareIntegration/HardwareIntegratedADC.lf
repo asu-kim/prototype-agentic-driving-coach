@@ -14,28 +14,7 @@ import ActionPlanner from "ActionPlanner.lf"
 import Simulation from "Simulation.lf"
 
 federated reactor at 10.218.100.78 {
-    reaction(startup) {=
-        import os
-        import sys
-        import rerun as rr
 
-        RUN_MODE = os.getenv("RUN_MODE", "Testing")
-        SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
-
-        if RUN_MODE == "DataCollect":
-            print("[MODE] Data collection mode", flush=True)
-            if SAVE_RERUN:
-                fed_name = os.path.basename(sys.argv[0])
-                print(f"[MODE] Saving rerun log to {fed_name}.rrd", flush=True)
-                rr.init("TCRS_Federated", spawn=False)
-                rr.save(f"{fed_name}.rrd")
-            else:
-                print("[MODE] Rerun and tracing should be enabled", flush=True)
-                rr.init("TCRS_Federated", spawn=True)
-        elif RUN_MODE == "Testing":
-            print("[MODE] Testing mode", flush=True)
-            print("[MODE] Using previously collected inputs", flush=True)
-    =}
 
     d_control = new DriverControl()
     d_monitor = new DriverMonitor()

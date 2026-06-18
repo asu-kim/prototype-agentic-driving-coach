@@ -4,16 +4,22 @@ target Python {keepalive: true,
     DNET: False,
     // tracing:True
     }
-import DriverControl from "../DriverControl.lf"
-import DriverMonitor from "../DriverMonitor.lf"
+import DriverControl from "DriverControl.lf"
 
-import Simulation from "../Simulation.lf"
+
+import Simulation from "Simulation.lf"
 
 reactor VelocityDisplacement{
     input accel
     input brake
     output velocity
     output displacement
+
+    state velocity_init = 25.0
+    state dist_init = 0.0
+    state accel_val = 0.0
+    state brake_val = 0.0
+
     preamble{=
         def update_car(self, accel_input, brake_input):
             if accel_input is not None:
@@ -52,24 +58,40 @@ reactor VelocityDisplacement{
     =}
     reaction(accel, brake)-> velocity, displacement{=
         
-        self.velocity_init = 0.0
-        self.dist_init = 0.0
-        vel, dist = self.update_car(accel.value, brake.value)   
+        vel, dist = self.update_car(
+            accel.value if accel.is_present else None, 
+            brake.value if brake.is_present else None
+        )   
         velocity.set(vel)
         displacement.set(dist) 
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+        current_tag = lf.tag()
 
-    =}
+
+        
+        print("----------------------------------------------------------")
+       
+        print(f"[VelocityDisplacement] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[VelocityDisplacement] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[VelocityDisplacement] LAG: {lag:.2f} ms", flush=True)
+        print(f"[VelocityDisplacement] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[VelocityDisplacement] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
+
+    =}tardy
 }
 
-federated reactor at  10.155.116.242{
+federated reactor at  100.126.10.42{
 
 
     d_control = new DriverControl()
-   
+    @maxwait(100 msec)
     veldist = new VelocityDisplacement()
 
    
-    @maxwait(20 msec)
+    @maxwait(100 msec)
     sim = new Simulation()
     d_control.steer -> sim.steer_in
     d_control.accelerator -> veldist.accel

@@ -3,15 +3,10 @@ target Python
 preamble{=
     import os
     import sys
-    import rerun as rr
     import time
     import subprocess
     import threading
-    import csv
-    _ACTUATOR_IDS = {"STOP": 0.0, "BRAKE": 1.0, "HOLD": 2.0, "ACCEL": 3.0}
-    _MODE_IDS = {"MONITORING": 0.0, "WARNING": 1.0, "ACTUATE": 2.0}
-    RUN_MODE = os.getenv("RUN_MODE", "Testing")
-    SAVE_RERUN = os.getenv("SAVE_RERUN", "0") == "1"
+
 =}
 
 
@@ -39,14 +34,7 @@ reactor ActionPlanner {
         import threading
         import os
 
-        def log_mode_transition(self, from_mode, to_mode, reason):
-            logical_ms = lf.time.logical_elapsed() / 1_000_000
-            if RUN_MODE == "DataCollect":
-                rr.set_time("logical_time_ms", sequence=int(logical_ms))
-                rr.log("planner/mode", rr.TextLog(to_mode))
-                rr.log("planner/mode_id", rr.Scalars(_MODE_IDS[to_mode]))
-                rr.log("planner/mode_transitions", rr.TextLog(f"{from_mode} -> {to_mode}: {reason}"))
-            print(f"[PLANNER MODE] {from_mode} -> {to_mode}: {reason}", flush=True)
+        
 
         def adaptive_cruise_control(
             self,
@@ -170,18 +158,11 @@ reactor ActionPlanner {
     =}
 
     reaction(startup) {=
-        if RUN_MODE == "DataCollect" and not SAVE_RERUN:
-            rr.connect()
-            print("[RERUN] ActionPlanner connected to Rerun viewer.", flush=True)
-        print(f"[ACTION PLANNER MODE] {RUN_MODE}", flush=True)
+        
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
-        if RUN_MODE == "DataCollect":
-            rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-            rr.log("planner/mode", rr.TextLog("MONITORING"))
-            rr.log("planner/mode_id", rr.Scalars(_MODE_IDS["MONITORING"]))
-        print("[PLANNER MODE] Initial mode: MONITORING", flush=True)
+
     =}
 
 
@@ -475,10 +456,7 @@ reactor ActionPlanner {
                 road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
-                if RUN_MODE == "DataCollect":
-                    rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-                    rr.log("planner/actuator_command_id", rr.Scalars(_ACTUATOR_IDS.get(speed_command, -1.0)))
-                    rr.log("planner/actuator_command", rr.TextLog(speed_command))
+
             =}
     } 
 }
