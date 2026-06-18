@@ -58,7 +58,7 @@ reactor Simulation {
         print(f"[SIMULATION] Tag time: {current_tag.time} ns", flush=True)
         print(f"[SIMULATION] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------", flush=True)
-    =}
+    =}tardy
 
     reaction(m.key) -> m.cam_toggle {=
         if m.key.value.act == glfw.PRESS:
