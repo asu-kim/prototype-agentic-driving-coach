@@ -2,7 +2,7 @@ target Python {keepalive: true,
     // logging: DEBUG,
     coordination: decentralized,
     DNET: False,
-    // tracing:True
+    tracing:True
     }
 import DriverControl from "DriverControl.lf"
 import DriverMonitor from "DriverMonitor.lf"

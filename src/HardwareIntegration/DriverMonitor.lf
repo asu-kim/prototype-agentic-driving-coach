@@ -8,7 +8,7 @@ preamble {=
 
     _DRIVER_MONITOR_LOG_PATH = os.getenv(
         "DRIVER_MONITOR_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/driver_monitor_inputs.csv",
+        "logs-trace/driver_monitor_inputs.csv",
     )
 =}
 

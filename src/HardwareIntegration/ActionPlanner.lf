@@ -1,11 +1,18 @@
 target Python 
 
 preamble{=
+    import csv
+    import json
     import os
     import sys
     import time
     import subprocess
     import threading
+
+    _PLANNER_LOG_PATH = os.getenv(
+        "PLANNER_LOG_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/planner_events.csv",
+    )
 
 =}
 
@@ -33,7 +40,45 @@ reactor ActionPlanner {
         import re
         import threading
         import os
+        import json
 
+        def log_planner_event(self, event, mode, from_mode="", to_mode="", reason="", act_command="", lane_command=""):
+            current_tag = lf.tag()
+            logical_time_ns = lf.time.logical_elapsed()
+            environment_states = self.latest_environment_states if hasattr(self, "latest_environment_states") else None
+            row = [
+                event,
+                logical_time_ns,
+                logical_time_ns / 1e6,
+                lf.time.physical_elapsed() / 1e6,
+                current_tag.time,
+                current_tag.microstep,
+                mode,
+                from_mode,
+                to_mode,
+                reason,
+                self.control_token,
+                self.instruction_val,
+                self.distance_val,
+                self.velocity_val,
+                json.dumps(environment_states),
+                act_command,
+                lane_command,
+                int(bool(act_command)),
+            ]
+            if hasattr(self, "planner_log_writer"):
+                self.planner_log_writer.writerow(row)
+                self.planner_log_file.flush()
+
+        def log_mode_transition(self, from_mode, to_mode, reason):
+            print(f"[PLANNER MODE] {from_mode} -> {to_mode} because {reason}", flush=True)
+            self.log_planner_event(
+                "mode_transition",
+                from_mode,
+                from_mode=from_mode,
+                to_mode=to_mode,
+                reason=reason,
+            )
         
 
         def adaptive_cruise_control(
@@ -162,6 +207,31 @@ reactor ActionPlanner {
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
+        os.makedirs(os.path.dirname(_PLANNER_LOG_PATH), exist_ok=True)
+        self.planner_log_file = open(_PLANNER_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.planner_log_writer = csv.writer(self.planner_log_file)
+        self.planner_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "mode",
+            "from_mode",
+            "to_mode",
+            "reason",
+            "control_token",
+            "instruction",
+            "distance_to_target_m",
+            "velocity_kmh",
+            "environment_states_json",
+            "act_command",
+            "lane_command",
+            "act_set",
+        ])
+        self.planner_log_file.flush()
+        print(f"[PLANNER LOG] Writing events to {_PLANNER_LOG_PATH}", flush=True)
 
     =}
 
@@ -379,6 +449,13 @@ reactor ActionPlanner {
 
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, velocity_kmh, rd, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
+                self.log_planner_event(
+                    "act_command_set",
+                    "ACTUATE",
+                    reason=token_keyword,
+                    act_command=speed_command,
+                    lane_command=lane_command,
+                )
 
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -424,7 +501,20 @@ reactor ActionPlanner {
                 road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
                 act.set(speed_command)
+                self.log_planner_event(
+                    "act_command_set_tardy",
+                    "ACTUATE",
+                    reason=f"tardy {token_keyword}",
+                    act_command=speed_command,
+                    lane_command=lane_command,
+                )
 
             =}
-    } 
+    }
+
+    reaction(shutdown) {=
+        if hasattr(self, "planner_log_file") and not self.planner_log_file.closed:
+            self.planner_log_file.flush()
+            self.planner_log_file.close()
+    =}
 }

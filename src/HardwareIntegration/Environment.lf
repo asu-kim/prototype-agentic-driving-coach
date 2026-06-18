@@ -7,7 +7,7 @@ preamble{=
 
     _ENVIRONMENT_LOG_PATH = os.getenv(
         "ENVIRONMENT_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/environment_inputs.csv",
+        "logs-trace/environment_inputs.csv",
     )
 
 =}
