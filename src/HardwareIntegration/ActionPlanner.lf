@@ -11,7 +11,7 @@ preamble{=
 
     _PLANNER_LOG_PATH = os.getenv(
         "PLANNER_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/Logs/planner_events.csv",
+        "logs-trace/planner_events.csv",
     )
 
 =}

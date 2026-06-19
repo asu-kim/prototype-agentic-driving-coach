@@ -53,7 +53,7 @@ reactor AgenticCoach {
                             - YIELD: Yield until cross traffic has cleared, especially right-side cross traffic.
                             - MOVE: Move ahead for the final 100 m.
 
-                            Choose exactly one TOKEN using this priority:
+                            Choose exactly one control token using this priority:
 
                             1. ACTUATE for an immediate hazard requiring vehicle control:
                                - front_car_present is 1, or
@@ -76,8 +76,23 @@ reactor AgenticCoach {
                             - Do not mention a right-lane vehicle when right_car_present is 0.
                             - For NONE, leave the instruction empty.
 
-                            Return exactly one line in this format:
-                            TOKEN|INSTRUCTION
+                            Output contract:
+                            - Decide the control token first, then write the driver-facing instruction yourself.
+                            - Return exactly one line and no explanation.
+                            - Format: CONTROL|INSTRUCTION
+                            - CONTROL must be exactly ACTUATE, WARNING, or NONE.
+                            - INSTRUCTION must be a short natural-language command for the driver.
+                            - Use exactly one | separator.
+                            - Do not output placeholder words such as TOKEN, CONTROL, or INSTRUCTION.
+                            - Do not put ACTUATE, WARNING, or NONE in the instruction field.
+                            - For NONE, return exactly NONE| with nothing after the separator.
+
+                            Valid examples:
+                            WARNING|Reduce speed.
+                            WARNING|Increase speed.
+                            WARNING|Look right before changing lanes.
+                            ACTUATE|Brake for the vehicle ahead.
+                            NONE|
                             """
                         },
                         {
@@ -102,10 +117,16 @@ reactor AgenticCoach {
             raw = (r.get("message", {}).get("content", "") or "").strip()
             print(f"[LLM RAW] {raw}", flush=True)
 
-            # Parse token + message properly
             parts = raw.split("|", 1)
-            token = parts[0].strip() if len(parts) > 0 else "NONE"
+            token = parts[0].strip().upper() if len(parts) > 0 else "NONE"
             msg = parts[1].strip() if len(parts) > 1 else ""
+
+            if token not in {"NONE", "WARNING", "ACTUATE"}:
+                print(f"[LLM PARSE WARNING] Invalid token: {token}; raw={raw}", flush=True)
+                token = "NONE"
+                msg = ""
+            elif token == "NONE":
+                msg = ""
 
             return token, msg, ms
 

@@ -33,8 +33,8 @@ reactor Simulation {
             self.remaining_distance_m = float(rem_dist.value)
             print(f"[SIMULATION] Received remaining distance: {rem_dist.value}", flush=True)
 
-        # MuJoCo's forward motor accepts a normalized command in [-1, 1].
-        forward_cmd = max(-1.0, min(1.0, self.velocity_kmh / 120.0))
+        # MuJoCoCarAutoHardware displays forward * 3.6 as km/h.
+        forward_cmd = self.velocity_kmh / 3.6
  
         if self.steer_value == 2:
             turn_cmd = -0.05
