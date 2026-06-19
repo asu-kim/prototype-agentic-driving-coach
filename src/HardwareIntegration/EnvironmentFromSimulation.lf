@@ -1,0 +1,145 @@
+target Python
+
+preamble{=
+    import csv
+    import json
+    import os
+
+    _SIM_ENV_LOG_PATH = os.getenv(
+        "SIM_ENVIRONMENT_LOG_PATH",
+        "logs-trace/sim_environment_inputs.csv",
+    )
+=}
+
+reactor EnvironmentStates {
+    input distance_from_start
+    input v
+    input front_car_visible
+    input right_car_visible
+    input cross_left_car_visible
+    input cross_right_car_visible
+
+    output displacement
+    output environment_states
+
+    state distance_from_start_m = 0.0
+    state velocity_kmh = 0.0
+    state front_car_visible_val = 0
+    state right_car_visible_val = 0
+    state cross_left_car_visible_val = 0
+    state cross_right_car_visible_val = 0
+
+    reaction(startup) {=
+        os.makedirs(os.path.dirname(_SIM_ENV_LOG_PATH), exist_ok=True)
+        self.environment_log_file = open(_SIM_ENV_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.environment_log_writer = csv.writer(self.environment_log_file)
+        self.environment_log_writer.writerow([
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "distance_from_start_m",
+            "velocity_kmh",
+            "road_phase",
+            "environment_distance",
+            "front_car_present",
+            "right_car_present",
+            "right_car_position",
+            "cross_left_car_present",
+            "cross_right_car_present",
+            "other_car_present",
+            "environment_states_json",
+        ])
+        self.environment_log_file.flush()
+        print(f"[SIM ENVIRONMENT LOG] Writing inputs to {_SIM_ENV_LOG_PATH}", flush=True)
+    =}
+
+    preamble {=
+        def phase_and_distance(self, distance_m):
+            if distance_m < 3000.0:
+                return "HIGHWAY", 4000.0 - distance_m
+            if distance_m < 4000.0:
+                return "LANE_CHANGE", 4000.0 - distance_m
+            if distance_m < 5210.0:
+                return "EXIT", 5210.0 - distance_m
+            if distance_m < 5235.0:
+                return "STOP_SIGN", max(0.0, 5235.0 - distance_m)
+            if distance_m < 5260.0:
+                return "YIELD", max(0.0, 5260.0 - distance_m)
+            return "MOVE", max(0.0, 5360.0 - distance_m)
+
+        def environment_details(self, road_phase, distance_m):
+            front_car_present = int(self.front_car_visible_val)
+            right_car_present = int(self.right_car_visible_val)
+            right_car_position = "RIGHT_REAR" if right_car_present else "NONE"
+            cross_left_car_present = int(self.cross_left_car_visible_val)
+            cross_right_car_present = int(self.cross_right_car_visible_val)
+
+            return [
+                road_phase,
+                front_car_present,
+                right_car_present,
+                right_car_position,
+                cross_left_car_present,
+                cross_right_car_present,
+            ]
+    =}
+
+    reaction(distance_from_start, v, front_car_visible, right_car_visible, cross_left_car_visible, cross_right_car_visible) -> displacement, environment_states {=
+        if distance_from_start.is_present:
+            self.distance_from_start_m = float(distance_from_start.value)
+        if v.is_present:
+            self.velocity_kmh = float(v.value)
+        if front_car_visible.is_present:
+            self.front_car_visible_val = int(front_car_visible.value)
+        if right_car_visible.is_present:
+            self.right_car_visible_val = int(right_car_visible.value)
+        if cross_left_car_visible.is_present:
+            self.cross_left_car_visible_val = int(cross_left_car_visible.value)
+        if cross_right_car_visible.is_present:
+            self.cross_right_car_visible_val = int(cross_right_car_visible.value)
+
+        road_phase, environment_distance = self.phase_and_distance(self.distance_from_start_m)
+        en_states = self.environment_details(road_phase, self.distance_from_start_m)
+
+        other_present = int(bool(en_states[1] or en_states[2] or en_states[4] or en_states[5]))
+
+        displacement.set(environment_distance)
+        environment_states.set(en_states)
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.environment_log_writer.writerow([
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            self.distance_from_start_m,
+            self.velocity_kmh,
+            road_phase,
+            environment_distance,
+            en_states[1],
+            en_states[2],
+            en_states[3],
+            en_states[4],
+            en_states[5],
+            other_present,
+            json.dumps(en_states),
+        ])
+        self.environment_log_file.flush()
+
+        print(
+            f"[SIM ENVIRONMENT] distance_from_start={self.distance_from_start_m:.2f} m "
+            f"phase={road_phase} target_distance={environment_distance:.2f} m other_car_present={other_present} states={en_states}",
+            flush=True,
+        )
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "environment_log_file") and not self.environment_log_file.closed:
+            self.environment_log_file.flush()
+            self.environment_log_file.close()
+    =}
+}

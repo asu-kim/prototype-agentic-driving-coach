@@ -1,27 +1,37 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "python"
+        Python_EXECUTABLE: "python3"
     }
 }
 
 import MuJoCoCarAuto from "../../mujoco-py/src/lib/MuJoCoCarAutoHardware.lf"
+import EnvironmentStates from "EnvironmentFromSimulation.lf"
+// import EnvironmentSimulation from "EnvironmentSimulation"
 
-reactor Simulation {
+reactor Environment {
     preamble {=
         from mujoco.glfw import glfw
     =}
     input steer_in
     input velocity_in
-    input rem_dist
+
+    output displacement
+    output environment_states
 
     state velocity_kmh = 0.0
     state steer_value = 1
-    state remaining_distance_m = 0.0
+    state distance_from_start_m = 0.0
+    state previous_logical_ns = 0
+    state has_previous_logical_time = False
 
     m = new MuJoCoCarAuto()
+    env = new EnvironmentStates()
 
-    reaction(steer_in, velocity_in, rem_dist) -> m.forward, m.turn, m.rd {=
+    env.displacement -> displacement
+    env.environment_states -> environment_states
+
+    reaction(steer_in, velocity_in) -> m.forward, m.turn, env.distance_from_start, env.v {=
         print("----------------------------------------------------------", flush=True)
         if velocity_in.is_present:
             self.velocity_kmh = float(velocity_in.value)
@@ -29,9 +39,14 @@ reactor Simulation {
         if steer_in.is_present:
             self.steer_value = steer_in.value
             print(f"[SIMULATION] Received steer: {steer_in.value}", flush=True)
-        if rem_dist.is_present:
-            self.remaining_distance_m = float(rem_dist.value)
-            print(f"[SIMULATION] Received remaining distance: {rem_dist.value}", flush=True)
+        current_logical_ns = lf.time.logical_elapsed()
+        if not self.has_previous_logical_time:
+            dt_seconds = 0.0
+        else:
+            dt_seconds = max(0.0, (current_logical_ns - self.previous_logical_ns) / 1e9)
+        self.has_previous_logical_time = True
+        self.previous_logical_ns = current_logical_ns
+        self.distance_from_start_m += (self.velocity_kmh / 3.6) * dt_seconds
 
         # MuJoCoCarAutoHardware displays forward * 3.6 as km/h.
         forward_cmd = self.velocity_kmh / 3.6
@@ -45,7 +60,9 @@ reactor Simulation {
 
         m.forward.set(forward_cmd)
         m.turn.set(turn_cmd)
-        m.rd.set(self.remaining_distance_m)
+        env.distance_from_start.set(self.distance_from_start_m)
+        env.v.set(self.velocity_kmh)
+        print(f"[SIMULATION] Distance from start: {self.distance_from_start_m:.2f} m", flush=True)
 
         current_sim = lf.time.logical_elapsed()/1e6
         physical_sim = lf.time.physical_elapsed()/1e6
@@ -60,9 +77,15 @@ reactor Simulation {
         print("----------------------------------------------------------", flush=True)
     =}tardy
 
+    m.front_car_present -> env.front_car_visible after 0 msec
+    m.right_car_present -> env.right_car_visible after 0 msec
+    m.cross_left_car_present -> env.cross_left_car_visible after 0 msec
+    m.cross_right_car_present -> env.cross_right_car_visible after 0 msec
+
     reaction(m.key) -> m.cam_toggle {=
         if m.key.value.act == glfw.PRESS:
             if m.key.value.key == glfw.KEY_F:
                 m.cam_toggle.set(True)
     =}
+    // en = new EnvironmentSimullation()
 }
