@@ -14,8 +14,8 @@ import ActionPlanner from "ActionPlanner.lf"
 import Simulation from "Simulation.lf"
 
 federated reactor at 10.218.100.78 {
-    d_control = new DriverControl() at 100.88.38.48;
-    d_monitor = new DriverMonitor()at 100.88.38.48;
+    d_control = new DriverControl()
+    d_monitor = new DriverMonitor()
     @maxwait(25 msec)
     c = new Car()
     en = new Environment() 
