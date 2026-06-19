@@ -1,8 +1,8 @@
 target Python {keepalive: true, 
     // logging: DEBUG,
     coordination: decentralized,
-    DNET: False,
-    tracing:True
+    DNET: false,
+    tracing:true
     }
 import DriverControl from "DriverControl.lf"
 import DriverMonitor from "DriverMonitor.lf"
@@ -29,7 +29,7 @@ federated reactor at 10.218.100.78 {
     
     llm = new AgenticCoach()
 
-    @maxwait(260 msec)
+    @maxwait(300 msec)
     planner = new ActionPlanner()
 
     @maxwait(100 msec)
