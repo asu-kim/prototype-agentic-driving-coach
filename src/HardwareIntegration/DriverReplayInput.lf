@@ -1,12 +1,14 @@
 target Python
 
-import SensorInputs from "SensorInputs.lf"
-
 preamble {=
+    import csv
     import os
-    import rerun as rr
-=}
 
+    _DRIVER_REPLAY_LOG_DIR = os.getenv(
+        "DRIVER_REPLAY_LOG_DIR",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/llm-inference-code-log/logs-trace",
+    )
+=}
 
 reactor Driver{
 
@@ -16,6 +18,7 @@ reactor Driver{
     state head_val = 1
     state eye_val = 1
     state sensor_ready = False
+    state replay_idx = 0
 
     output steer
     output accelerator
@@ -23,64 +26,92 @@ reactor Driver{
     output head
     output eye
 
-   
     timer sensorclock(4 sec, 100 msec)
 
+    preamble {=
+        def _to_int(self, value, default):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _to_float(self, value, default):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+        def _load_replay_samples(self):
+            car_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "car_inputs.csv")
+            llm_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "llm_inputs.csv")
+            head_eye_by_time = {}
+
+            if os.path.exists(llm_path):
+                with open(llm_path, "r", newline="", encoding="utf-8") as f:
+                    for row in csv.DictReader(f):
+                        if row.get("event") != "input_arrival":
+                            continue
+                        logical_ns = row.get("logical_time_ns")
+                        if not logical_ns:
+                            continue
+                        head_eye_by_time[logical_ns] = {
+                            "head": self._to_int(row.get("head"), self.head_val),
+                            "eye": self._to_int(row.get("eye"), self.eye_val),
+                        }
+
+            samples = []
+            if os.path.exists(car_path):
+                with open(car_path, "r", newline="", encoding="utf-8") as f:
+                    for row in csv.DictReader(f):
+                        logical_ns = row.get("logical_time_ns")
+                        head_eye = head_eye_by_time.get(logical_ns, {})
+                        samples.append({
+                            "logical_time_ns": self._to_int(logical_ns, 0),
+                            "steer": self._to_int(row.get("steer_in"), self.steer_val),
+                            "accel": self._to_float(row.get("accel_in"), self.accel_val),
+                            "brake": self._to_float(row.get("brake_in"), self.brake_val),
+                            "head": head_eye.get("head", self.head_val),
+                            "eye": head_eye.get("eye", self.eye_val),
+                        })
+
+            samples.sort(key=lambda sample: sample["logical_time_ns"])
+            return samples
+    =}
+
     reaction(startup) {=
-        # rr.init(
-            # "hardware_integrated_adc",
-            # recording_id=os.getenv("RERUN_RECORDING_ID", "hardware_integrated_adc_run")
-        # )
-        # rr.connect_grpc(os.getenv("RERUN_GRPC_URL", "rerun+http://127.0.0.1:9876/proxy"))
-        # print("[RERUN] Driver viewer initialized.", flush=True)
+        self.replay_samples = self._load_replay_samples()
+        self.sensor_ready = len(self.replay_samples) > 0
+        print(
+            f"[DRIVER REPLAY] Loaded {len(self.replay_samples)} samples from {_DRIVER_REPLAY_LOG_DIR}",
+            flush=True,
+        )
+        if not self.sensor_ready:
+            print("[DRIVER REPLAY] No samples found; using default driver values.", flush=True)
     =}
 
-    sen = new SensorInputs()
-    
-    reaction(sen.eye_msg, sen.head_msg, sen.accel_msg, sen.brake_msg, sen.steer_msg) {=
-
-        if sen.head_msg.is_present:
-            self.head_val = sen.head_msg.value
-        if sen.eye_msg.is_present:
-            self.eye_val = sen.eye_msg.value
-
-        if sen.steer_msg.is_present:
-            self.steer_val = sen.steer_msg.value
-
-        if sen.accel_msg.is_present:
-            self.accel_val = sen.accel_msg.value
-
-        if sen.brake_msg.is_present:
-            self.brake_val = sen.brake_msg.value
-        
-        print(f"[DRIVER STATE] accel={self.accel_val} brake={self.brake_val}", flush=True)
-        current_dri = lf.time.logical_elapsed()/1e6
-        physical_dri = lf.time.physical_elapsed()/1e6
-        lag = physical_dri - current_dri
-        current_tag = lf.tag()
-
-        print("----------------------------------------------------------")
-        print(f"[DRIVER REACTION 1] Logical time: {current_dri:.2f} ms", flush=True)
-        print(f"[DRIVER REACTION 1] Physical time: {physical_dri:.2f} ms", flush=True)
-        print(f"[DRIVER REACTION 1] LAG: {lag:.2f} ms", flush=True)
-        print(f"[DRIVER REACTION 1] Tag time: {current_tag.time} ns", flush=True)
-        print(f"[DRIVER REACTION 1] Microstep: {current_tag.microstep}", flush=True)
-        print("----------------------------------------------------------")
-    =}
     reaction(sensorclock) -> head, eye, accelerator, brake, steer {=
+        if self.sensor_ready:
+            if self.replay_idx < len(self.replay_samples):
+                sample = self.replay_samples[self.replay_idx]
+                self.replay_idx += 1
+            else:
+                sample = self.replay_samples[-1]
+
+            self.steer_val = sample["steer"]
+            self.accel_val = sample["accel"]
+            self.brake_val = sample["brake"]
+            self.head_val = sample["head"]
+            self.eye_val = sample["eye"]
 
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
         head.set(self.head_val)
         eye.set(self.eye_val)
-
-        # rr.set_time("logical_time_ms", sequence=lf.time.logical_elapsed() // 1_000_000)
-        # rr.log("driver/accelerator", rr.Scalars(float(self.accel_val)))
-        # rr.log("driver/brake", rr.Scalars(float(self.brake_val)))
-        # rr.log("driver/steer", rr.Scalars(float(self.steer_val)))
-        # rr.log("driver/head", rr.Scalars(float(self.head_val)))
-        # rr.log("driver/eye", rr.Scalars(float(self.eye_val)))
 
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
@@ -90,6 +121,7 @@ reactor Driver{
         print("----------------------------------------------------------")
         print(
             f"[DRIVER SEND] "
+            f"sample={self.replay_idx}/{len(self.replay_samples) if self.sensor_ready else 0}, "
             f"accel={self.accel_val}, "
             f"brake={self.brake_val}, "
             f"steer={self.steer_val}, "

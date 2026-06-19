@@ -1,0 +1,69 @@
+target Python {keepalive: true, 
+    // logging: DEBUG,
+    coordination: decentralized,
+    DNET: false,
+    tracing:true
+    }
+import Driver from "DriverReplayInput.lf"
+import Car from "Car.lf"
+import Environment from "Environment.lf"
+import InputForCoach from "InputForCoach.lf"
+import AgenticCoach from "AgenticCoach.lf"
+import ActionPlanner from "ActionPlanner.lf"
+import Simulation from "Simulation.lf"
+
+federated reactor at 10.218.100.78 {
+    d = new Driver()
+    @maxwait(25 msec)
+    c = new Car()
+    en = new Environment() 
+    adc = new InputForCoach()
+    llm = new AgenticCoach() 
+    @maxwait(300 msec)
+    planner = new ActionPlanner() 
+    @maxwait(100 msec)
+    sim = new Simulation() 
+    d.steer -> c.steer_in
+    d.accelerator -> c.accel_in
+    d.brake -> c.brake_in
+   
+    d.head -> adc.h
+    d.eye -> adc.e
+  
+
+    c.velocity -> en.v
+    c.velocity -> adc.v
+    c.steer -> adc.st
+
+     
+    c.velocity -> sim.velocity_in
+    c.steer -> sim.steer_in
+
+    en.displacement -> adc.s
+    en.environment_states -> adc.en_states
+    en.displacement -> sim.rem_dist
+    // en.environment_states -> sim.en_states
+
+
+    adc.displacement -> llm.s
+    adc.velocity -> llm.v
+    adc.steer -> llm.st
+    adc.head_pos -> llm.h
+    adc.eye_pos ->llm.e
+    adc.environment_states -> llm.en_states
+    adc.velocity -> planner.v
+    adc.displacement -> planner.s
+    adc.environment_states -> planner.en_states
+    // adc.coach_input -> llm.coach_inp
+
+
+    llm.control -> planner.ctrl
+    llm.instruction -> planner.instr
+   
+   
+    planner.act -> c.actuate_in after 200 ms
+    // planner.lane_act -> c.lane_actuate_in after 200 ms
+
+    
+
+}
