@@ -1,7 +1,7 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "mjpython"
+        Python_EXECUTABLE: "python3"
     }
 }
 
@@ -13,7 +13,57 @@ import EnvironmentStates from "EnvironmentFromSimulation.lf"
 
 reactor Environment {
     preamble {=
+        import csv
+        import os
         from mujoco.glfw import glfw
+
+        _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+            "FEDERATE_EXECUTION_LOG_PATH",
+            "logs-trace/federate_execution_times.csv",
+        )
+
+        def _open_execution_log():
+            log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+            if log_dir:
+                os.makedirs(log_dir, exist_ok=True)
+            needs_header = (
+                not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+                or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+            )
+            log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+            log_writer = csv.writer(log_file)
+            if needs_header:
+                log_writer.writerow([
+                    "federate",
+                    "reactor",
+                    "reaction",
+                    "logical_time_ns",
+                    "logical_time_ms",
+                    "tag_time_ns",
+                    "microstep",
+                    "start_physical_time_ms",
+                    "stop_physical_time_ms",
+                    "execution_time_ms",
+                ])
+                log_file.flush()
+            return log_file, log_writer
+
+        def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+            current_tag = lf.tag()
+            logical_time_ns = lf.time.logical_elapsed()
+            self.execution_log_writer.writerow([
+                federate,
+                reactor,
+                reaction,
+                logical_time_ns,
+                logical_time_ns / 1e6,
+                current_tag.time,
+                current_tag.microstep,
+                start_physical_time_ms,
+                stop_physical_time_ms,
+                stop_physical_time_ms - start_physical_time_ms,
+            ])
+            self.execution_log_file.flush()
     =}
     input steer_in
     input velocity_in
@@ -30,7 +80,13 @@ reactor Environment {
     env.displacement -> displacement
     env.environment_states -> environment_states
 
+    reaction(startup) {=
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
     reaction(steer_in, velocity_in) -> m.forward, m.turn, env.v {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if velocity_in.is_present:
             self.velocity_kmh = float(velocity_in.value)
         if steer_in.is_present:
@@ -66,6 +122,8 @@ reactor Environment {
         print(f"[SIMULATION] Tag time: {current_tag.time} ns", flush=True)
         print(f"[SIMULATION] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------", flush=True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "Environment", "simulation_input", start_physical_time, stop_physical_time)
     =}tardy
 
     m.distance_from_start -> env.distance_from_start after 0 msec
@@ -76,9 +134,18 @@ reactor Environment {
     m.cross_right_car_present -> env.cross_right_car_visible after 0 msec
 
     reaction(m.key) -> m.cam_toggle {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if m.key.value.act == glfw.PRESS:
             if m.key.value.key == glfw.KEY_F:
                 m.cam_toggle.set(True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "Environment", "key", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
     // en = new EnvironmentSimullation()
 }

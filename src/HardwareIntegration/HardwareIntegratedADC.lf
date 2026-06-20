@@ -19,7 +19,7 @@ federated reactor at 10.218.100.78 {
     @maxwait(10 msec)
     c = new Car()
     // en_csv = new Environment()  // Old CSV-driven environment replay
-    @maxwait(100 msec)
+    @maxwait(120 msec)
     adc = new InputForCoach()
     llm = new AgenticCoach() 
     @maxwait(350 msec)

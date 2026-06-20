@@ -10,6 +10,53 @@ preamble {=
         "DRIVER_MONITOR_LOG_PATH",
         "logs-trace/driver_monitor_inputs.csv",
     )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
 =}
 
 reactor DriverMonitor {
@@ -41,10 +88,13 @@ reactor DriverMonitor {
             "eye",
         ])
         self.driver_monitor_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[DRIVER MONITOR LOG] Writing inputs to {_DRIVER_MONITOR_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
     reaction(sensors.head_msg, sensors.eye_msg) {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if sensors.head_msg.is_present:
             self.head_val = sensors.head_msg.value
         if sensors.eye_msg.is_present:
@@ -65,9 +115,12 @@ reactor DriverMonitor {
             self.eye_val,
         ])
         self.driver_monitor_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_monitor", "DriverMonitor", "sensor_arrival", start_physical_time, stop_physical_time)
     =}
 
     reaction(sensorclock) -> head, eye {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         head.set(self.head_val)
         eye.set(self.eye_val)
 
@@ -86,6 +139,8 @@ reactor DriverMonitor {
             self.eye_val,
         ])
         self.driver_monitor_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_monitor", "DriverMonitor", "output_tick", start_physical_time, stop_physical_time)
       
     =}
 
@@ -93,6 +148,9 @@ reactor DriverMonitor {
         if hasattr(self, "driver_monitor_log_file") and not self.driver_monitor_log_file.closed:
             self.driver_monitor_log_file.flush()
             self.driver_monitor_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 
 }

@@ -9,6 +9,53 @@ preamble {=
         "LLM_INPUT_LOG_PATH",
         "logs-trace/llm_inputs.csv",
     )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
 =}
 
 reactor InputForCoach{
@@ -69,9 +116,12 @@ reactor InputForCoach{
             "environment_states_json",
         ])
         self.llm_input_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[LLM INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
     reaction(s, v, st, h, e, en_states){=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if s.is_present:
             self.s_val = s.value
         if v.is_present:
@@ -130,10 +180,13 @@ reactor InputForCoach{
             json.dumps(self.en_states_val),
         ])
         self.llm_input_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "input_arrival", start_physical_time, stop_physical_time)
     =} tardy
 
 
     reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         #reaction(llmclock)->coach_input{=
         displacement.set(self.s_val)
         velocity.set(self.v_val)
@@ -189,6 +242,8 @@ reactor InputForCoach{
         print(f"[InputForCoach] Tag time: {current_tag.time} ns", flush=True)
         print(f"[InputForCoach] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "llm_output_tick", start_physical_time, stop_physical_time)
 
     =}
 
@@ -197,6 +252,9 @@ reactor InputForCoach{
         if hasattr(self, "llm_input_log_file") and not self.llm_input_log_file.closed:
             self.llm_input_log_file.flush()
             self.llm_input_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 
 }

@@ -11,6 +11,53 @@ preamble {=
         "DRIVER_CONTROL_LOG_PATH",
         "logs-trace/driver_control_inputs.csv",
     )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
    
 =}
 
@@ -47,10 +94,13 @@ reactor DriverControl {
             "brake",
         ])
         self.driver_control_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[DRIVER CONTROL LOG] Writing inputs to {_DRIVER_CONTROL_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
     reaction(sensors.steer_msg, sensors.accel_msg, sensors.brake_msg) {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if sensors.steer_msg.is_present:
             self.steer_val = sensors.steer_msg.value
         if sensors.accel_msg.is_present:
@@ -75,9 +125,12 @@ reactor DriverControl {
             self.brake_val,
         ])
         self.driver_control_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_control", "DriverControl", "sensor_arrival", start_physical_time, stop_physical_time)
     =}
 
     reaction(sensorclock) -> steer, accelerator, brake {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
@@ -99,6 +152,8 @@ reactor DriverControl {
             self.brake_val,
         ])
         self.driver_control_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_control", "DriverControl", "output_tick", start_physical_time, stop_physical_time)
     
     =}
 
@@ -106,6 +161,9 @@ reactor DriverControl {
         if hasattr(self, "driver_control_log_file") and not self.driver_control_log_file.closed:
             self.driver_control_log_file.flush()
             self.driver_control_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 
 }

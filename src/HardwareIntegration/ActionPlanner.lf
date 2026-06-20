@@ -13,6 +13,53 @@ preamble{=
         "PLANNER_LOG_PATH",
         "logs-trace/planner_events.csv",
     )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
 
 =}
 
@@ -231,13 +278,16 @@ reactor ActionPlanner {
             "act_set",
         ])
         self.planner_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[PLANNER LOG] Writing events to {_PLANNER_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
 
     =}
 
 
     initial mode monitoring {
             reaction(ctrl, instr) -> warning, actuate, planned_instr {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -265,6 +315,8 @@ reactor ActionPlanner {
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "ACTUATE", token_keyword)
                     actuate.set()
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "monitoring", start_physical_time, stop_physical_time)
                     return
 
                 if token_keyword == "WARNING":
@@ -285,6 +337,8 @@ reactor ActionPlanner {
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "WARNING", token_keyword)
                     warning.set()
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "monitoring", start_physical_time, stop_physical_time)
                     return
 
                 if token_keyword == "NONE":
@@ -304,7 +358,13 @@ reactor ActionPlanner {
                 print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
                 print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                execution_time = stop_physical_time - start_physical_time
+                _log_execution_time(self, "planner", "ActionPlanner", "monitoring", start_physical_time, stop_physical_time)
+                
+
             =} tardy {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -322,11 +382,14 @@ reactor ActionPlanner {
                 elif token_keyword == "WARNING":
                     self.log_mode_transition("MONITORING", "WARNING", f"tardy {token_keyword}")
                     warning.set()
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                _log_execution_time(self, "planner", "ActionPlanner", "monitoring_tardy", start_physical_time, stop_physical_time)
             =}
     }
 
     mode warning {
             reaction(ctrl, instr) -> monitoring, actuate, planned_instr {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -354,6 +417,8 @@ reactor ActionPlanner {
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "ACTUATE", token_keyword)
                     actuate.set()
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "warning", start_physical_time, stop_physical_time)
                     return
 
                 if token_keyword != "WARNING":
@@ -370,6 +435,8 @@ reactor ActionPlanner {
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "MONITORING", token_keyword)
                     monitoring.set()
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "warning", start_physical_time, stop_physical_time)
                     return
                 if instruction:
                     self.try_speak(now_ns, instruction)
@@ -385,7 +452,10 @@ reactor ActionPlanner {
                 print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
                 print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                _log_execution_time(self, "planner", "ActionPlanner", "warning", start_physical_time, stop_physical_time)
             =} tardy {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
 
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
@@ -404,11 +474,14 @@ reactor ActionPlanner {
                 elif token_keyword != "WARNING":
                     self.log_mode_transition("WARNING", "MONITORING", f"tardy {token_keyword}")
                     monitoring.set()
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                _log_execution_time(self, "planner", "ActionPlanner", "warning_tardy", start_physical_time, stop_physical_time)
             =}
     }
 
     mode actuate {
             reaction(ctrl, instr, s, v, en_states) -> act, monitoring, planned_instr {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
                 if instr.is_present:
@@ -440,6 +513,8 @@ reactor ActionPlanner {
                     print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
                     print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "actuate", start_physical_time, stop_physical_time)
                     return
 
                 environment_states = self.latest_environment_states
@@ -471,12 +546,17 @@ reactor ActionPlanner {
                 print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
                 print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                _log_execution_time(self, "planner", "ActionPlanner", "actuate", start_physical_time, stop_physical_time)
             =} tardy {=
+                start_physical_time = lf.time.physical_elapsed()/1e6
                 logical_ms = lf.time.logical_elapsed()/1e6
                 physical_ms = lf.time.physical_elapsed()/1e6
                 message_age_ms = physical_ms - logical_ms
                 if message_age_ms > 400.0:
                     print(f"[PLANNER ACTUATE TARDY] Discarded: age={message_age_ms:.2f} ms", flush=True)
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "actuate_tardy_discarded", start_physical_time, stop_physical_time)
                     return
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
@@ -493,10 +573,14 @@ reactor ActionPlanner {
                 if token_keyword != "ACTUATE":
                     self.log_mode_transition("ACTUATE", "MONITORING", token_keyword)
                     monitoring.set()
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "actuate_tardy", start_physical_time, stop_physical_time)
                     return
                 environment_states = self.latest_environment_states
                 if environment_states is None or len(environment_states) != 6:
                     print(f"[PLANNER ACTUATE TARDY] Missing environment state; discarding: {environment_states}", flush=True)
+                    stop_physical_time = lf.time.physical_elapsed()/1e6
+                    _log_execution_time(self, "planner", "ActionPlanner", "actuate_tardy_discarded", start_physical_time, stop_physical_time)
                     return
                 road_phase, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present = environment_states
                 speed_command, lane_command = self.adaptive_cruise_control(road_phase, self.velocity_val, self.distance_val, front_car_present, right_car_present, right_car_position, cross_left_car_present, cross_right_car_present)
@@ -508,6 +592,8 @@ reactor ActionPlanner {
                     act_command=speed_command,
                     lane_command=lane_command,
                 )
+                stop_physical_time = lf.time.physical_elapsed()/1e6
+                _log_execution_time(self, "planner", "ActionPlanner", "actuate_tardy", start_physical_time, stop_physical_time)
 
             =}
     }
@@ -516,5 +602,8 @@ reactor ActionPlanner {
         if hasattr(self, "planner_log_file") and not self.planner_log_file.closed:
             self.planner_log_file.flush()
             self.planner_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 }

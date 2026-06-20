@@ -3,30 +3,73 @@ target Python
 preamble {=
     import csv
     import os
+    import time
 
     _DRIVER_REPLAY_LOG_DIR = os.getenv(
         "DRIVER_REPLAY_LOG_DIR",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/llm-inference-code-log/logs-trace",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-1",
     )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
 =}
 
-reactor Driver{
-
+reactor DriverControl {
     state steer_val = 1
     state accel_val = 0.0
     state brake_val = 0.0
-    state head_val = 1
-    state eye_val = 1
     state sensor_ready = False
     state replay_idx = 0
 
     output steer
     output accelerator
     output brake
-    output head
-    output eye
 
-    timer sensorclock(4 sec, 100 msec)
+    timer sensorclock(15 sec, 100 msec)
 
     preamble {=
         def _to_int(self, value, default):
@@ -45,37 +88,18 @@ reactor Driver{
             except Exception:
                 return default
 
-        def _load_replay_samples(self):
+        def _load_control_samples(self):
             car_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "car_inputs.csv")
-            llm_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "llm_inputs.csv")
-            head_eye_by_time = {}
-
-            if os.path.exists(llm_path):
-                with open(llm_path, "r", newline="", encoding="utf-8") as f:
-                    for row in csv.DictReader(f):
-                        if row.get("event") != "input_arrival":
-                            continue
-                        logical_ns = row.get("logical_time_ns")
-                        if not logical_ns:
-                            continue
-                        head_eye_by_time[logical_ns] = {
-                            "head": self._to_int(row.get("head"), self.head_val),
-                            "eye": self._to_int(row.get("eye"), self.eye_val),
-                        }
-
             samples = []
+
             if os.path.exists(car_path):
                 with open(car_path, "r", newline="", encoding="utf-8") as f:
                     for row in csv.DictReader(f):
-                        logical_ns = row.get("logical_time_ns")
-                        head_eye = head_eye_by_time.get(logical_ns, {})
                         samples.append({
-                            "logical_time_ns": self._to_int(logical_ns, 0),
+                            "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
                             "steer": self._to_int(row.get("steer_in"), self.steer_val),
                             "accel": self._to_float(row.get("accel_in"), self.accel_val),
                             "brake": self._to_float(row.get("brake_in"), self.brake_val),
-                            "head": head_eye.get("head", self.head_val),
-                            "eye": head_eye.get("eye", self.eye_val),
                         })
 
             samples.sort(key=lambda sample: sample["logical_time_ns"])
@@ -83,17 +107,17 @@ reactor Driver{
     =}
 
     reaction(startup) {=
-        self.replay_samples = self._load_replay_samples()
+        self.replay_samples = self._load_control_samples()
         self.sensor_ready = len(self.replay_samples) > 0
-        print(
-            f"[DRIVER REPLAY] Loaded {len(self.replay_samples)} samples from {_DRIVER_REPLAY_LOG_DIR}",
-            flush=True,
-        )
-        if not self.sensor_ready:
-            print("[DRIVER REPLAY] No samples found; using default driver values.", flush=True)
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        print(f"[DRIVER CONTROL REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
-    reaction(sensorclock) -> head, eye, accelerator, brake, steer {=
+    reaction(sensorclock) -> steer, accelerator, brake {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        exec_t0 = time.perf_counter()
+
         if self.sensor_ready:
             if self.replay_idx < len(self.replay_samples):
                 sample = self.replay_samples[self.replay_idx]
@@ -104,14 +128,12 @@ reactor Driver{
             self.steer_val = sample["steer"]
             self.accel_val = sample["accel"]
             self.brake_val = sample["brake"]
-            self.head_val = sample["head"]
-            self.eye_val = sample["eye"]
 
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
         brake.set(self.brake_val)
-        head.set(self.head_val)
-        eye.set(self.eye_val)
+
+        exec_ms = (time.perf_counter() - exec_t0) * 1000.0
 
         current_dri = lf.time.logical_elapsed()/1e6
         physical_dri = lf.time.physical_elapsed()/1e6
@@ -120,22 +142,122 @@ reactor Driver{
 
         print("----------------------------------------------------------")
         print(
-            f"[DRIVER SEND] "
+            f"[DRIVER CONTROL REPLAY SEND] "
             f"sample={self.replay_idx}/{len(self.replay_samples) if self.sensor_ready else 0}, "
-            f"accel={self.accel_val}, "
-            f"brake={self.brake_val}, "
-            f"steer={self.steer_val}, "
-            f"head={self.head_val}, "
-            f"eye={self.eye_val}",
+            f"accel={self.accel_val}, brake={self.brake_val}, steer={self.steer_val}",
             flush=True
         )
-
-        print(f"[DRIVER] Logical time: {current_dri:.2f} ms", flush=True)
-        print(f"[DRIVER] Physical time: {physical_dri:.2f} ms", flush=True)
-        print(f"[DRIVER] LAG: {lag:.2f} ms", flush=True)
-        print(f"[DRIVER] Tag time: {current_tag.time} ns", flush=True)
-        print(f"[DRIVER] Microstep: {current_tag.microstep}", flush=True)
+        print(f"[DRIVER CONTROL REPLAY EXEC TIME] {exec_ms:.3f} ms", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] LAG: {lag:.2f} ms", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_control", "DriverControlReplay", "output_tick", start_physical_time, stop_physical_time)
+    =}
 
+    reaction(shutdown) {=
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+}
+
+
+reactor DriverMonitor {
+    state head_val = 1
+    state eye_val = 1
+    state sensor_ready = False
+    state replay_idx = 0
+
+    output head
+    output eye
+
+    timer sensorclock(15 sec, 100 msec)
+
+    preamble {=
+        def _to_int(self, value, default):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _load_monitor_samples(self):
+            llm_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "llm_inputs.csv")
+            samples = []
+
+            if os.path.exists(llm_path):
+                with open(llm_path, "r", newline="", encoding="utf-8") as f:
+                    for row in csv.DictReader(f):
+                        if row.get("event") != "input_arrival":
+                            continue
+                        samples.append({
+                            "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                            "head": self._to_int(row.get("head"), self.head_val),
+                            "eye": self._to_int(row.get("eye"), self.eye_val),
+                        })
+
+            samples.sort(key=lambda sample: sample["logical_time_ns"])
+            return samples
+    =}
+
+    reaction(startup) {=
+        self.replay_samples = self._load_monitor_samples()
+        self.sensor_ready = len(self.replay_samples) > 0
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        print(f"[DRIVER MONITOR REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
+    reaction(sensorclock) -> head, eye {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        exec_t0 = time.perf_counter()
+
+        if self.sensor_ready:
+            if self.replay_idx < len(self.replay_samples):
+                sample = self.replay_samples[self.replay_idx]
+                self.replay_idx += 1
+            else:
+                sample = self.replay_samples[-1]
+
+            self.head_val = sample["head"]
+            self.eye_val = sample["eye"]
+
+        head.set(self.head_val)
+        eye.set(self.eye_val)
+
+        exec_ms = (time.perf_counter() - exec_t0) * 1000.0
+
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+        current_tag = lf.tag()
+
+        print("----------------------------------------------------------")
+        print(
+            f"[DRIVER MONITOR REPLAY SEND] "
+            f"sample={self.replay_idx}/{len(self.replay_samples) if self.sensor_ready else 0}, "
+            f"head={self.head_val}, eye={self.eye_val}",
+            flush=True
+        )
+        print(f"[DRIVER MONITOR REPLAY EXEC TIME] {exec_ms:.3f} ms", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] LAG: {lag:.2f} ms", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "d_monitor", "DriverMonitorReplay", "output_tick", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 }

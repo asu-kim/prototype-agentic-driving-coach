@@ -11,6 +11,53 @@ preamble{=
     )
     _SIM_ENV_DEBUG = os.getenv("SIM_ENV_DEBUG", "0").lower() in {"1", "true", "yes", "on"}
     _SIM_ENV_FLUSH_EVERY_N = max(1, int(os.getenv("SIM_ENV_FLUSH_EVERY_N", "10")))
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
 =}
 
 reactor EnvironmentStates(output_period = 100 msec) {
@@ -56,7 +103,9 @@ reactor EnvironmentStates(output_period = 100 msec) {
             "environment_states_json",
         ])
         self.environment_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[SIM ENVIRONMENT LOG] Writing inputs to {_SIM_ENV_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
     preamble {=
@@ -91,6 +140,7 @@ reactor EnvironmentStates(output_period = 100 msec) {
     =}
 
     reaction(distance_from_start, v, front_car_visible, right_car_visible, cross_left_car_visible, cross_right_car_visible) {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         if distance_from_start.is_present:
             self.distance_from_start_m = float(distance_from_start.value)
         if v.is_present:
@@ -103,9 +153,12 @@ reactor EnvironmentStates(output_period = 100 msec) {
             self.cross_left_car_visible_val = int(cross_left_car_visible.value)
         if cross_right_car_visible.is_present:
             self.cross_right_car_visible_val = int(cross_right_car_visible.value)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "EnvironmentStates", "input_arrival", start_physical_time, stop_physical_time)
     =}
 
     reaction(environment_tick) -> displacement, environment_states {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         road_phase, environment_distance = self.phase_and_distance(self.distance_from_start_m)
         en_states = self.environment_details(road_phase, self.distance_from_start_m)
 
@@ -138,6 +191,8 @@ reactor EnvironmentStates(output_period = 100 msec) {
         self.log_count += 1
         if self.log_count % _SIM_ENV_FLUSH_EVERY_N == 0:
             self.environment_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "EnvironmentStates", "environment_tick", start_physical_time, stop_physical_time)
 
     =}
 
@@ -145,5 +200,8 @@ reactor EnvironmentStates(output_period = 100 msec) {
         if hasattr(self, "environment_log_file") and not self.environment_log_file.closed:
             self.environment_log_file.flush()
             self.environment_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
     =}
 }
