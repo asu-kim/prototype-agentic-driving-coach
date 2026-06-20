@@ -1,18 +1,14 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "python3"
+        Python_EXECUTABLE: "mjpython"
     }
 }
 
 import MuJoCoCarAuto from "../../mujoco-py/src/lib/MuJoCoCarAutoHardware.lf"
 import EnvironmentStates from "EnvironmentFromSimulation.lf"
 // import EnvironmentSimulation from "EnvironmentSimulation"
-preamble {=
-    import os
 
-    _SIM_DEBUG = os.getenv("SIM_DEBUG", "0").lower() in {"1", "true", "yes", "on"}
-=}
 
 
 reactor Environment {
@@ -27,29 +23,18 @@ reactor Environment {
 
     state velocity_kmh = 0.0
     state steer_value = 1
-    state distance_from_start_m = 0.0
-    state previous_logical_ns = 0
-    state has_previous_logical_time = False
 
-    m = new MuJoCoCarAuto(frame_period = 50 ms, sim_step = 50 ms)
+    m = new MuJoCoCarAuto(frame_period = 66 ms, sim_step = 1 ms)
     env = new EnvironmentStates()
 
     env.displacement -> displacement
     env.environment_states -> environment_states
 
-    reaction(steer_in, velocity_in) -> m.forward, m.turn, env.distance_from_start, env.v {=
+    reaction(steer_in, velocity_in) -> m.forward, m.turn, env.v {=
         if velocity_in.is_present:
             self.velocity_kmh = float(velocity_in.value)
         if steer_in.is_present:
             self.steer_value = steer_in.value
-        current_logical_ns = lf.time.logical_elapsed()
-        if not self.has_previous_logical_time:
-            dt_seconds = 0.0
-        else:
-            dt_seconds = max(0.0, (current_logical_ns - self.previous_logical_ns) / 1e9)
-        self.has_previous_logical_time = True
-        self.previous_logical_ns = current_logical_ns
-        self.distance_from_start_m += (self.velocity_kmh / 3.6) * dt_seconds
 
         # MuJoCoCarAutoHardware displays forward * 3.6 as km/h.
         forward_cmd = self.velocity_kmh / 3.6
@@ -63,26 +48,27 @@ reactor Environment {
 
         m.forward.set(forward_cmd)
         m.turn.set(turn_cmd)
-        env.distance_from_start.set(self.distance_from_start_m)
         env.v.set(self.velocity_kmh)
 
-        if _SIM_DEBUG:
-            current_sim = lf.time.logical_elapsed()/1e6
-            physical_sim = lf.time.physical_elapsed()/1e6
-            lag = physical_sim - current_sim
-            current_tag = lf.tag()
+       
+        current_sim = lf.time.logical_elapsed()/1e6
+        physical_sim = lf.time.physical_elapsed()/1e6
+        lag = physical_sim - current_sim
+        current_tag = lf.tag()
 
-            print("----------------------------------------------------------", flush=True)
-            print(f"[SIMULATION] Received velocity: {self.velocity_kmh}", flush=True)
-            print(f"[SIMULATION] Received steer: {self.steer_value}", flush=True)
-            print(f"[SIMULATION] Distance from start: {self.distance_from_start_m:.2f} m", flush=True)
-            print(f"[SIMULATION] Logical time: {current_sim:.2f} ms", flush=True)
-            print(f"[SIMULATION] Physical time: {physical_sim:.2f} ms", flush=True)
-            print(f"[SIMULATION] LAG: {lag:.2f} ms", flush=True)
-            print(f"[SIMULATION] Tag time: {current_tag.time} ns", flush=True)
-            print(f"[SIMULATION] Microstep: {current_tag.microstep}", flush=True)
-            print("----------------------------------------------------------", flush=True)
+        print("----------------------------------------------------------", flush=True)
+        print(f"[SIMULATION] Received velocity: {self.velocity_kmh}", flush=True)
+        print(f"[SIMULATION] Received steer: {self.steer_value}", flush=True)
+        print("[SIMULATION] Distance source: MuJoCo xpos * 100 -> Environment", flush=True)
+        print(f"[SIMULATION] Logical time: {current_sim:.2f} ms", flush=True)
+        print(f"[SIMULATION] Physical time: {physical_sim:.2f} ms", flush=True)
+        print(f"[SIMULATION] LAG: {lag:.2f} ms", flush=True)
+        print(f"[SIMULATION] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[SIMULATION] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------", flush=True)
     =}tardy
+
+    m.distance_from_start -> env.distance_from_start after 0 msec
 
     m.front_car_present -> env.front_car_visible after 0 msec
     m.right_car_present -> env.right_car_visible after 0 msec

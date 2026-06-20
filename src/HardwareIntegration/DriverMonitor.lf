@@ -19,7 +19,7 @@ reactor DriverMonitor {
     output head
     output eye
 
-    timer sensorclock(15 sec, 100 msec)
+    timer sensorclock(7 sec, 100 msec)
 
     sensors = new SensorInputs()
 

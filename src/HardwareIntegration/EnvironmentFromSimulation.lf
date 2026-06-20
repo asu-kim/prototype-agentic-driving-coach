@@ -23,7 +23,7 @@ reactor EnvironmentStates(output_period = 100 msec) {
 
     output displacement
     output environment_states
-    timer environment_tick(15 sec, output_period)
+    timer environment_tick(7 sec, output_period)
 
     state distance_from_start_m = 0.0
     state velocity_kmh = 0.0
@@ -62,11 +62,11 @@ reactor EnvironmentStates(output_period = 100 msec) {
     preamble {=
         def phase_and_distance(self, distance_m):
             if distance_m < 3000.0:
-                return "HIGHWAY", 4000.0 - distance_m
+                return "HIGHWAY", max(0.0, 4000.0 - distance_m)
             if distance_m < 4000.0:
-                return "LANE_CHANGE", 4000.0 - distance_m
+                return "LANE_CHANGE", max(0.0, 4000.0 - distance_m)
             if distance_m < 5210.0:
-                return "EXIT", 5210.0 - distance_m
+                return "EXIT", max(0.0, 5210.0 - distance_m)
             if distance_m < 5235.0:
                 return "STOP_SIGN", max(0.0, 5235.0 - distance_m)
             if distance_m < 5260.0:
@@ -113,6 +113,7 @@ reactor EnvironmentStates(output_period = 100 msec) {
 
         displacement.set(environment_distance)
         environment_states.set(en_states)
+        print(f"[Environment]: {en_states}")
 
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
