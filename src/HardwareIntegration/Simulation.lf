@@ -31,7 +31,7 @@ reactor Environment {
     state previous_logical_ns = 0
     state has_previous_logical_time = False
 
-    m = new MuJoCoCarAuto(frame_period = 50 ms, sim_step = 5 ms)
+    m = new MuJoCoCarAuto(frame_period = 50 ms, sim_step = 50 ms)
     env = new EnvironmentStates()
 
     env.displacement -> displacement
