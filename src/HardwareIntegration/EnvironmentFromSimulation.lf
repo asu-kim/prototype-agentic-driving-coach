@@ -9,9 +9,11 @@ preamble{=
         "SIM_ENVIRONMENT_LOG_PATH",
         "logs-trace/sim_environment_inputs.csv",
     )
+    _SIM_ENV_DEBUG = os.getenv("SIM_ENV_DEBUG", "0").lower() in {"1", "true", "yes", "on"}
+    _SIM_ENV_FLUSH_EVERY_N = max(1, int(os.getenv("SIM_ENV_FLUSH_EVERY_N", "10")))
 =}
 
-reactor EnvironmentStates {
+reactor EnvironmentStates(output_period = 100 msec) {
     input distance_from_start
     input v
     input front_car_visible
@@ -21,6 +23,7 @@ reactor EnvironmentStates {
 
     output displacement
     output environment_states
+    timer environment_tick(15 sec, output_period)
 
     state distance_from_start_m = 0.0
     state velocity_kmh = 0.0
@@ -28,6 +31,7 @@ reactor EnvironmentStates {
     state right_car_visible_val = 0
     state cross_left_car_visible_val = 0
     state cross_right_car_visible_val = 0
+    state log_count = 0
 
     reaction(startup) {=
         os.makedirs(os.path.dirname(_SIM_ENV_LOG_PATH), exist_ok=True)
@@ -86,7 +90,7 @@ reactor EnvironmentStates {
             ]
     =}
 
-    reaction(distance_from_start, v, front_car_visible, right_car_visible, cross_left_car_visible, cross_right_car_visible) -> displacement, environment_states {=
+    reaction(distance_from_start, v, front_car_visible, right_car_visible, cross_left_car_visible, cross_right_car_visible) {=
         if distance_from_start.is_present:
             self.distance_from_start_m = float(distance_from_start.value)
         if v.is_present:
@@ -99,7 +103,9 @@ reactor EnvironmentStates {
             self.cross_left_car_visible_val = int(cross_left_car_visible.value)
         if cross_right_car_visible.is_present:
             self.cross_right_car_visible_val = int(cross_right_car_visible.value)
+    =}
 
+    reaction(environment_tick) -> displacement, environment_states {=
         road_phase, environment_distance = self.phase_and_distance(self.distance_from_start_m)
         en_states = self.environment_details(road_phase, self.distance_from_start_m)
 
@@ -128,13 +134,16 @@ reactor EnvironmentStates {
             other_present,
             json.dumps(en_states),
         ])
-        self.environment_log_file.flush()
+        self.log_count += 1
+        if self.log_count % _SIM_ENV_FLUSH_EVERY_N == 0:
+            self.environment_log_file.flush()
 
-        print(
-            f"[SIM ENVIRONMENT] distance_from_start={self.distance_from_start_m:.2f} m "
-            f"phase={road_phase} target_distance={environment_distance:.2f} m other_car_present={other_present} states={en_states}",
-            flush=True,
-        )
+        if _SIM_ENV_DEBUG:
+            print(
+                f"[SIM ENVIRONMENT] distance_from_start={self.distance_from_start_m:.2f} m "
+                f"phase={road_phase} target_distance={environment_distance:.2f} m other_car_present={other_present} states={en_states}",
+                flush=True,
+            )
     =}
 
     reaction(shutdown) {=
