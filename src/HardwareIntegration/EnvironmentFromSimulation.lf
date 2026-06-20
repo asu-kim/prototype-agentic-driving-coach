@@ -138,12 +138,6 @@ reactor EnvironmentStates(output_period = 100 msec) {
         if self.log_count % _SIM_ENV_FLUSH_EVERY_N == 0:
             self.environment_log_file.flush()
 
-        if _SIM_ENV_DEBUG:
-            print(
-                f"[SIM ENVIRONMENT] distance_from_start={self.distance_from_start_m:.2f} m "
-                f"phase={road_phase} target_distance={environment_distance:.2f} m other_car_present={other_present} states={en_states}",
-                flush=True,
-            )
     =}
 
     reaction(shutdown) {=
