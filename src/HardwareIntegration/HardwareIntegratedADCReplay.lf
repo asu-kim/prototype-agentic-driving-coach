@@ -41,16 +41,12 @@ federated reactor at 10.218.100.78 {
 
     sim.displacement -> adc.s 
     sim.environment_states -> adc.en_states 
-    sim.phase_preview_info -> adc.phase_preview 
-
     adc.displacement -> llm.s
     adc.velocity -> llm.v
     adc.steer -> llm.st
     adc.head_pos -> llm.h
     adc.eye_pos -> llm.e
     adc.environment_states -> llm.en_states
-    adc.phase_preview_out -> llm.phase_preview
-
     adc.velocity -> planner.v
     adc.displacement -> planner.s
     adc.environment_states -> planner.en_states

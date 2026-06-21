@@ -70,7 +70,6 @@ reactor EnvironmentStates(output_period = 100 msec) {
 
     output displacement
     output environment_states
-    output phase_preview_info
     timer environment_tick(7 sec, output_period)
 
     state distance_from_start_m = 0.0
@@ -102,7 +101,6 @@ reactor EnvironmentStates(output_period = 100 msec) {
             "cross_right_car_present",
             "other_car_present",
             "environment_states_json",
-            "phase_preview_json",
         ])
         self.environment_log_file.flush()
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
@@ -139,32 +137,6 @@ reactor EnvironmentStates(output_period = 100 msec) {
                 cross_left_car_present,
                 cross_right_car_present,
             ]
-
-        def phase_preview_details(self, road_phase, distance_to_target_m):
-            preview = {
-                "current_phase": road_phase,
-                "upcoming_phase": "",
-                "warning_window": "",
-                "distance_to_upcoming_phase_m": None,
-            }
-            distance_m = float(distance_to_target_m)
-            if road_phase == "HIGHWAY" and distance_m <= 1500.0:
-                preview["upcoming_phase"] = "LANE_CHANGE"
-                preview["warning_window"] = "PREPARE_FOR_EXIT_LANE_CHANGE"
-                preview["distance_to_upcoming_phase_m"] = max(0.0, distance_m - 1000.0)
-            elif road_phase == "LANE_CHANGE" and distance_m <= 300.0:
-                preview["upcoming_phase"] = "EXIT"
-                preview["warning_window"] = "PREPARE_FOR_EXIT_RAMP"
-                preview["distance_to_upcoming_phase_m"] = max(0.0, distance_m)
-            elif road_phase == "EXIT" and distance_m <= 200.0:
-                preview["upcoming_phase"] = "STOP_SIGN"
-                preview["warning_window"] = "PREPARE_FOR_STOP_SIGN"
-                preview["distance_to_upcoming_phase_m"] = max(0.0, distance_m)
-            elif road_phase == "STOP_SIGN" and distance_m <= 10.0:
-                preview["upcoming_phase"] = "YIELD"
-                preview["warning_window"] = "PREPARE_FOR_CROSS_TRAFFIC"
-                preview["distance_to_upcoming_phase_m"] = max(0.0, distance_m)
-            return preview
     =}
 
     reaction(distance_from_start, v, front_car_visible, right_car_visible, cross_left_car_visible, cross_right_car_visible) {=
@@ -185,18 +157,16 @@ reactor EnvironmentStates(output_period = 100 msec) {
         _log_execution_time(self, "sim", "EnvironmentStates", "input_arrival", start_physical_time, stop_physical_time)
     =}
 
-    reaction(environment_tick) -> displacement, environment_states, phase_preview_info {=
+    reaction(environment_tick) -> displacement, environment_states {=
         start_physical_time = lf.time.physical_elapsed()/1e6
         road_phase, environment_distance = self.phase_and_distance(self.distance_from_start_m)
         en_states = self.environment_details(road_phase, self.distance_from_start_m)
-        preview = self.phase_preview_details(road_phase, environment_distance)
 
         other_present = int(bool(en_states[1] or en_states[2] or en_states[4] or en_states[5]))
 
         displacement.set(environment_distance)
         environment_states.set(en_states)
-        phase_preview_info.set(preview)
-        print(f"[Environment]: {en_states} preview={preview}")
+        print(f"[Environment]: {en_states}")
 
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
@@ -217,7 +187,6 @@ reactor EnvironmentStates(output_period = 100 msec) {
             en_states[5],
             other_present,
             json.dumps(en_states),
-            json.dumps(preview),
         ])
         self.log_count += 1
         if self.log_count % _SIM_ENV_FLUSH_EVERY_N == 0:

@@ -65,11 +65,10 @@ reactor InputForCoach{
     input h
     input e
     input en_states
-    input phase_preview
 
     // Local LLM inference is synchronous, so leave enough time between requests
     // for one inference to finish before the next logical tick.
-    timer llmclock(7 sec, 450 msec)
+    timer llmclock(7 sec, 500 msec)
 
     state s_val = 0.0
     state v_val = 0.0
@@ -77,7 +76,6 @@ reactor InputForCoach{
     state h_val = 5
     state e_val = 5
     state en_states_val = []
-    state phase_preview_val 
 
     output displacement
     output velocity
@@ -85,7 +83,6 @@ reactor InputForCoach{
     output head_pos
     output eye_pos
     output environment_states
-    output phase_preview_out
  
 
 
@@ -109,7 +106,6 @@ reactor InputForCoach{
             "head_present",
             "eye_present",
             "environment_states_present",
-            "phase_preview_present",
             "environment_distance",
             "car_velocity",
             "car_steer",
@@ -118,14 +114,13 @@ reactor InputForCoach{
             "head_history_json",
             "eye_history_json",
             "environment_states_json",
-            "phase_preview_json",
         ])
         self.llm_input_log_file.flush()
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[LLM INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
-    reaction(s, v, st, h, e, en_states, phase_preview){=
+    reaction(s, v, st, h, e, en_states){=
         start_physical_time = lf.time.physical_elapsed()/1e6
         if s.is_present:
             self.s_val = s.value
@@ -157,8 +152,6 @@ reactor InputForCoach{
                 self.eye_history.append("CENTER")
         if en_states.is_present:
             self.en_states_val = en_states.value
-        if phase_preview.is_present:
-            self.phase_preview_val = phase_preview.value
         self.head_history = self.head_history[-self.max_history:]
         self.eye_history = self.eye_history[-self.max_history:]
 
@@ -177,7 +170,6 @@ reactor InputForCoach{
             int(h.is_present),
             int(e.is_present),
             int(en_states.is_present),
-            int(phase_preview.is_present),
             self.s_val,
             self.v_val,
             self.st_val,
@@ -186,7 +178,6 @@ reactor InputForCoach{
             json.dumps(self.head_history),
             json.dumps(self.eye_history),
             json.dumps(self.en_states_val),
-            json.dumps(self.phase_preview_val),
         ])
         self.llm_input_log_file.flush()
         stop_physical_time = lf.time.physical_elapsed()/1e6
@@ -194,7 +185,7 @@ reactor InputForCoach{
     =} tardy
 
 
-    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states, phase_preview_out{=
+    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
         start_physical_time = lf.time.physical_elapsed()/1e6
         #reaction(llmclock)->coach_input{=
         displacement.set(self.s_val)
@@ -203,7 +194,6 @@ reactor InputForCoach{
         head_pos.set(self.head_history)
         eye_pos.set(self.eye_history)
         environment_states.set(self.en_states_val)
-        phase_preview_out.set(self.phase_preview_val)
 
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
@@ -220,7 +210,6 @@ reactor InputForCoach{
             1,
             1,
             1,
-            1,
             self.s_val,
             self.v_val,
             self.st_val,
@@ -229,7 +218,6 @@ reactor InputForCoach{
             json.dumps(self.head_history),
             json.dumps(self.eye_history),
             json.dumps(self.en_states_val),
-            json.dumps(self.phase_preview_val),
         ])
         self.llm_input_log_file.flush()
         # coach_input.set({
