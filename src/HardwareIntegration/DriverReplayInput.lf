@@ -174,15 +174,16 @@ reactor DriverControl {
         if sample is not None:
             if sample["steer_present"]:
                 self.steer_val = sample["steer"]
-                steer.set(self.steer_val)
 
             if sample["accel_present"]:
                 self.accel_val = sample["accel"]
-                accelerator.set(self.accel_val)
 
             if sample["brake_present"]:
                 self.brake_val = sample["brake"]
-                brake.set(self.brake_val)
+
+        steer.set(self.steer_val)
+        accelerator.set(self.accel_val)
+        brake.set(self.brake_val)
 
         exec_ms = (time.perf_counter() - exec_t0) * 1000.0
 
