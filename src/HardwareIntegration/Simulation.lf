@@ -70,6 +70,7 @@ reactor Environment {
 
     output displacement
     output environment_states
+    output phase_preview_info
 
     state velocity_kmh = 0.0
     state steer_value = 1
@@ -79,6 +80,7 @@ reactor Environment {
 
     env.displacement -> displacement
     env.environment_states -> environment_states
+    env.phase_preview_info -> phase_preview_info
 
     reaction(startup) {=
         self.execution_log_file, self.execution_log_writer = _open_execution_log()

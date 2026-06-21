@@ -64,6 +64,7 @@ reactor AgenticCoach {
     input h
     input e
     input en_states
+    input phase_preview
 
 
     // output ready
@@ -92,11 +93,11 @@ reactor AgenticCoach {
 
                             Treat every INPUT value like authoritative current measurement. Never invent vehicles, hazards, driver actions, or road phases.
 
-                            Apply only the requirements for the current road_phase:
+                            Apply the requirements for the current road_phase, and use phase_preview only for early warnings before the next phase begins:
 
-                            - HIGHWAY: Maintain 85-90 km/h. When distance_to_target_m is at most 1000, instruct the driver to prepare to change right for the exit. Do not request a right-lane check before that 1 km point.
+                            - HIGHWAY: Maintain 85-90 km/h. If phase_preview.warning_window is PREPARE_FOR_EXIT_LANE_CHANGE, instruct the driver to prepare to change right for the exit. Do not request a right-lane check before the LANE_CHANGE phase begins.
                             - LANE_CHANGE: Look right before changing lanes. A right look is satisfied when RIGHT appears in either head_history or eye_history. The right lane is unsafe when right_car_present is 1.
-                            - EXIT: Reduce speed toward 45 km/h. distance_to_target_m is distance to the stop sign at the crossroad.
+                            - EXIT: Reduce speed toward 45 km/h. distance_to_target_m is distance to the stop sign at the crossroad. If phase_preview.warning_window is PREPARE_FOR_STOP_SIGN, warn the driver to prepare to stop at the stop sign.
                             - STOP_SIGN: Stop before the sign and look LEFT and RIGHT before moving ahead.
                             - YIELD: Yield until cross traffic has cleared, especially right-side cross traffic.
                             - MOVE: Move ahead for the final 100 m.
@@ -109,7 +110,8 @@ reactor AgenticCoach {
                                - road_phase is STOP_SIGN, distance_to_target_m is at most 5 m, and velocity_kmh is above 5.
 
                             2. WARNING for a recoverable unmet requirement:
-                               - HIGHWAY distance_to_target_m is at most 1000 and the driver has not been told to prepare for the exit,
+                               - phase_preview.warning_window is PREPARE_FOR_EXIT_LANE_CHANGE,
+                               - phase_preview.warning_window is PREPARE_FOR_STOP_SIGN,
                                - HIGHWAY velocity is below 85 or above 90 km/h,
                                - LANE_CHANGE has no recent RIGHT look,
                                - EXIT velocity is outside 40-50 km/h, or
@@ -120,7 +122,8 @@ reactor AgenticCoach {
                             Instruction rules:
                             - For low speed, say increase speed. Never say slow down.
                             - For high speed, say reduce speed.
-                            - At the HIGHWAY 1 km point, say prepare to change right for the exit.
+                            - For PREPARE_FOR_EXIT_LANE_CHANGE, say prepare to change right for the exit.
+                            - For PREPARE_FOR_STOP_SIGN, say prepare to stop at the stop sign.
                             - Do not mention a right-lane vehicle when right_car_present is 0.
                             - For NONE, leave the instruction empty.
 
@@ -186,7 +189,7 @@ reactor AgenticCoach {
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
-    reaction(s, v, st, h, e, en_states) -> control, instruction {=
+    reaction(s, v, st, h, e, en_states, phase_preview) -> control, instruction {=
 
         start_physical_time = lf.time.physical_elapsed()/1e6
         distance_val = s.value if s.is_present else 0.0
@@ -195,6 +198,12 @@ reactor AgenticCoach {
         head_input = h.value if h.is_present and h.value else ["CENTER"]
         eye_input = e.value if e.is_present and e.value else ["CENTER"]
         environment_values = en_states.value if en_states.is_present else []
+        phase_preview_input = phase_preview.value if phase_preview.is_present else {
+            "current_phase": "",
+            "upcoming_phase": "",
+            "warning_window": "",
+            "distance_to_upcoming_phase_m": None,
+        }
 
         environment_input = {
             "road_phase": environment_values[0] if len(environment_values) > 0 else "",
@@ -205,15 +214,14 @@ reactor AgenticCoach {
             "cross_right_car_present": environment_values[5] if len(environment_values) > 5 else 0,
             }
 
-        road_phase = environment_input["road_phase"]
-
         llm_inputs = {
             "distance_to_target_m": distance_val,
             "velocity_kmh": velocity_val,
             "steering": steer_input,
             "head_history": head_input,
             "eye_history": eye_input,
-            "environment": environment_input
+            "environment": environment_input,
+            "phase_preview": phase_preview_input,
         }
 
         tok_raw, msg_raw, ms = self.run_llm_message(llm_inputs)
