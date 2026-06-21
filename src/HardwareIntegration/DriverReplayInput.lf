@@ -7,7 +7,7 @@ preamble {=
 
     _DRIVER_REPLAY_LOG_DIR = os.getenv(
         "DRIVER_REPLAY_LOG_DIR",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-1",
+        "/home/raspdeeksha/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-2",
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
@@ -72,7 +72,7 @@ reactor DriverControl {
     output accelerator
     output brake
 
-    timer sensorclock(15 sec, 100 msec)
+    timer sensorclock(7 sec, 100 msec)
 
     preamble {=
         def _to_int(self, value, default):
@@ -91,38 +91,44 @@ reactor DriverControl {
             except Exception:
                 return default
 
-        def _last_logical_time_ns(self, csv_path, event_filter=None):
+        def _last_logical_time_ns(self, csv_path):
             last_ns = 0
             if not os.path.exists(csv_path):
+                print(f"[DRIVER CONTROL REPLAY] Missing file for stop time: {csv_path}", flush=True)
                 return last_ns
             with open(csv_path, "r", newline="", encoding="utf-8") as f:
                 for row in csv.DictReader(f):
-                    if event_filter is not None and row.get("event") != event_filter:
-                        continue
                     last_ns = max(last_ns, self._to_int(row.get("logical_time_ns"), 0))
             return last_ns
 
         def _load_replay_stop_ns(self):
-            car_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "car_inputs.csv")
-            llm_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "llm_inputs.csv")
+            control_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_control_replay_values.csv")
+            monitor_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_monitor_replay_values.csv")
             return max(
-                self._last_logical_time_ns(car_path),
-                self._last_logical_time_ns(llm_path, "input_arrival"),
+                self._last_logical_time_ns(control_path),
+                self._last_logical_time_ns(monitor_path),
             ) + _REPLAY_STOP_GRACE_NS
 
         def _load_control_samples(self):
-            car_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "car_inputs.csv")
+            control_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_control_replay_values.csv")
             samples = []
 
-            if os.path.exists(car_path):
-                with open(car_path, "r", newline="", encoding="utf-8") as f:
+            print(f"[DRIVER CONTROL REPLAY] Reading {control_path}", flush=True)
+
+            if os.path.exists(control_path):
+                with open(control_path, "r", newline="", encoding="utf-8") as f:
                     for row in csv.DictReader(f):
                         samples.append({
                             "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
-                            "steer": self._to_int(row.get("steer_in"), self.steer_val),
-                            "accel": self._to_float(row.get("accel_in"), self.accel_val),
-                            "brake": self._to_float(row.get("brake_in"), self.brake_val),
+                            "steer_present": self._to_int(row.get("steer_present"), 0),
+                            "accel_present": self._to_int(row.get("accelerator_present"), 0),
+                            "brake_present": self._to_int(row.get("brake_present"), 0),
+                            "steer": self._to_int(row.get("steer"), self.steer_val),
+                            "accel": self._to_float(row.get("accelerator"), self.accel_val),
+                            "brake": self._to_float(row.get("brake"), self.brake_val),
                         })
+            else:
+                print(f"[DRIVER CONTROL REPLAY] Missing file: {control_path}", flush=True)
 
             samples.sort(key=lambda sample: sample["logical_time_ns"])
             return samples
@@ -133,6 +139,7 @@ reactor DriverControl {
         self.sensor_ready = len(self.replay_samples) > 0
         self.replay_stop_ns = self._load_replay_stop_ns()
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
+
         print(f"[DRIVER CONTROL REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Stop time: {self.replay_stop_ns / 1e9:.3f} sec", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
@@ -158,16 +165,24 @@ reactor DriverControl {
                 lf.request_stop()
             return
 
+        sample = None
+
         if self.sensor_ready and self.replay_idx < len(self.replay_samples):
             sample = self.replay_samples[self.replay_idx]
             self.replay_idx += 1
-            self.steer_val = sample["steer"]
-            self.accel_val = sample["accel"]
-            self.brake_val = sample["brake"]
 
-        steer.set(self.steer_val)
-        accelerator.set(self.accel_val)
-        brake.set(self.brake_val)
+        if sample is not None:
+            if sample["steer_present"]:
+                self.steer_val = sample["steer"]
+                steer.set(self.steer_val)
+
+            if sample["accel_present"]:
+                self.accel_val = sample["accel"]
+                accelerator.set(self.accel_val)
+
+            if sample["brake_present"]:
+                self.brake_val = sample["brake"]
+                brake.set(self.brake_val)
 
         exec_ms = (time.perf_counter() - exec_t0) * 1000.0
 
@@ -180,6 +195,9 @@ reactor DriverControl {
         print(
             f"[DRIVER CONTROL REPLAY SEND] "
             f"sample={self.replay_idx}/{len(self.replay_samples) if self.sensor_ready else 0}, "
+            f"steer_present={sample['steer_present'] if sample is not None else 0}, "
+            f"accel_present={sample['accel_present'] if sample is not None else 0}, "
+            f"brake_present={sample['brake_present'] if sample is not None else 0}, "
             f"accel={self.accel_val}, brake={self.brake_val}, steer={self.steer_val}",
             flush=True
         )
@@ -190,6 +208,7 @@ reactor DriverControl {
         print(f"[DRIVER CONTROL REPLAY] Tag time: {current_tag.time} ns", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
+
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "d_control", "DriverControlReplay", "output_tick", start_physical_time, stop_physical_time)
     =}
@@ -211,7 +230,7 @@ reactor DriverMonitor {
     output head
     output eye
 
-    timer sensorclock(15 sec, 100 msec)
+    timer sensorclock(7 sec, 100 msec)
 
     preamble {=
         def _to_int(self, value, default):
@@ -223,19 +242,23 @@ reactor DriverMonitor {
                 return default
 
         def _load_monitor_samples(self):
-            llm_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "llm_inputs.csv")
+            monitor_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_monitor_replay_values.csv")
             samples = []
 
-            if os.path.exists(llm_path):
-                with open(llm_path, "r", newline="", encoding="utf-8") as f:
+            print(f"[DRIVER MONITOR REPLAY] Reading {monitor_path}", flush=True)
+
+            if os.path.exists(monitor_path):
+                with open(monitor_path, "r", newline="", encoding="utf-8") as f:
                     for row in csv.DictReader(f):
-                        if row.get("event") != "input_arrival":
-                            continue
                         samples.append({
                             "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                            "head_present": self._to_int(row.get("head_present"), 0),
+                            "eye_present": self._to_int(row.get("eye_present"), 0),
                             "head": self._to_int(row.get("head"), self.head_val),
                             "eye": self._to_int(row.get("eye"), self.eye_val),
                         })
+            else:
+                print(f"[DRIVER MONITOR REPLAY] Missing file: {monitor_path}", flush=True)
 
             samples.sort(key=lambda sample: sample["logical_time_ns"])
             return samples
@@ -245,6 +268,7 @@ reactor DriverMonitor {
         self.replay_samples = self._load_monitor_samples()
         self.sensor_ready = len(self.replay_samples) > 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
+
         print(f"[DRIVER MONITOR REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
@@ -253,18 +277,20 @@ reactor DriverMonitor {
         start_physical_time = lf.time.physical_elapsed()/1e6
         exec_t0 = time.perf_counter()
 
-        if self.sensor_ready:
-            if self.replay_idx < len(self.replay_samples):
-                sample = self.replay_samples[self.replay_idx]
-                self.replay_idx += 1
-            else:
-                sample = self.replay_samples[-1]
+        sample = None
 
-            self.head_val = sample["head"]
-            self.eye_val = sample["eye"]
+        if self.sensor_ready and self.replay_idx < len(self.replay_samples):
+            sample = self.replay_samples[self.replay_idx]
+            self.replay_idx += 1
 
-        head.set(self.head_val)
-        eye.set(self.eye_val)
+        if sample is not None:
+            if sample["head_present"]:
+                self.head_val = sample["head"]
+                head.set(self.head_val)
+
+            if sample["eye_present"]:
+                self.eye_val = sample["eye"]
+                eye.set(self.eye_val)
 
         exec_ms = (time.perf_counter() - exec_t0) * 1000.0
 
@@ -277,6 +303,8 @@ reactor DriverMonitor {
         print(
             f"[DRIVER MONITOR REPLAY SEND] "
             f"sample={self.replay_idx}/{len(self.replay_samples) if self.sensor_ready else 0}, "
+            f"head_present={sample['head_present'] if sample is not None else 0}, "
+            f"eye_present={sample['eye_present'] if sample is not None else 0}, "
             f"head={self.head_val}, eye={self.eye_val}",
             flush=True
         )
@@ -287,6 +315,7 @@ reactor DriverMonitor {
         print(f"[DRIVER MONITOR REPLAY] Tag time: {current_tag.time} ns", flush=True)
         print(f"[DRIVER MONITOR REPLAY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
+
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "d_monitor", "DriverMonitorReplay", "output_tick", start_physical_time, stop_physical_time)
     =}
