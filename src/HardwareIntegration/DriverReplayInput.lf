@@ -13,7 +13,7 @@ preamble {=
         "FEDERATE_EXECUTION_LOG_PATH",
         "logs-trace/federate_execution_times.csv",
     )
-    _REPLAY_STOP_GRACE_NS = int(float(os.getenv("REPLAY_STOP_GRACE_MS", "500")) * 1e6)
+    _REPLAY_STOP_GRACE_NS = int(float(os.getenv("REPLAY_STOP_GRACE_MS", "0")) * 1e6)
 
     def _open_execution_log():
         log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
@@ -155,7 +155,7 @@ reactor DriverControl {
             lf.request_stop()
             return
 
-        if lf.time.logical_elapsed() >= self.replay_stop_ns:
+        if lf.time.logical_elapsed() > self.replay_stop_ns:
             if not self.replay_stop_requested:
                 print(
                     f"[DRIVER CONTROL REPLAY] Reached end of replay inputs at {lf.time.logical_elapsed() / 1e9:.3f} sec; requesting stop.",
