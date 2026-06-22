@@ -34,6 +34,7 @@ DEFAULT_ORIGINAL_ENV = REPO_ROOT / "src/HardwareIntegration/data-collection/logs
 DEFAULT_REPLAY_ENV = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/sim_environment_inputs.csv"
 DEFAULT_ORIGINAL_EXEC = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/federate_execution_times.csv"
 DEFAULT_REPLAY_EXEC = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/federate_execution_times.csv"
+DEFAULT_CURRENT_EXEC = None
 DEFAULT_OUT = Path(__file__).resolve().parent / "figures"
 
 
@@ -55,6 +56,7 @@ PAPER_STYLE = {
 COLORS = {
     "Collected": "#255C99",
     "Replay": "#D95F02",
+    "Current": "#2A9D8F",
     "Tardy": "#C33149",
     "Reaction": "#2A9D8F",
     "Actuation": "#6A4C93",
@@ -64,6 +66,10 @@ COLORS = {
     "Brake": "#C33149",
     "Hold": "#457B9D",
 }
+
+
+def trace_color(trace: str) -> str:
+    return COLORS.get(trace, "#555555")
 
 
 def read_csv(path: Path, label: str) -> pd.DataFrame:
@@ -76,6 +82,14 @@ def read_csv(path: Path, label: str) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
     if "logical_time_ms" not in df.columns and "logical_time_ns" in df.columns:
         df["logical_time_ms"] = df["logical_time_ns"] / 1e6
+    return df
+
+
+def read_trace_csv(path: Path, label: str) -> pd.DataFrame:
+    if not path.exists():
+        raise FileNotFoundError(f"Missing {label} CSV: {path}")
+    df = pd.read_csv(path, skipinitialspace=True, engine="python", on_bad_lines="skip")
+    df["trace"] = label
     return df
 
 
@@ -163,43 +177,59 @@ def plot_reaction_triggers(car: pd.DataFrame, out_dir: Path) -> None:
 
 
 def plot_car_behavior(car: pd.DataFrame, out_dir: Path) -> None:
-    fig, axes = plt.subplots(4, 1, figsize=(8.4, 8.0), sharex=True)
-    for label, group in car.groupby("trace", sort=False):
+    signals = [
+        ("car_velocity", "velocity\n(km/h)", "plot"),
+        ("accel_in", "accelerator", "plot"),
+        ("brake_in", "brake", "plot"),
+        ("car_steer", "steer", "step"),
+    ]
+    traces = list(car["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(len(signals), len(traces), figsize=(4.8 * len(traces), 8.0), sharex="col", sharey="row")
+    axes = np.asarray(axes).reshape(len(signals), len(traces))
+    for col, label in enumerate(traces):
+        group = car[car["trace"].eq(label)]
         t = group["logical_time_ms"] / 1000
-        axes[0].plot(t, pd.to_numeric(group.get("car_velocity"), errors="coerce"), label=label, linewidth=1.6, color=COLORS[label])
-        axes[1].plot(t, pd.to_numeric(group.get("accel_in"), errors="coerce"), label=label, linewidth=1.3, color=COLORS[label])
-        axes[2].plot(t, pd.to_numeric(group.get("brake_in"), errors="coerce"), label=label, linewidth=1.3, color=COLORS[label])
-        axes[3].step(t, pd.to_numeric(group.get("car_steer"), errors="coerce"), where="post", label=label, linewidth=1.3, color=COLORS[label])
-    axes[0].set_ylabel("velocity\n(km/h)")
-    axes[1].set_ylabel("accelerator")
-    axes[2].set_ylabel("brake")
-    axes[3].set_ylabel("steer")
-    axes[3].set_xlabel("logical time (s)")
-    axes[0].set_title("Car behavior under collected and replayed inputs")
-    for ax in axes:
-        ax.legend(loc="best")
+        for row, (signal, ylabel, kind) in enumerate(signals):
+            ax = axes[row, col]
+            values = pd.to_numeric(group.get(signal), errors="coerce")
+            if kind == "step":
+                ax.step(t, values, where="post", linewidth=1.3, color=trace_color(label))
+            else:
+                ax.plot(t, values, linewidth=1.4, color=trace_color(label))
+            if row == 0:
+                ax.set_title(label)
+            if col == 0:
+                ax.set_ylabel(ylabel)
+            if row == len(signals) - 1:
+                ax.set_xlabel("logical time (s)")
+    fig.suptitle("Car behavior under collected and replayed inputs", y=1.002)
     save_figure(fig, out_dir, "03_car_behavior_comparison")
 
 
 def plot_logical_time_alignment(car: pd.DataFrame, out_dir: Path) -> None:
-    fig, ax = plt.subplots(figsize=(8.0, 4.2))
-    for label, group in car.groupby("trace", sort=False):
+    traces = list(car["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(1, len(traces), figsize=(4.8 * len(traces), 4.2), sharey=True)
+    axes = np.asarray(axes).reshape(len(traces))
+    for ax, label in zip(axes, traces):
+        group = car[car["trace"].eq(label)]
         row_index = np.arange(len(group))
-        ax.plot(row_index, group["logical_time_ms"] / 1000, label=label, linewidth=1.5, color=COLORS[label])
-    ax.set_title("Logical time coverage by CSV row")
-    ax.set_xlabel("CSV data row index")
-    ax.set_ylabel("logical time (s)")
-    ax.legend()
+        ax.plot(row_index, group["logical_time_ms"] / 1000, linewidth=1.5, color=trace_color(label))
+        ax.set_title(label)
+        ax.set_xlabel("CSV data row index")
+    axes[0].set_ylabel("logical time (s)")
+    fig.suptitle("Logical time coverage by CSV row", y=1.002)
     save_figure(fig, out_dir, "04_logical_time_by_row")
 
-    fig, ax = plt.subplots(figsize=(8.0, 3.8))
-    for label, group in car.groupby("trace", sort=False):
+    fig, axes = plt.subplots(1, len(traces), figsize=(4.8 * len(traces), 3.8), sharey=True)
+    axes = np.asarray(axes).reshape(len(traces))
+    for ax, label in zip(axes, traces):
+        group = car[car["trace"].eq(label)]
         lag = group["physical_time_ms"] - group["logical_time_ms"]
-        ax.plot(group["logical_time_ms"] / 1000, lag, label=label, linewidth=1.2, color=COLORS[label])
-    ax.set_title("Physical minus logical time lag at Car")
-    ax.set_xlabel("logical time (s)")
-    ax.set_ylabel("lag (ms)")
-    ax.legend()
+        ax.plot(group["logical_time_ms"] / 1000, lag, linewidth=1.2, color=trace_color(label))
+        ax.set_title(label)
+        ax.set_xlabel("logical time (s)")
+    axes[0].set_ylabel("lag (ms)")
+    fig.suptitle("Physical minus logical time lag at Car", y=1.002)
     save_figure(fig, out_dir, "05_physical_logical_lag")
 
 
@@ -231,26 +261,82 @@ def plot_execution_times(exec_df: pd.DataFrame | None, out_dir: Path) -> None:
     y = np.arange(len(order))
     width = 0.36
     labels = order[::-1]
-    for offset, trace in [(-width / 2, "Collected"), (width / 2, "Replay")]:
+    traces = list(plot_df["trace"].dropna().drop_duplicates())
+    width = min(0.8 / max(len(traces), 1), 0.28)
+    offsets = (np.arange(len(traces)) - (len(traces) - 1) / 2.0) * width
+    for offset, trace in zip(offsets, traces):
         vals = []
         for item in labels:
             match = plot_df[(plot_df["trace"] == trace) & (plot_df["label"].astype(str) == item)]
             vals.append(float(match["p95_ms"].iloc[0]) if not match.empty else 0.0)
-        ax.barh(y + offset, vals, height=width, label=trace, color=COLORS[trace])
+        ax.barh(y + offset, vals, height=width, label=trace, color=trace_color(trace))
     ax.set_yticks(y, labels)
     ax.set_xlabel("p95 execution time (ms)")
     ax.set_title("Reaction execution-time comparison")
     ax.legend()
     save_figure(fig, out_dir, "06_execution_time_p95_bars")
 
-    fig, ax = plt.subplots(figsize=(7.6, 4.2))
-    for trace, group in exec_df.groupby("trace", sort=False):
-        ax.hist(group["execution_time_ms"], bins=40, alpha=0.55, label=trace, color=COLORS[trace])
-    ax.set_title("Execution-time distribution across traced reactions")
-    ax.set_xlabel("execution time (ms)")
-    ax.set_ylabel("reaction count")
-    ax.legend()
+    traces = list(exec_df["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(1, len(traces), figsize=(4.8 * len(traces), 4.2), sharey=True)
+    axes = np.asarray(axes).reshape(len(traces))
+    for ax, trace in zip(axes, traces):
+        group = exec_df[exec_df["trace"].eq(trace)]
+        ax.hist(group["execution_time_ms"], bins=40, alpha=0.75, color=trace_color(trace))
+        ax.set_title(trace)
+        ax.set_xlabel("execution time (ms)")
+    axes[0].set_ylabel("reaction count")
+    fig.suptitle("Execution-time distribution across traced reactions", y=1.002)
     save_figure(fig, out_dir, "07_execution_time_distribution")
+
+
+def plot_all_federate_lag(lag: pd.DataFrame | None, out_dir: Path) -> None:
+    if lag is None or lag.empty:
+        return
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    lag.to_csv(out_dir / "all_federate_lag_samples.csv", index=False)
+    summary = (
+        lag.groupby(["trace", "federate"], dropna=False)["lag_ms"]
+        .agg(count="count", mean_ms="mean", median_ms="median", p95_ms=lambda s: s.quantile(0.95), max_ms="max")
+        .reset_index()
+        .sort_values(["trace", "federate"])
+    )
+    summary.to_csv(out_dir / "all_federate_lag_summary.csv", index=False)
+
+    federates = sorted(lag["federate"].dropna().unique())
+    traces = list(lag["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(
+        len(federates),
+        len(traces),
+        figsize=(4.8 * max(len(traces), 1), max(2.2, 1.6 * len(federates))),
+        sharex="col",
+        sharey="row",
+    )
+    axes = np.asarray(axes).reshape(len(federates), len(traces))
+    for row, federate in enumerate(federates):
+        for col, trace in enumerate(traces):
+            ax = axes[row, col]
+            subset = lag[lag["federate"].eq(federate) & lag["trace"].eq(trace)]
+            sampled = subset.sort_values("logical_time_ms")
+            if len(sampled) > 2500:
+                sampled = sampled.iloc[:: max(1, len(sampled) // 2500)]
+            ax.plot(sampled["logical_time_ms"] / 1000, sampled["lag_ms"], linewidth=0.9, color=trace_color(trace))
+            if row == 0:
+                ax.set_title(trace)
+            if col == 0:
+                ax.set_ylabel(f"{federate}\nlag (ms)")
+            if row == len(federates) - 1:
+                ax.set_xlabel("logical time (s)")
+    fig.suptitle("Physical minus logical time lag for all federates", y=1.002)
+    save_figure(fig, out_dir, "15_all_federate_lag")
+
+    p95 = summary.pivot(index="federate", columns="trace", values="p95_ms").sort_index()
+    fig, ax = plt.subplots(figsize=(8.2, max(3.8, 0.42 * len(p95))))
+    p95.plot(kind="barh", ax=ax, color=[trace_color(c) for c in p95.columns])
+    ax.set_title("P95 lag by federate")
+    ax.set_xlabel("p95 lag (ms)")
+    ax.set_ylabel("federate")
+    save_figure(fig, out_dir, "16_all_federate_lag_p95")
 
 
 def plot_clock_period(car: pd.DataFrame, out_dir: Path) -> None:
@@ -272,27 +358,74 @@ def plot_clock_period(car: pd.DataFrame, out_dir: Path) -> None:
     ).reset_index()
     summary.to_csv(out_dir / "clock_period_summary.csv", index=False)
 
-    fig, ax = plt.subplots(figsize=(7.2, 3.8))
-    for label, group in periods_df.groupby("trace", sort=False):
-        ax.hist(group["period_ms"], bins=25, alpha=0.6, label=label, color=COLORS[label])
-    ax.set_title("Observed logical clock period at Car reactions")
-    ax.set_xlabel("period between reaction logical tags (ms)")
-    ax.set_ylabel("count")
-    ax.legend()
+    traces = list(periods_df["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(1, len(traces), figsize=(4.6 * len(traces), 3.8), sharey=True)
+    axes = np.asarray(axes).reshape(len(traces))
+    for ax, label in zip(axes, traces):
+        group = periods_df[periods_df["trace"].eq(label)]
+        ax.hist(group["period_ms"], bins=25, alpha=0.75, color=trace_color(label))
+        ax.set_title(label)
+        ax.set_xlabel("period between reaction logical tags (ms)")
+    axes[0].set_ylabel("count")
+    fig.suptitle("Observed logical clock period at Car reactions", y=1.002)
     save_figure(fig, out_dir, "08_clock_period_histogram")
 
 
-def load_execution(original_path: Path, replay_path: Path) -> pd.DataFrame | None:
+def execution_paths(path: Path) -> list[Path]:
+    if path.exists():
+        return [path]
+    split_paths = sorted(path.parent.glob(f"{path.stem}_*.csv"))
+    if split_paths:
+        print(f"Using split execution CSVs for {path.name}: {', '.join(p.name for p in split_paths)}")
+    return split_paths
+
+
+def load_execution(original_path: Path, replay_path: Path, current_path: Path | None = None) -> pd.DataFrame | None:
     frames = []
-    for path, label in [(original_path, "Collected"), (replay_path, "Replay")]:
-        if path.exists():
-            df = read_csv(path, label)
+    paths: list[tuple[Path, str]] = [(original_path, "Collected"), (replay_path, "Replay")]
+    if current_path is not None:
+        paths.append((current_path, "Current"))
+    for path, label in paths:
+        matched_paths = execution_paths(path)
+        if matched_paths:
+            df = pd.concat([read_csv(p, label) for p in matched_paths], ignore_index=True)
             if "execution_time_ms" in df.columns:
                 df["execution_time_ms"] = pd.to_numeric(df["execution_time_ms"], errors="coerce")
             frames.append(df)
+        elif label == "Current":
+            print(f"Skipping missing Current execution CSV: {path}")
     if not frames:
         return None
     return pd.concat(frames, ignore_index=True)
+
+
+def load_federate_lag(original_dir: Path, replay_dir: Path) -> pd.DataFrame | None:
+    frames = []
+    for trace_dir, label in [(original_dir, "Collected"), (replay_dir, "Replay")]:
+        for trace_path in sorted(trace_dir.glob("federate__*_main_*.csv")):
+            df = read_trace_csv(trace_path, label)
+            if "Elapsed Logical Time" not in df.columns or "Elapsed Physical Time" not in df.columns:
+                continue
+            df["federate"] = trace_path.name.replace("federate__", "").replace(".csv", "")
+            df["logical_time_ms_raw"] = pd.to_numeric(df["Elapsed Logical Time"], errors="coerce") / 1e6
+            df["physical_time_ms_raw"] = pd.to_numeric(df["Elapsed Physical Time"], errors="coerce") / 1e6
+            df = df.dropna(subset=["logical_time_ms_raw", "physical_time_ms_raw"])
+            if df.empty:
+                continue
+            df["logical_time_ms"] = df["logical_time_ms_raw"] - df["logical_time_ms_raw"].iloc[0]
+            df["physical_time_ms"] = df["physical_time_ms_raw"] - df["physical_time_ms_raw"].iloc[0]
+            df["lag_ms"] = df["physical_time_ms"] - df["logical_time_ms"]
+            if "Microstep" in df.columns:
+                df["microstep"] = pd.to_numeric(df["Microstep"], errors="coerce")
+            else:
+                df["microstep"] = np.nan
+            frames.append(df[["trace", "federate", "Event", "logical_time_ms", "physical_time_ms", "lag_ms", "microstep"]])
+    if not frames:
+        return None
+    lag = pd.concat(frames, ignore_index=True)
+    lag = lag.dropna(subset=["logical_time_ms", "lag_ms"])
+    lag = lag[lag["logical_time_ms"] >= 0]
+    return lag
 
 
 def load_optional_pair(original_path: Path, replay_path: Path, name: str) -> pd.DataFrame | None:
@@ -344,34 +477,45 @@ def plot_llm_inputs(llm: pd.DataFrame | None, out_dir: Path) -> None:
     if output.empty:
         output = llm
 
-    fig, axes = plt.subplots(4, 1, figsize=(8.4, 8.0), sharex=True)
-    for label, group in output.groupby("trace", sort=False):
+    traces = list(output["trace"].dropna().drop_duplicates())
+    signals = [
+        ("environment_distance", "target\ndistance (m)", "plot"),
+        ("car_velocity", "velocity\n(km/h)", "plot"),
+        ("head", "head", "step"),
+        ("eye", "eye", "step"),
+    ]
+    fig, axes = plt.subplots(len(signals), len(traces), figsize=(4.8 * len(traces), 8.0), sharex="col", sharey="row")
+    axes = np.asarray(axes).reshape(len(signals), len(traces))
+    for col, label in enumerate(traces):
+        group = output[output["trace"].eq(label)]
         t = group["logical_time_ms"] / 1000
-        color = COLORS[label]
-        axes[0].plot(t, group.get("environment_distance"), label=label, linewidth=1.5, color=color)
-        axes[1].plot(t, group.get("car_velocity"), label=label, linewidth=1.5, color=color)
-        axes[2].step(t, group.get("head"), where="post", label=label, linewidth=1.3, color=color)
-        axes[3].step(t, group.get("eye"), where="post", label=label, linewidth=1.3, color=color)
-    axes[0].set_title("Inputs presented to the LLM")
-    axes[0].set_ylabel("target\ndistance (m)")
-    axes[1].set_ylabel("velocity\n(km/h)")
-    axes[2].set_ylabel("head")
-    axes[3].set_ylabel("eye")
-    axes[3].set_xlabel("logical time (s)")
-    axes[2].set_yticks([0, 1, 2], ["left", "center", "right"])
-    axes[3].set_yticks([0, 1, 2], ["left", "center", "right"])
-    for ax in axes:
-        ax.legend(loc="best")
+        for row, (signal, ylabel, kind) in enumerate(signals):
+            ax = axes[row, col]
+            if kind == "step":
+                ax.step(t, group.get(signal), where="post", linewidth=1.3, color=trace_color(label))
+                ax.set_yticks([0, 1, 2], ["left", "center", "right"])
+            else:
+                ax.plot(t, group.get(signal), linewidth=1.5, color=trace_color(label))
+            if row == 0:
+                ax.set_title(label)
+            if col == 0:
+                ax.set_ylabel(ylabel)
+            if row == len(signals) - 1:
+                ax.set_xlabel("logical time (s)")
+    fig.suptitle("Inputs presented to the LLM", y=1.002)
     save_figure(fig, out_dir, "09_llm_input_snapshot")
 
-    fig, ax = plt.subplots(figsize=(8.0, 3.8))
-    for label, group in llm.groupby("trace", sort=False):
+    traces = list(llm["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(1, len(traces), figsize=(4.8 * len(traces), 3.8), sharey=True)
+    axes = np.asarray(axes).reshape(len(traces))
+    for ax, label in zip(axes, traces):
+        group = llm[llm["trace"].eq(label)]
         lag = group["physical_time_ms"] - group["logical_time_ms"]
-        ax.plot(group["logical_time_ms"] / 1000, lag, label=label, linewidth=1.2, color=COLORS[label])
-    ax.set_title("Physical minus logical time lag at InputForCoach")
-    ax.set_xlabel("logical time (s)")
-    ax.set_ylabel("lag (ms)")
-    ax.legend()
+        ax.plot(group["logical_time_ms"] / 1000, lag, linewidth=1.2, color=trace_color(label))
+        ax.set_title(label)
+        ax.set_xlabel("logical time (s)")
+    axes[0].set_ylabel("lag (ms)")
+    fig.suptitle("Physical minus logical time lag at InputForCoach", y=1.002)
     save_figure(fig, out_dir, "10_llm_input_lag")
 
 
@@ -383,25 +527,25 @@ def plot_environment_context(env: pd.DataFrame | None, out_dir: Path) -> None:
         if col in env.columns:
             env[col] = pd.to_numeric(env[col], errors="coerce")
 
-    fig, axes = plt.subplots(3, 1, figsize=(8.4, 6.2), sharex=True)
+    traces = list(env["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(3, len(traces), figsize=(4.8 * len(traces), 6.2), sharex="col", sharey="row")
+    axes = np.asarray(axes).reshape(3, len(traces))
     phase_names = sorted(str(x) for x in env["road_phase"].dropna().unique()) if "road_phase" in env.columns else []
     phase_to_y = {name: i for i, name in enumerate(phase_names)}
-    for label, group in env.groupby("trace", sort=False):
+    for col, label in enumerate(traces):
+        group = env[env["trace"].eq(label)]
         t = group["logical_time_ms"] / 1000
-        color = COLORS[label]
-        axes[0].plot(t, group.get("environment_distance"), label=label, linewidth=1.4, color=color)
+        axes[0, col].plot(t, group.get("environment_distance"), linewidth=1.4, color=trace_color(label))
         if phase_to_y:
-            axes[1].step(t, group["road_phase"].astype(str).map(phase_to_y), where="post", label=label, linewidth=1.2, color=color)
-        axes[2].step(t, group.get("other_car_present"), where="post", label=label, linewidth=1.2, color=color)
-    axes[0].set_title("Environment context sent toward the coach")
-    axes[0].set_ylabel("target\ndistance (m)")
-    axes[1].set_ylabel("road phase")
-    if phase_to_y:
-        axes[1].set_yticks(list(phase_to_y.values()), list(phase_to_y.keys()))
-    axes[2].set_ylabel("other car")
-    axes[2].set_xlabel("logical time (s)")
-    for ax in axes:
-        ax.legend(loc="best")
+            axes[1, col].step(t, group["road_phase"].astype(str).map(phase_to_y), where="post", linewidth=1.2, color=trace_color(label))
+            axes[1, col].set_yticks(list(phase_to_y.values()), list(phase_to_y.keys()))
+        axes[2, col].step(t, group.get("other_car_present"), where="post", linewidth=1.2, color=trace_color(label))
+        axes[0, col].set_title(label)
+        axes[2, col].set_xlabel("logical time (s)")
+    axes[0, 0].set_ylabel("target\ndistance (m)")
+    axes[1, 0].set_ylabel("road phase")
+    axes[2, 0].set_ylabel("other car")
+    fig.suptitle("Environment context sent toward the coach", y=1.002)
     save_figure(fig, out_dir, "11_environment_context")
 
 
@@ -419,24 +563,26 @@ def plot_planner_decisions(planner: pd.DataFrame | None, out_dir: Path) -> None:
     transitions = planner[planner.get("event", pd.Series(dtype=str)).eq("mode_transition")]
     act_rows = planner[planner.get("act_set", pd.Series(dtype=str)).astype(str).eq("1")]
 
-    fig, axes = plt.subplots(3, 1, figsize=(8.6, 6.8), sharex=True)
-    for label, group in planner.groupby("trace", sort=False):
+    traces = list(planner["trace"].dropna().drop_duplicates())
+    fig, axes = plt.subplots(3, len(traces), figsize=(4.8 * len(traces), 6.8), sharex="col", sharey="row")
+    axes = np.asarray(axes).reshape(3, len(traces))
+    for col, label in enumerate(traces):
+        group = planner[planner["trace"].eq(label)]
         token_group = group[group["control_token"].notna()] if "control_token" in group.columns else group
-        axes[0].scatter(token_group["logical_time_ms"] / 1000, token_group["control_token"].astype(str).map(token_to_y), s=18, alpha=0.75, label=label, color=COLORS[label], edgecolors="none")
-    for label, group in transitions.groupby("trace", sort=False):
-        axes[1].scatter(group["logical_time_ms"] / 1000, group["to_mode"].astype(str).map(mode_to_y), s=24, alpha=0.8, label=label, color=COLORS[label], edgecolors="none")
-    for label, group in act_rows.groupby("trace", sort=False):
-        axes[2].scatter(group["logical_time_ms"] / 1000, group["act_command"].astype(str).map(act_to_y), s=32, alpha=0.9, label=label, color=COLORS[label], edgecolors="none")
-    axes[0].set_title("LLM response tokens and planner decisions")
-    axes[0].set_ylabel("LLM token")
-    axes[0].set_yticks(list(token_to_y.values()), list(token_to_y.keys()))
-    axes[1].set_ylabel("planner mode")
-    axes[1].set_yticks(list(mode_to_y.values()), list(mode_to_y.keys()))
-    axes[2].set_ylabel("act command")
-    axes[2].set_yticks(list(act_to_y.values()), list(act_to_y.keys()))
-    axes[2].set_xlabel("logical time (s)")
-    for ax in axes:
-        ax.legend(loc="best")
+        axes[0, col].scatter(token_group["logical_time_ms"] / 1000, token_group["control_token"].astype(str).map(token_to_y), s=18, alpha=0.75, color=trace_color(label), edgecolors="none")
+        transition_group = transitions[transitions["trace"].eq(label)]
+        axes[1, col].scatter(transition_group["logical_time_ms"] / 1000, transition_group["to_mode"].astype(str).map(mode_to_y), s=24, alpha=0.8, color=trace_color(label), edgecolors="none")
+        act_group = act_rows[act_rows["trace"].eq(label)]
+        axes[2, col].scatter(act_group["logical_time_ms"] / 1000, act_group["act_command"].astype(str).map(act_to_y), s=32, alpha=0.9, color=trace_color(label), edgecolors="none")
+        axes[0, col].set_title(label)
+        axes[2, col].set_xlabel("logical time (s)")
+    axes[0, 0].set_ylabel("LLM token")
+    axes[0, 0].set_yticks(list(token_to_y.values()), list(token_to_y.keys()))
+    axes[1, 0].set_ylabel("planner mode")
+    axes[1, 0].set_yticks(list(mode_to_y.values()), list(mode_to_y.keys()))
+    axes[2, 0].set_ylabel("act command")
+    axes[2, 0].set_yticks(list(act_to_y.values()), list(act_to_y.keys()))
+    fig.suptitle("LLM response tokens and planner decisions", y=1.002)
     save_figure(fig, out_dir, "12_llm_response_planner_timeline")
 
     counts = planner.groupby(["trace", "control_token"], dropna=False).size().unstack(fill_value=0)
@@ -472,6 +618,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--replay-env", type=Path, default=DEFAULT_REPLAY_ENV)
     parser.add_argument("--original-exec", type=Path, default=DEFAULT_ORIGINAL_EXEC)
     parser.add_argument("--replay-exec", type=Path, default=DEFAULT_REPLAY_EXEC)
+    parser.add_argument("--current-exec", type=Path, default=DEFAULT_CURRENT_EXEC, help="Optional third current-run federate_execution_times.csv to include in execution-time plots.")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--show", action="store_true", help="Show plots interactively after saving.")
     return parser.parse_args()
@@ -487,7 +634,8 @@ def main() -> None:
     llm = load_optional_pair(args.original_llm, args.replay_llm, "LLM input")
     planner = load_optional_pair(args.original_planner, args.replay_planner, "planner events")
     env = load_optional_pair(args.original_env, args.replay_env, "environment")
-    exec_df = load_execution(args.original_exec, args.replay_exec)
+    exec_df = load_execution(args.original_exec, args.replay_exec, args.current_exec)
+    federate_lag = load_federate_lag(args.original_car.parent, args.replay_car.parent)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     write_summary_tables(car, exec_df, args.out_dir)
@@ -496,6 +644,7 @@ def main() -> None:
     plot_car_behavior(car, args.out_dir)
     plot_logical_time_alignment(car, args.out_dir)
     plot_execution_times(exec_df, args.out_dir)
+    plot_all_federate_lag(federate_lag, args.out_dir)
     plot_clock_period(car, args.out_dir)
     plot_llm_inputs(llm, args.out_dir)
     plot_environment_context(env, args.out_dir)
