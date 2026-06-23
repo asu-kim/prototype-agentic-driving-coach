@@ -190,6 +190,7 @@ reactor AgenticCoach {
 
     reaction(startup) {=
         start_physical_time = lf.time.physical_elapsed()/1e6
+        print(f"START PHYSICAL TIME OF THE STARTUP IN LLM FEDERATE:{start_physical_time:.2f}ms", flush=True)
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
         os.makedirs(os.path.dirname(_LLM_BEHAVIOR_LOG_PATH), exist_ok=True)
         self.llm_behavior_log_file = open(_LLM_BEHAVIOR_LOG_PATH, "w", newline="", encoding="utf-8")
@@ -221,33 +222,16 @@ reactor AgenticCoach {
             "instruction_present",
         ])
         self.llm_behavior_log_file.flush()
+
         print(f"[LLM BEHAVIOR LOG] Writing behavior to {_LLM_BEHAVIOR_LOG_PATH}", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
-        warmup_inputs = {
-            "distance_to_target_m": 1500.0,
-            "velocity_kmh": 88.0,
-            "steering": 2,
-            "head_history": ["CENTER"],
-            "eye_history": ["CENTER"],
-            "environment": {
-                "road_phase": "HIGHWAY",
-                "front_car_present": 0,
-                "right_car_present": 0,
-                "right_car_position": "",
-                "cross_left_car_present": 0,
-                "cross_right_car_present": 0,
-            },
-        }
-        print("[LLM WARMUP] Starting startup inference", flush=True)
-        self.run_llm_message(warmup_inputs)
-        current_tag = lf.tag()
-        logical_time_ns = lf.time.logical_elapsed()
         
     =}
 
     reaction(s, v, st, h, e, en_states) -> control, instruction {=
 
         start_physical_time = lf.time.physical_elapsed()/1e6
+        print(f"The START time of LLM:{start_physical_time:.4f} ms\n\n")
         distance_val = s.value if s.is_present else 0.0
         velocity_val = v.value if v.is_present else 0.0
         steer_input = st.value if st.is_present else None
