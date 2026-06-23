@@ -149,9 +149,19 @@ Return output:"""
     # print(response)
     raw = response.get("message", {}).get("content", "").strip()
     latency_ms = (t1 - t0) * 1000.0
+    timing = {
+        "ollama_total_ms": response.get("total_duration", 0) / 1e6,
+        "model_load_ms": response.get("load_duration", 0) / 1e6,
+        "prompt_eval_ms": response.get("prompt_eval_duration", 0) / 1e6,
+        "eval_ms": response.get("eval_duration", 0) / 1e6,
+    }
+    timing["latency_after_model_load_ms"] = max(
+        0.0,
+        latency_ms - timing["model_load_ms"],
+    )
     # print(raw)
 
-    return latency_ms, raw, len(prompt), len(raw)
+    return latency_ms, raw, len(prompt), len(raw), timing
 
 
 def percentile(values, p):
@@ -169,7 +179,7 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
     # Warmup
     # Warmup
     print("[warmup]", flush=True)
-    warmup_latency_ms, warmup_raw, warmup_prompt_chars, warmup_response_chars = run_once(
+    warmup_latency_ms, warmup_raw, warmup_prompt_chars, warmup_response_chars, warmup_timing = run_once(
         model, inputs[0], num_predict
     )
 
@@ -182,11 +192,21 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
         warmup_latency_ms,
         warmup_prompt_chars,
         warmup_response_chars,
+        warmup_timing["model_load_ms"],
+        warmup_timing["latency_after_model_load_ms"],
+        warmup_timing["ollama_total_ms"],
+        warmup_timing["prompt_eval_ms"],
+        warmup_timing["eval_ms"],
         warmup_raw.replace("\n", " "),
         "",
     ])
 
-    print(f"[{model}] warmup latency = {warmup_latency_ms:.2f} ms", flush=True)
+    print(
+        f"[{model}] warmup latency = {warmup_latency_ms:.2f} ms "
+        f"(model load = {warmup_timing['model_load_ms']:.2f} ms, "
+        f"after load = {warmup_timing['latency_after_model_load_ms']:.2f} ms)",
+        flush=True,
+    )
 
     latencies = []
 
@@ -194,7 +214,7 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
         llm_input = inputs[i % len(inputs)]
 
         try:
-            latency_ms, raw, prompt_chars, response_chars = run_once(
+            latency_ms, raw, prompt_chars, response_chars, timing = run_once(
                 model, llm_input, num_predict
             )
             status = "ok"
@@ -204,6 +224,13 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
             raw = ""
             prompt_chars = 0
             response_chars = 0
+            timing = {
+                "model_load_ms": 0.0,
+                "latency_after_model_load_ms": 0.0,
+                "ollama_total_ms": 0.0,
+                "prompt_eval_ms": 0.0,
+                "eval_ms": 0.0,
+            }
             status = "error"
             error = str(e)
 
@@ -219,6 +246,11 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
             latency_ms,
             prompt_chars,
             response_chars,
+            timing["model_load_ms"],
+            timing["latency_after_model_load_ms"],
+            timing["ollama_total_ms"],
+            timing["prompt_eval_ms"],
+            timing["eval_ms"],
             raw.replace("\n", " "),
             error,
         ])
@@ -229,6 +261,8 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
         return {
             "model": model,
             "warmup_ms": warmup_latency_ms,
+            "warmup_model_load_ms": warmup_timing["model_load_ms"],
+            "warmup_after_model_load_ms": warmup_timing["latency_after_model_load_ms"],
             "runs_ok": 0,
             "mean_ms": 0,
             "median_ms": 0,
@@ -242,6 +276,8 @@ def benchmark_model(model, inputs, runs, num_predict, writer):
     return {
         "model": model,
         "warmup_ms": warmup_latency_ms,
+        "warmup_model_load_ms": warmup_timing["model_load_ms"],
+        "warmup_after_model_load_ms": warmup_timing["latency_after_model_load_ms"],
         "runs_ok": len(latencies),
         "mean_ms": statistics.mean(latencies),
         "median_ms": statistics.median(latencies),
@@ -281,6 +317,11 @@ def main():
             "latency_ms",
             "prompt_chars",
             "response_chars",
+            "model_load_ms",
+            "latency_after_model_load_ms",
+            "ollama_total_ms",
+            "prompt_eval_ms",
+            "eval_ms",
             "response",
             "error",
         ])
@@ -300,6 +341,8 @@ def main():
         writer = csv.DictWriter(f, fieldnames=[
             "model",
             "warmup_ms",
+            "warmup_model_load_ms",
+            "warmup_after_model_load_ms",
             "runs_ok",
             "mean_ms",
             "median_ms",

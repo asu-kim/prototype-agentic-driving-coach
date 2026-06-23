@@ -20,9 +20,9 @@ federated reactor at 10.218.100.78 {
     @maxwait(120 msec)
     adc = new InputForCoach()
     llm = new AgenticCoach() 
-    @maxwait(350 msec)
+    @maxwait(400 msec)
     planner = new ActionPlanner() 
-    @maxwait(10 msec)
+    @maxwait(20 msec)
     sim = new Environment() 
 
 

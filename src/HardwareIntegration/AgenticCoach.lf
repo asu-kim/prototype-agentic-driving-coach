@@ -2,11 +2,16 @@ target Python
 
 preamble{=
     import csv
+    import json
     import os
     import sys
     import time
     import ollama
 
+    _LLM_BEHAVIOR_LOG_PATH = os.getenv(
+        "LLM_BEHAVIOR_LOG_PATH",
+        "logs-trace/llm_behavior.csv",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
         "logs-trace/federate_execution_times.csv",
@@ -182,8 +187,87 @@ reactor AgenticCoach {
 
 
     reaction(startup) {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        os.makedirs(os.path.dirname(_LLM_BEHAVIOR_LOG_PATH), exist_ok=True)
+        self.llm_behavior_log_file = open(_LLM_BEHAVIOR_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.llm_behavior_log_writer = csv.writer(self.llm_behavior_log_file)
+        self.llm_behavior_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "displacement_present",
+            "velocity_present",
+            "steer_present",
+            "head_present",
+            "eye_present",
+            "environment_states_present",
+            "distance_to_target_m",
+            "velocity_kmh",
+            "steering",
+            "head_history_json",
+            "eye_history_json",
+            "environment_json",
+            "control",
+            "instruction",
+            "inference_ms",
+            "control_present",
+            "instruction_present",
+        ])
+        self.llm_behavior_log_file.flush()
+        print(f"[LLM BEHAVIOR LOG] Writing behavior to {_LLM_BEHAVIOR_LOG_PATH}", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+        warmup_inputs = {
+            "distance_to_target_m": 1500.0,
+            "velocity_kmh": 88.0,
+            "steering": 2,
+            "head_history": ["CENTER"],
+            "eye_history": ["CENTER"],
+            "environment": {
+                "road_phase": "HIGHWAY",
+                "front_car_present": 0,
+                "right_car_present": 0,
+                "right_car_position": "",
+                "cross_left_car_present": 0,
+                "cross_right_car_present": 0,
+            },
+        }
+        print("[LLM WARMUP] Starting startup inference", flush=True)
+        tok, msg, ms = self.run_llm_message(warmup_inputs)
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.llm_behavior_log_writer.writerow([
+            "startup_warmup",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            warmup_inputs["distance_to_target_m"],
+            warmup_inputs["velocity_kmh"],
+            warmup_inputs["steering"],
+            json.dumps(warmup_inputs["head_history"]),
+            json.dumps(warmup_inputs["eye_history"]),
+            json.dumps(warmup_inputs["environment"]),
+            tok,
+            msg,
+            ms,
+            0,
+            0,
+        ])
+        self.llm_behavior_log_file.flush()
+        print(f"[LLM WARMUP] Completed with {tok} | {msg} | {ms:.2f} ms", flush=True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "llm", "AgenticCoach", "startup_warmup", start_physical_time, stop_physical_time)
     =}
 
     reaction(s, v, st, h, e, en_states) -> control, instruction {=
@@ -218,7 +302,8 @@ reactor AgenticCoach {
 
         tok_raw, msg_raw, ms = self.run_llm_message(llm_inputs)
 
-        current_dri = lf.time.logical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_dri = logical_time_ns / 1e6
         physical_dri = lf.time.physical_elapsed()/1e6
         lag = physical_dri - current_dri
         current_tag = lf.tag()
@@ -241,6 +326,33 @@ reactor AgenticCoach {
 
 
         
+        self.llm_behavior_log_writer.writerow([
+            "llm_inference",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_dri,
+            current_tag.time,
+            current_tag.microstep,
+            int(s.is_present),
+            int(v.is_present),
+            int(st.is_present),
+            int(h.is_present),
+            int(e.is_present),
+            int(en_states.is_present),
+            distance_val,
+            velocity_val,
+            steer_input,
+            json.dumps(head_input),
+            json.dumps(eye_input),
+            json.dumps(environment_input),
+            tok,
+            msg,
+            ms,
+            1,
+            1,
+        ])
+        self.llm_behavior_log_file.flush()
+
         control.set(tok)
         instruction.set(msg)
         stop_physical_time = lf.time.physical_elapsed()/1e6
@@ -265,6 +377,9 @@ reactor AgenticCoach {
     =}
 
     reaction(shutdown) {=
+        if hasattr(self, "llm_behavior_log_file") and not self.llm_behavior_log_file.closed:
+            self.llm_behavior_log_file.flush()
+            self.llm_behavior_log_file.close()
         if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
             self.execution_log_file.flush()
             self.execution_log_file.close()

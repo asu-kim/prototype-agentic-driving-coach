@@ -330,7 +330,8 @@ def benchmark_mujoco_offscreen(args, output_dir):
             f.flush()
             print(
                 f"[mujoco] {run_id + 1}/{args.mujoco_runs}: "
-                f"startup={startup_total_ms:.2f} ms first_render_or_sync={first_render_or_sync_ms:.2f} ms {status}",
+                f"startup={startup_total_ms:.2f} ms first_render_or_sync={first_render_or_sync_ms:.2f} ms {status}"
+                f"{(' error=' + error) if error else ''}",
                 flush=True,
             )
             if args.sleep_between_runs_ms > 0:
