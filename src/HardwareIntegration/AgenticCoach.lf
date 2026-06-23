@@ -53,7 +53,7 @@ preamble{=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -199,9 +199,9 @@ reactor AgenticCoach {
             "logical_time_ns",
             "logical_time_ms",
             "physical_time_ms",
-            "lag_ms",
             "tag_time_ns",
             "microstep",
+            "lag_ms",
             "displacement_present",
             "velocity_present",
             "steer_present",
@@ -293,7 +293,7 @@ reactor AgenticCoach {
         print(f"[LLM INFERENCE] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[LLM INFERENCE] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[LLM INFERENCE] LAG: {lag:.2f} ms", flush=True)
-        print(f"[LLM INFERENCE] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[LLM INFERENCE] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[LLM INFERENCE] Microstep: {current_tag.microstep}", flush=True)
         print(f"[LLM RESULT] {tok} | {msg} | {ms:.2f} ms", flush=True)
         print("----------------------------------------------------------")
@@ -306,9 +306,9 @@ reactor AgenticCoach {
             logical_time_ns,
             logical_time_ns / 1e6,
             physical_dri,
-            lag,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
+            lag,
             int(s.is_present),
             int(v.is_present),
             int(st.is_present),

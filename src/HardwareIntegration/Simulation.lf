@@ -58,7 +58,7 @@ reactor Environment {
                 reaction,
                 logical_time_ns,
                 logical_time_ns / 1e6,
-                current_tag.time,
+                lf.tag().time,
                 current_tag.microstep,
                 start_physical_time_ms - (logical_time_ns / 1e6),
                 start_physical_time_ms,
@@ -121,7 +121,7 @@ reactor Environment {
         print(f"[SIMULATION] Logical time: {current_sim:.2f} ms", flush=True)
         print(f"[SIMULATION] Physical time: {physical_sim:.2f} ms", flush=True)
         print(f"[SIMULATION] LAG: {lag:.2f} ms", flush=True)
-        print(f"[SIMULATION] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[SIMULATION] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[SIMULATION] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------", flush=True)
         stop_physical_time = lf.time.physical_elapsed()/1e6

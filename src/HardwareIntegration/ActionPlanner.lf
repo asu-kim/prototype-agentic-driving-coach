@@ -54,7 +54,7 @@ preamble{=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -94,14 +94,17 @@ reactor ActionPlanner {
         def log_planner_event(self, event, mode, from_mode="", to_mode="", reason="", act_command="", lane_command=""):
             current_tag = lf.tag()
             logical_time_ns = lf.time.logical_elapsed()
+            logical_time_ms = logical_time_ns / 1e6
+            physical_time_ms = lf.time.physical_elapsed() / 1e6
             environment_states = self.latest_environment_states if hasattr(self, "latest_environment_states") else None
             row = [
                 event,
                 logical_time_ns,
-                logical_time_ns / 1e6,
-                lf.time.physical_elapsed() / 1e6,
-                current_tag.time,
+                logical_time_ms,
+                physical_time_ms,
+                lf.tag().time,
                 current_tag.microstep,
+                physical_time_ms - logical_time_ms,
                 mode,
                 from_mode,
                 to_mode,
@@ -266,6 +269,7 @@ reactor ActionPlanner {
             "physical_time_ms",
             "tag_time_ns",
             "microstep",
+            "lag_ms",
             "mode",
             "from_mode",
             "to_mode",
@@ -312,7 +316,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
-                    print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER monitor] Tag time: {lf.tag().time} ns", flush=True)
                     print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "ACTUATE", token_keyword)
@@ -334,7 +338,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
-                    print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER monitor] Tag time: {lf.tag().time} ns", flush=True)
                     print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("MONITORING", "WARNING", token_keyword)
@@ -357,7 +361,7 @@ reactor ActionPlanner {
                 print(f"[PLANNER monitor] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER monitor] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER monitor] LAG: {lag:.2f} ms", flush=True)
-                print(f"[PLANNER monitor] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER monitor] Tag time: {lf.tag().time} ns", flush=True)
                 print(f"[PLANNER monitor] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
                 stop_physical_time = lf.time.physical_elapsed()/1e6
@@ -414,7 +418,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER WARNING ] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
-                    print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER WARNING] Tag time: {lf.tag().time} ns", flush=True)
                     print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "ACTUATE", token_keyword)
@@ -432,7 +436,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
-                    print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER WARNING] Tag time: {lf.tag().time} ns", flush=True)
                     print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     self.log_mode_transition("WARNING", "MONITORING", token_keyword)
@@ -451,7 +455,7 @@ reactor ActionPlanner {
                 print(f"[PLANNER WARNING] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER WARNING] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER WARNING] LAG: {lag:.2f} ms", flush=True)
-                print(f"[PLANNER WARNING] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER WARNING] Tag time: {lf.tag().time} ns", flush=True)
                 print(f"[PLANNER WARNING] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
                 stop_physical_time = lf.time.physical_elapsed()/1e6
@@ -512,7 +516,7 @@ reactor ActionPlanner {
                     print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
                     print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
                     print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
-                    print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
+                    print(f"[PLANNER ACTUATE] Tag time: {lf.tag().time} ns", flush=True)
                     print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                     print("----------------------------------------------------------")
                     stop_physical_time = lf.time.physical_elapsed()/1e6
@@ -545,7 +549,7 @@ reactor ActionPlanner {
                 print(f"[PLANNER ACTUATE] Logical time: {current_dri:.2f} ms", flush=True)
                 print(f"[PLANNER ACTUATE] Physical time: {physical_dri:.2f} ms", flush=True)
                 print(f"[PLANNER ACTUATE] LAG: {lag:.2f} ms", flush=True)
-                print(f"[PLANNER ACTUATE] Tag time: {current_tag.time} ns", flush=True)
+                print(f"[PLANNER ACTUATE] Tag time: {lf.tag().time} ns", flush=True)
                 print(f"[PLANNER ACTUATE] Microstep: {current_tag.microstep}", flush=True)
                 print("----------------------------------------------------------")
                 stop_physical_time = lf.time.physical_elapsed()/1e6

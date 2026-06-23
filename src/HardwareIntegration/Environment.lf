@@ -134,12 +134,12 @@ reactor Environment{
         print(f"[ENVIRONMENT] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[ENVIRONMENT] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[ENVIRONMENT] LAG: {lag:.2f} ms", flush=True)
-        print(f"[ENVIRONMENT] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[ENVIRONMENT] Tag time: {lf.tag().time} ns", flush=True)
         self.environment_log_writer.writerow([
             current_logical_ns,
             current_logical_ns / 1e6,
             physical_dri,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             int(v.is_present),
             v.value if v.is_present else "",

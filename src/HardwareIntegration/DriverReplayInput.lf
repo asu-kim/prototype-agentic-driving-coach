@@ -51,7 +51,7 @@ preamble {=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -208,7 +208,7 @@ reactor DriverControl {
         print(f"[DRIVER CONTROL REPLAY] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[DRIVER CONTROL REPLAY] LAG: {lag:.2f} ms", flush=True)
-        print(f"[DRIVER CONTROL REPLAY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER CONTROL REPLAY] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
 
@@ -315,7 +315,7 @@ reactor DriverMonitor {
         print(f"[DRIVER MONITOR REPLAY] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[DRIVER MONITOR REPLAY] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[DRIVER MONITOR REPLAY] LAG: {lag:.2f} ms", flush=True)
-        print(f"[DRIVER MONITOR REPLAY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[DRIVER MONITOR REPLAY] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[DRIVER MONITOR REPLAY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
 

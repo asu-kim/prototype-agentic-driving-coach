@@ -50,7 +50,7 @@ preamble {=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -178,7 +178,7 @@ reactor Car {
         print(f"[CAR] Logical time: {current_car:.2f} ms", flush=True)
         print(f"[CAR] Physical time: {physical_car:.2f} ms", flush=True)
         print(f"[CAR] LAG: {lag:.2f} ms", flush=True)
-        print(f"[CAR] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[CAR] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[CAR] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
         velocity_kmh, steer_value = self.update_car(
@@ -194,7 +194,7 @@ reactor Car {
             lf.time.logical_elapsed(),
             lf.time.logical_elapsed() / 1e6,
             lf.time.physical_elapsed() / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             int(steer_in.is_present),
             int(accel_in.is_present),
@@ -237,7 +237,7 @@ reactor Car {
         print(f"[CAR TARDY] Logical time: {current_car:.2f} ms", flush=True)
         print(f"[CAR TARDY] Physical time: {physical_car:.2f} ms", flush=True)
         print(f"[CAR TARDY] LAG: {lag:.2f} ms", flush=True)
-        print(f"[CAR TARDY] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[CAR TARDY] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[CAR TARDY] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
         velocity.set(velocity_kmh)
@@ -247,7 +247,7 @@ reactor Car {
             lf.time.logical_elapsed(),
             lf.time.logical_elapsed() / 1e6,
             lf.time.physical_elapsed() / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             int(steer_in.is_present),
             int(accel_in.is_present),

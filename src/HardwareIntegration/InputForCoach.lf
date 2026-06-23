@@ -6,8 +6,8 @@ preamble {=
     import os
 
     _LLM_INPUT_LOG_PATH = os.getenv(
-        "LLM_INPUT_LOG_PATH",
-        "logs-trace/llm_inputs.csv",
+        "ADC_INPUT_LOG_PATH",
+        os.getenv("LLM_INPUT_LOG_PATH", "logs-trace/adc_inputs.csv"),
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
@@ -50,7 +50,7 @@ preamble {=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -119,7 +119,7 @@ reactor InputForCoach{
         ])
         self.llm_input_log_file.flush()
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
-        print(f"[LLM INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
+        print(f"[ADC INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
     reaction(s, v, st, h, e, en_states){=
@@ -164,7 +164,7 @@ reactor InputForCoach{
             logical_time_ns,
             logical_time_ns / 1e6,
             lf.time.physical_elapsed() / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             int(s.is_present),
             int(v.is_present),
@@ -204,7 +204,7 @@ reactor InputForCoach{
             logical_time_ns,
             logical_time_ns / 1e6,
             lf.time.physical_elapsed() / 1e6,
-            current_tag.time,
+            lf.tag().time,
             current_tag.microstep,
             1,
             1,
@@ -241,7 +241,7 @@ reactor InputForCoach{
         print(f"[InputForCoach] Logical time: {current_dri:.2f} ms", flush=True)
         print(f"[InputForCoach] Physical time: {physical_dri:.2f} ms", flush=True)
         print(f"[InputForCoach] LAG: {lag:.2f} ms", flush=True)
-        print(f"[InputForCoach] Tag time: {current_tag.time} ns", flush=True)
+        print(f"[InputForCoach] Tag time: {lf.tag().time} ns", flush=True)
         print(f"[InputForCoach] Microstep: {current_tag.microstep}", flush=True)
         print("----------------------------------------------------------")
         stop_physical_time = lf.time.physical_elapsed()/1e6
