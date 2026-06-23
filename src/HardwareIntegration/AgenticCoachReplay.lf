@@ -1,0 +1,273 @@
+target Python
+
+preamble{=
+    import csv
+    import os
+
+    _LLM_REPLAY_SOURCE_PATH = os.getenv(
+        "LLM_REPLAY_SOURCE_PATH",
+        os.getenv("LLM_BEHAVIOR_LOG_PATH", ""),
+    )
+    _LLM_REPLAY_LOG_PATH = os.getenv(
+        "LLM_REPLAY_LOG_PATH",
+        "logs-trace/llm_behavior_replay.csv",
+    )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "lag_ms",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
+=}
+
+reactor AgenticCoach {
+    input s
+    input v
+    input st
+    input h
+    input e
+    input en_states
+
+    output control
+    output instruction
+
+    preamble {=
+        def replay_source_candidates(self):
+            source_dir = lf.source_directory()
+            candidates = []
+            if _LLM_REPLAY_SOURCE_PATH:
+                candidates.append(_LLM_REPLAY_SOURCE_PATH)
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates.extend([
+                "logs-trace/llm_replay_values.csv",
+                "logs-trace/llm_behavior.csv",
+                os.path.join(source_dir, "logs-trace", "llm_replay_values.csv"),
+                os.path.join(source_dir, "logs-trace", "llm_behavior.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1", "llm_replay_values.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1", "llm_behavior.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1-replay", "llm_replay_values.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1-replay", "llm_behavior.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2", "llm_replay_values.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2", "llm_behavior.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_replay_values.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "llm_behavior.csv"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "llm_replay_values.csv"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "llm_behavior.csv"),
+            ])
+            return [os.path.normpath(path) for path in candidates if path]
+
+        def resolve_replay_source_path(self):
+            seen = set()
+            for path in self.replay_source_candidates():
+                if path in seen:
+                    continue
+                seen.add(path)
+                if os.path.exists(path):
+                    return path
+            return None
+
+        def load_replay_rows(self):
+            rows = []
+            source_path = self.resolve_replay_source_path()
+            self.replay_source_path = source_path or _LLM_REPLAY_SOURCE_PATH or "logs-trace/llm_behavior.csv"
+            if source_path is None:
+                print("[LLM REPLAY] Source log not found. Checked:", flush=True)
+                for path in self.replay_source_candidates():
+                    print(f"[LLM REPLAY]   {path}", flush=True)
+                return rows
+
+            with open(source_path, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    event = (row.get("event") or "").strip()
+                    if event not in {"llm_inference", "missing_environment_state", "startup_warmup"}:
+                        continue
+                    try:
+                        logical_time_ns = int(float(row.get("logical_time_ns") or 0))
+                    except ValueError:
+                        continue
+                    token = (row.get("control") or "NONE").strip().upper()
+                    if token not in {"NONE", "WARNING", "ACTUATE"}:
+                        token = "NONE"
+                    msg = (row.get("instruction") or "").strip()
+                    if token == "NONE":
+                        msg = ""
+                    rows.append({
+                        "event": event,
+                        "logical_time_ns": logical_time_ns,
+                        "control": token,
+                        "instruction": msg,
+                        "source_row": row,
+                    })
+
+            rows.sort(key=lambda item: item["logical_time_ns"])
+            return rows
+    =}
+
+    reaction(startup) {=
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        self.replay_rows = self.load_replay_rows()
+        self.replay_index = 0
+
+        log_dir = os.path.dirname(_LLM_REPLAY_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        self.replay_log_file = open(_LLM_REPLAY_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.replay_log_writer = csv.writer(self.replay_log_file)
+        self.replay_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "lag_ms",
+            "tag_time_ns",
+            "microstep",
+            "source_logical_time_ns",
+            "source_event",
+            "control",
+            "instruction",
+            "replayed",
+        ])
+        self.replay_log_file.flush()
+
+        print(f"[LLM REPLAY] Reading behavior from {self.replay_source_path}", flush=True)
+        print(f"[LLM REPLAY] Loaded {len(self.replay_rows)} rows", flush=True)
+        if self.replay_rows:
+            print(
+                f"[LLM REPLAY] Source logical range: "
+                f"{self.replay_rows[0]['logical_time_ns'] / 1e6:.2f} ms -> "
+                f"{self.replay_rows[-1]['logical_time_ns'] / 1e6:.2f} ms",
+                flush=True,
+            )
+        print(f"[LLM REPLAY LOG] Writing replay events to {_LLM_REPLAY_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
+    reaction(s, v, st, h, e, en_states) -> control, instruction {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+        lag_ms = physical_ms - (logical_time_ns / 1e6)
+
+        matched = None
+        while self.replay_index < len(self.replay_rows):
+            candidate = self.replay_rows[self.replay_index]
+            if candidate["logical_time_ns"] > logical_time_ns:
+                break
+            matched = candidate
+            self.replay_index += 1
+
+        if matched is None:
+            print(f"[LLM REPLAY] No recorded output at {logical_time_ns / 1e6:.2f} ms", flush=True)
+            self.replay_log_writer.writerow([
+                "replay_waiting",
+                logical_time_ns,
+                logical_time_ns / 1e6,
+                physical_ms,
+                lag_ms,
+                current_tag.time,
+                current_tag.microstep,
+                "",
+                "",
+                "",
+                "",
+                0,
+            ])
+            self.replay_log_file.flush()
+            stop_physical_time = lf.time.physical_elapsed()/1e6
+            _log_execution_time(self, "llm", "AgenticCoachReplay", "replay_waiting", start_physical_time, stop_physical_time)
+            return
+
+        tok = matched["control"]
+        msg = matched["instruction"]
+        control.set(tok)
+        instruction.set(msg)
+
+        print("----------------------------------------------------------")
+        print(f"[LLM REPLAY] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
+        print(f"[LLM REPLAY] Source logical time: {matched['logical_time_ns'] / 1e6:.2f} ms", flush=True)
+        print(f"[LLM REPLAY RESULT] {tok} | {msg}", flush=True)
+        print("----------------------------------------------------------")
+
+        self.replay_log_writer.writerow([
+            "llm_replay",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_ms,
+            lag_ms,
+            current_tag.time,
+            current_tag.microstep,
+            matched["logical_time_ns"],
+            matched["event"],
+            tok,
+            msg,
+            1,
+        ])
+        self.replay_log_file.flush()
+
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "llm", "AgenticCoachReplay", "llm_replay", start_physical_time, stop_physical_time)
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        print(f"[LLM REPLAY TARDY] reaction started at {lf.time.logical_elapsed() / 1e6:.2f} ms", flush=True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "llm", "AgenticCoachReplay", "tardy", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "replay_log_file") and not self.replay_log_file.closed:
+            self.replay_log_file.flush()
+            self.replay_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+}

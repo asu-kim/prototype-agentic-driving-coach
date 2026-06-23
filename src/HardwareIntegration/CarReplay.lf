@@ -1,0 +1,294 @@
+target Python
+
+preamble {=
+    import csv
+    import os
+
+    _CAR_REPLAY_SOURCE_PATH = os.getenv(
+        "CAR_REPLAY_SOURCE_PATH",
+        os.getenv("CAR_LOG_PATH", ""),
+    )
+    _CAR_LOG_PATH = os.getenv(
+        "CAR_REPLAY_LOG_PATH",
+        "logs-trace/car_inputs.csv",
+    )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "lag_ms",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
+=}
+
+reactor Car {
+    input steer_in
+    input accel_in
+    input brake_in
+    input actuate_in
+
+    output velocity
+    output steer
+
+    logical action replay_microstep
+    timer replay_tick(7 sec, 100 msec)
+
+    preamble {=
+        def _source_candidates(self):
+            source_dir = lf.source_directory()
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates = []
+            if _CAR_REPLAY_SOURCE_PATH:
+                candidates.append(_CAR_REPLAY_SOURCE_PATH)
+            candidates.extend([
+                "logs-trace/car_inputs.csv",
+                os.path.join(source_dir, "logs-trace", "car_inputs.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1", "car_inputs.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1-replay", "car_inputs.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2", "car_inputs.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2-replay", "car_inputs.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-3", "car_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "car_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "car_inputs.csv"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "car_inputs.csv"),
+            ])
+            return [os.path.normpath(path) for path in candidates if path]
+
+        def _resolve_source_path(self):
+            seen = set()
+            for path in self._source_candidates():
+                if path in seen:
+                    continue
+                seen.add(path)
+                if os.path.exists(path):
+                    return path
+            return None
+
+        def _to_int(self, value, default=0):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+
+        def _emit_replay_row(self, row, logical_time_ns, physical_ms, tag_time, microstep, velocity, steer):
+            self.last_velocity = row["car_velocity"]
+            self.last_steer = row["car_steer"]
+            self.car_log_writer.writerow([
+                row["event"],
+                logical_time_ns,
+                logical_time_ns / 1e6,
+                physical_ms,
+                tag_time,
+                microstep,
+                row["steer_in_present"],
+                row["accel_in_present"],
+                row["brake_in_present"],
+                row["actuate_in_present"],
+                row["steer_in"],
+                row["accel_in"],
+                row["brake_in"],
+                row["actuate_in"],
+                row["car_velocity"],
+                row["car_steer"],
+            ])
+            self.car_log_file.flush()
+            velocity.set(self.last_velocity)
+            steer.set(self.last_steer)
+
+        def _load_rows(self):
+            source_path = self._resolve_source_path()
+            self.car_source_path = source_path or _CAR_REPLAY_SOURCE_PATH or "logs-trace/car_inputs.csv"
+            rows = []
+            if source_path is None:
+                print("[CAR REPLAY] Source log not found. Checked:", flush=True)
+                for path in self._source_candidates():
+                    print(f"[CAR REPLAY]   {path}", flush=True)
+                return rows
+
+            with open(source_path, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    rows.append({
+                        "event": (row.get("event") or "reaction").strip(),
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "steer_in_present": self._to_int(row.get("steer_in_present"), 0),
+                        "accel_in_present": self._to_int(row.get("accel_in_present"), 0),
+                        "brake_in_present": self._to_int(row.get("brake_in_present"), 0),
+                        "actuate_in_present": self._to_int(row.get("actuate_in_present"), 0),
+                        "steer_in": row.get("steer_in", ""),
+                        "accel_in": row.get("accel_in", ""),
+                        "brake_in": row.get("brake_in", ""),
+                        "actuate_in": row.get("actuate_in", ""),
+                        "car_velocity": self._to_float(row.get("car_velocity"), 0.0),
+                        "car_steer": self._to_int(row.get("car_steer"), 1),
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+    =}
+
+    reaction(startup) {=
+        self.replay_rows = self._load_rows()
+        self.replay_index = 0
+        self.last_velocity = 0.0
+        self.last_steer = 1
+
+        os.makedirs(os.path.dirname(_CAR_LOG_PATH), exist_ok=True)
+        self.car_log_file = open(_CAR_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.car_log_writer = csv.writer(self.car_log_file)
+        self.car_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "steer_in_present",
+            "accel_in_present",
+            "brake_in_present",
+            "actuate_in_present",
+            "steer_in",
+            "accel_in",
+            "brake_in",
+            "actuate_in",
+            "car_velocity",
+            "car_steer",
+        ])
+        self.car_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+
+        print(f"[CAR REPLAY] Reading car behavior from {self.car_source_path}", flush=True)
+        print(f"[CAR REPLAY] Loaded {len(self.replay_rows)} rows", flush=True)
+        if self.replay_rows:
+            print(
+                f"[CAR REPLAY] Source logical range: "
+                f"{self.replay_rows[0]['logical_time_ns'] / 1e6:.2f} ms -> "
+                f"{self.replay_rows[-1]['logical_time_ns'] / 1e6:.2f} ms",
+                flush=True,
+            )
+        print(f"[CAR REPLAY LOG] Writing inputs to {_CAR_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
+    reaction(replay_tick, steer_in, accel_in, brake_in, actuate_in) -> replay_microstep, velocity, steer {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+
+        matched = []
+        while self.replay_index < len(self.replay_rows):
+            candidate = self.replay_rows[self.replay_index]
+            if candidate["logical_time_ns"] > logical_time_ns:
+                break
+            matched.append(candidate)
+            self.replay_index += 1
+
+        if not matched:
+            stop_physical_time = lf.time.physical_elapsed()/1e6
+            _log_execution_time(self, "c", "CarReplay", "replay_waiting", start_physical_time, stop_physical_time)
+            return
+
+        emitted_now = 0
+        scheduled = 0
+        for row in matched:
+            if row["source_microstep"] <= current_tag.microstep:
+                self._emit_replay_row(row, logical_time_ns, physical_ms, current_tag.time, current_tag.microstep, velocity, steer)
+                emitted_now += 1
+            else:
+                replay_microstep.schedule(0, row)
+                scheduled += 1
+
+        print("----------------------------------------------------------")
+        print(f"[CAR REPLAY] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
+        print(f"[CAR REPLAY] Emitted now={emitted_now}, scheduled microstep rows={scheduled}", flush=True)
+        print(f"[CAR REPLAY OUTPUT] velocity={self.last_velocity}, steer={self.last_steer}", flush=True)
+        print("----------------------------------------------------------")
+
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "c", "CarReplay", "car_replay", start_physical_time, stop_physical_time)
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        print(f"[CAR REPLAY TARDY] reaction started at {lf.time.logical_elapsed() / 1e6:.2f} ms", flush=True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "c", "CarReplay", "tardy", start_physical_time, stop_physical_time)
+    =}
+
+
+    reaction(replay_microstep) -> velocity, steer {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+        row = replay_microstep.value
+        self._emit_replay_row(row, logical_time_ns, physical_ms, current_tag.time, current_tag.microstep, velocity, steer)
+        print("----------------------------------------------------------")
+        print(f"[CAR REPLAY MICROSTEP] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
+        print(f"[CAR REPLAY MICROSTEP] Runtime microstep: {current_tag.microstep}; source microstep: {row['source_microstep']}", flush=True)
+        print(f"[CAR REPLAY MICROSTEP OUTPUT] velocity={self.last_velocity}, steer={self.last_steer}", flush=True)
+        print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "c", "CarReplay", "car_replay_microstep", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "car_log_file") and not self.car_log_file.closed:
+            self.car_log_file.flush()
+            self.car_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+}

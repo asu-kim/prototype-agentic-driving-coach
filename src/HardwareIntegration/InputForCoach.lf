@@ -33,6 +33,7 @@ preamble {=
                 "logical_time_ms",
                 "tag_time_ns",
                 "microstep",
+                "lag_ms",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -51,6 +52,7 @@ preamble {=
             logical_time_ns / 1e6,
             current_tag.time,
             current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -68,7 +70,7 @@ reactor InputForCoach{
 
     // Local LLM inference is synchronous, so leave enough time between requests
     // for one inference to finish before the next logical tick.
-    timer llmclock(7 msec, 400 msec)
+    timer llmclock(7 sec, 400 msec)
 
     state s_val = 0.0
     state v_val = 0.0

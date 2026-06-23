@@ -1,0 +1,292 @@
+target Python
+
+preamble{=
+    import csv
+    import os
+
+    _PLANNER_REPLAY_SOURCE_PATH = os.getenv(
+        "PLANNER_REPLAY_SOURCE_PATH",
+        os.getenv("PLANNER_LOG_PATH", ""),
+    )
+    _PLANNER_REPLAY_LOG_PATH = os.getenv(
+        "PLANNER_REPLAY_LOG_PATH",
+        "logs-trace/planner_events_replay.csv",
+    )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "lag_ms",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            current_tag.time,
+            current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
+=}
+
+reactor ActionPlanner {
+    input ctrl
+    input instr
+    input s
+    input v
+    input en_states
+
+    output act
+    output planned_instr
+
+    logical action replay_microstep
+    timer replay_tick(7 sec, 100 msec)
+
+    preamble {=
+        def _planner_source_candidates(self):
+            source_dir = lf.source_directory()
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates = []
+            if _PLANNER_REPLAY_SOURCE_PATH:
+                candidates.append(_PLANNER_REPLAY_SOURCE_PATH)
+            candidates.extend([
+                "logs-trace/planner_events.csv",
+                os.path.join(source_dir, "logs-trace", "planner_events.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1", "planner_events.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-1-replay", "planner_events.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2", "planner_events.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-2-replay", "planner_events.csv"),
+                os.path.join(source_dir, "data-collection", "logs-trace-3", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "planner_events.csv"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "planner_events.csv"),
+            ])
+            return [os.path.normpath(path) for path in candidates if path]
+
+        def _resolve_planner_source_path(self):
+            seen = set()
+            for path in self._planner_source_candidates():
+                if path in seen:
+                    continue
+                seen.add(path)
+                if os.path.exists(path):
+                    return path
+            return None
+
+        def _to_int(self, value, default=0):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _load_planner_rows(self):
+            source_path = self._resolve_planner_source_path()
+            self.planner_source_path = source_path or _PLANNER_REPLAY_SOURCE_PATH or "logs-trace/planner_events.csv"
+            rows = []
+            if source_path is None:
+                print("[PLANNER REPLAY] Source log not found. Checked:", flush=True)
+                for path in self._planner_source_candidates():
+                    print(f"[PLANNER REPLAY]   {path}", flush=True)
+                return rows
+
+            with open(source_path, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    event = (row.get("event") or "").strip()
+                    reason = (row.get("reason") or "").strip()
+                    act_command = (row.get("act_command") or "").strip()
+                    instruction = (row.get("instruction") or "").strip()
+                    if not act_command and not instruction and "tardy" not in event.lower() and "tardy" not in reason.lower():
+                        continue
+                    rows.append({
+                        "event": event,
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "mode": (row.get("mode") or "").strip(),
+                        "reason": reason,
+                        "control_token": (row.get("control_token") or "").strip(),
+                        "instruction": instruction,
+                        "act_command": act_command,
+                        "lane_command": (row.get("lane_command") or "").strip(),
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+
+        def _emit_replay_row(self, row, logical_time_ns, physical_ms, tag_time, microstep, act, planned_instr):
+            instruction = row["instruction"]
+            act_command = row["act_command"]
+            if instruction:
+                planned_instr.set(instruction)
+            if act_command:
+                act.set(act_command)
+
+            self.planner_replay_log_writer.writerow([
+                "planner_replay",
+                logical_time_ns,
+                logical_time_ns / 1e6,
+                physical_ms,
+                tag_time,
+                microstep,
+                row["logical_time_ns"],
+                row["source_microstep"],
+                row["event"],
+                row["reason"],
+                row["control_token"],
+                instruction,
+                act_command,
+                row["lane_command"],
+                int(bool(instruction or act_command)),
+            ])
+            self.planner_replay_log_file.flush()
+            return bool(instruction or act_command)
+    =}
+
+    reaction(startup) {=
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        self.replay_rows = self._load_planner_rows()
+        self.replay_index = 0
+
+        log_dir = os.path.dirname(_PLANNER_REPLAY_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        self.planner_replay_log_file = open(_PLANNER_REPLAY_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.planner_replay_log_writer = csv.writer(self.planner_replay_log_file)
+        self.planner_replay_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "source_logical_time_ns",
+            "source_microstep",
+            "source_event",
+            "source_reason",
+            "control_token",
+            "instruction",
+            "act_command",
+            "lane_command",
+            "replayed",
+        ])
+        self.planner_replay_log_file.flush()
+
+        print(f"[PLANNER REPLAY] Reading events from {self.planner_source_path}", flush=True)
+        print(f"[PLANNER REPLAY] Loaded {len(self.replay_rows)} rows", flush=True)
+        if self.replay_rows:
+            print(
+                f"[PLANNER REPLAY] Source logical range: "
+                f"{self.replay_rows[0]['logical_time_ns'] / 1e6:.2f} ms -> "
+                f"{self.replay_rows[-1]['logical_time_ns'] / 1e6:.2f} ms",
+                flush=True,
+            )
+        print(f"[PLANNER REPLAY LOG] Writing events to {_PLANNER_REPLAY_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
+    reaction(replay_tick, ctrl, instr, s, v, en_states) -> replay_microstep, act, planned_instr {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+
+        matched = []
+        while self.replay_index < len(self.replay_rows):
+            candidate = self.replay_rows[self.replay_index]
+            if candidate["logical_time_ns"] > logical_time_ns:
+                break
+            matched.append(candidate)
+            self.replay_index += 1
+
+        if not matched:
+            stop_physical_time = lf.time.physical_elapsed()/1e6
+            _log_execution_time(self, "planner", "ActionPlannerReplay", "replay_waiting", start_physical_time, stop_physical_time)
+            return
+
+        emitted_now = 0
+        scheduled = 0
+        for row in matched:
+            if row["source_microstep"] <= current_tag.microstep:
+                if self._emit_replay_row(row, logical_time_ns, physical_ms, current_tag.time, current_tag.microstep, act, planned_instr):
+                    emitted_now += 1
+            else:
+                replay_microstep.schedule(0, row)
+                scheduled += 1
+
+        if emitted_now or scheduled:
+            print("----------------------------------------------------------")
+            print(f"[PLANNER REPLAY] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
+            print(f"[PLANNER REPLAY] Emitted now={emitted_now}, scheduled microstep rows={scheduled}", flush=True)
+            print(f"[PLANNER REPLAY ACT] {matched[-1]['act_command']}", flush=True)
+            print("----------------------------------------------------------")
+
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "planner", "ActionPlannerReplay", "planner_replay", start_physical_time, stop_physical_time)
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        print(f"[PLANNER REPLAY TARDY] reaction started at {lf.time.logical_elapsed() / 1e6:.2f} ms", flush=True)
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "planner", "ActionPlannerReplay", "tardy", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(replay_microstep) -> act, planned_instr {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+        row = replay_microstep.value
+        emitted = self._emit_replay_row(row, logical_time_ns, physical_ms, current_tag.time, current_tag.microstep, act, planned_instr)
+        print("----------------------------------------------------------")
+        print(f"[PLANNER REPLAY MICROSTEP] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
+        print(f"[PLANNER REPLAY MICROSTEP] Runtime microstep: {current_tag.microstep}; source microstep: {row['source_microstep']}", flush=True)
+        print(f"[PLANNER REPLAY MICROSTEP] Source event={row['event']}, reason={row['reason']}", flush=True)
+        if emitted:
+            print(f"[PLANNER REPLAY MICROSTEP ACT] {row['act_command']}", flush=True)
+        print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "planner", "ActionPlannerReplay", "planner_replay_microstep", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "planner_replay_log_file") and not self.planner_replay_log_file.closed:
+            self.planner_replay_log_file.flush()
+            self.planner_replay_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+}
