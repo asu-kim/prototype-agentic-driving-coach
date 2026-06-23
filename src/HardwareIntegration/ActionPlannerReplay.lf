@@ -53,7 +53,7 @@ preamble{=
             reaction,
             logical_time_ns,
             logical_time_ns / 1e6,
-            lf.tag().time,
+            (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
             start_physical_time_ms,
@@ -245,7 +245,7 @@ reactor ActionPlanner {
         scheduled = 0
         for row in matched:
             if row["source_microstep"] <= current_tag.microstep:
-                if self._emit_replay_row(row, logical_time_ns, physical_ms, lf.tag().time, current_tag.microstep, act, planned_instr):
+                if self._emit_replay_row(row, logical_time_ns, physical_ms, (lf.tag().time - lf.time.start()), current_tag.microstep, act, planned_instr):
                     emitted_now += 1
             else:
                 replay_microstep.schedule(0, row)
@@ -273,7 +273,7 @@ reactor ActionPlanner {
         current_tag = lf.tag()
         physical_ms = lf.time.physical_elapsed()/1e6
         row = replay_microstep.value
-        emitted = self._emit_replay_row(row, logical_time_ns, physical_ms, lf.tag().time, current_tag.microstep, act, planned_instr)
+        emitted = self._emit_replay_row(row, logical_time_ns, physical_ms, (lf.tag().time - lf.time.start()), current_tag.microstep, act, planned_instr)
         print("----------------------------------------------------------")
         print(f"[PLANNER REPLAY MICROSTEP] Logical time: {logical_time_ns / 1e6:.2f} ms", flush=True)
         print(f"[PLANNER REPLAY MICROSTEP] Runtime microstep: {current_tag.microstep}; source microstep: {row['source_microstep']}", flush=True)
