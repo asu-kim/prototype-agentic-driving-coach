@@ -13,7 +13,7 @@ import AgenticCoach from "AgenticCoach.lf"
 import ActionPlanner from "ActionPlanner.lf"
 import Environment from "Simulation.lf"
 
-federated reactor at 10.218.100.78 {
+federated reactor at 100.116.19.18 {
     d_control = new DriverControl()
     d_monitor = new DriverMonitor()
     @maxwait(20 msec)
@@ -22,7 +22,7 @@ federated reactor at 10.218.100.78 {
     @maxwait(120 msec)
     adc = new InputForCoach()
     llm = new AgenticCoach() 
-    @maxwait(400 msec)
+    @maxwait(700 msec)
     planner = new ActionPlanner() 
     @maxwait(20 msec)
     sim = new Environment() 
