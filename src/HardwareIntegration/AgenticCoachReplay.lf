@@ -4,9 +4,10 @@ preamble{=
     import csv
     import os
 
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
     _LLM_REPLAY_SOURCE_PATH = os.getenv(
         "LLM_REPLAY_SOURCE_PATH",
-        os.getenv("LLM_BEHAVIOR_LOG_PATH", ""),
+        os.getenv("LLM_BEHAVIOR_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "llm_replay_values.csv") if _REPLAY_TRACE_DIR else ""),
     )
     _LLM_REPLAY_LOG_PATH = os.getenv(
         "LLM_REPLAY_LOG_PATH",

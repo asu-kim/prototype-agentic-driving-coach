@@ -4,9 +4,10 @@ preamble{=
     import csv
     import os
 
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
     _PLANNER_REPLAY_SOURCE_PATH = os.getenv(
         "PLANNER_REPLAY_SOURCE_PATH",
-        os.getenv("PLANNER_LOG_PATH", ""),
+        os.getenv("PLANNER_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "planner_events.csv") if _REPLAY_TRACE_DIR else ""),
     )
     _PLANNER_REPLAY_LOG_PATH = os.getenv(
         "PLANNER_REPLAY_LOG_PATH",

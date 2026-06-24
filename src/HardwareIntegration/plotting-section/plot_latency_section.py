@@ -26,8 +26,8 @@ except ModuleNotFoundError as exc:
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_ORIGINAL_CAR = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/car_inputs.csv"
 DEFAULT_REPLAY_CAR = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/car_inputs.csv"
-DEFAULT_ORIGINAL_LLM = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/llm_inputs.csv"
-DEFAULT_REPLAY_LLM = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/llm_inputs.csv"
+DEFAULT_ORIGINAL_LLM = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/adc_inputs.csv"
+DEFAULT_REPLAY_LLM = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/adc_inputs.csv"
 DEFAULT_ORIGINAL_PLANNER = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/planner_events.csv"
 DEFAULT_REPLAY_PLANNER = REPO_ROOT / "fed-gen/HardwareIntegratedADCReplay/logs-trace/planner_events.csv"
 DEFAULT_ORIGINAL_ENV = REPO_ROOT / "src/HardwareIntegration/data-collection/logs-trace-2/sim_environment_inputs.csv"
@@ -686,16 +686,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+
+def adc_input_path(trace_dir: Path) -> Path:
+    adc_path = trace_dir / "adc_inputs.csv"
+    if adc_path.exists():
+        return adc_path
+    return trace_dir / "llm_inputs.csv"
+
 def apply_trace_dir_args(args: argparse.Namespace) -> argparse.Namespace:
     if args.original_dir is not None:
         args.original_car = args.original_dir / "car_inputs.csv"
-        args.original_llm = args.original_dir / "llm_inputs.csv"
+        args.original_llm = adc_input_path(args.original_dir)
         args.original_planner = args.original_dir / "planner_events.csv"
         args.original_env = args.original_dir / "sim_environment_inputs.csv"
         args.original_exec = args.original_dir / "federate_execution_times.csv"
     if args.replay_dir is not None:
         args.replay_car = args.replay_dir / "car_inputs.csv"
-        args.replay_llm = args.replay_dir / "llm_inputs.csv"
+        args.replay_llm = adc_input_path(args.replay_dir)
         args.replay_planner = args.replay_dir / "planner_events.csv"
         args.replay_env = args.replay_dir / "sim_environment_inputs.csv"
         args.replay_exec = args.replay_dir / "federate_execution_times.csv"
@@ -709,7 +716,7 @@ def main() -> None:
     original_car = read_csv(args.original_car, "Collected")
     replay_car = read_csv(args.replay_car, "Replay")
     car = pd.concat([original_car, replay_car], ignore_index=True)
-    llm = load_optional_pair(args.original_llm, args.replay_llm, "LLM input")
+    llm = load_optional_pair(args.original_llm, args.replay_llm, "ADC input")
     planner = load_optional_pair(args.original_planner, args.replay_planner, "planner events")
     env = load_optional_pair(args.original_env, args.replay_env, "environment")
     exec_df = load_execution(args.original_exec, args.replay_exec, args.current_exec)

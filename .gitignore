@@ -3,6 +3,8 @@ bin
 src-gen
 /include
 fed-gen
+*.lft
+*.zip
 
 # Python
 __pycache__/
@@ -22,3 +24,6 @@ venv/
 .DS_Store
 
 ADCHITL.rrd
+# Large collected data / replay logs
+data-collection.zip
+src/HardwareIntegration/data-collection/

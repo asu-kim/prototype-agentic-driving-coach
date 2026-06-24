@@ -5,9 +5,10 @@ preamble {=
     import os
     import time
 
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
     _DRIVER_REPLAY_LOG_DIR = os.getenv(
         "DRIVER_REPLAY_LOG_DIR",
-        "/home/raspdeeksha/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-2",
+        _REPLAY_TRACE_DIR or "/home/raspdeeksha/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-2",
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",

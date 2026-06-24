@@ -4,9 +4,10 @@ preamble {=
     import csv
     import os
 
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
     _CAR_REPLAY_SOURCE_PATH = os.getenv(
         "CAR_REPLAY_SOURCE_PATH",
-        os.getenv("CAR_LOG_PATH", ""),
+        os.getenv("CAR_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "car_inputs.csv") if _REPLAY_TRACE_DIR else ""),
     )
     _CAR_LOG_PATH = os.getenv(
         "CAR_REPLAY_LOG_PATH",
