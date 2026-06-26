@@ -2,9 +2,13 @@ target Python
 
 preamble {=
     import csv
+    import glob
     import os
 
-    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    # Set this to a trace directory to replay that run without environment variables.
+    # Example: "src/HardwareIntegration/data-collection/logs-trace-deeksha-normal"
+    _MANUAL_REPLAY_TRACE_DIR = ""
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
     _CAR_REPLAY_SOURCE_PATH = os.getenv(
         "CAR_REPLAY_SOURCE_PATH",
         os.getenv("CAR_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "car_inputs.csv") if _REPLAY_TRACE_DIR else ""),
@@ -81,6 +85,8 @@ reactor Car {
             source_dir = lf.source_directory()
             repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
             candidates = []
+            if _REPLAY_TRACE_DIR:
+                candidates.append(os.path.join(_REPLAY_TRACE_DIR, "car_inputs.csv"))
             if _CAR_REPLAY_SOURCE_PATH:
                 candidates.append(_CAR_REPLAY_SOURCE_PATH)
             candidates.extend([
@@ -91,6 +97,10 @@ reactor Car {
                 os.path.join(source_dir, "data-collection", "logs-trace-2", "car_inputs.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-2-replay", "car_inputs.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "car_inputs.csv"),
+            ])
+            for trace_dir in sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))):
+                candidates.append(os.path.join(trace_dir, "car_inputs.csv"))
+            candidates.extend([
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "car_inputs.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "car_inputs.csv"),
                 os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "car_inputs.csv"),

@@ -13,6 +13,8 @@ import ActionPlanner from "ActionPlannerReplay.lf"
 import Environment from "Simulation.lf"
 
 federated reactor at 10.218.100.78 {
+    // To force one trace without environment variables, set _MANUAL_REPLAY_TRACE_DIR
+    // in DriverReplayInput.lf, CarReplay.lf, and AgenticCoachReplay.lf.
     d_control = new DriverControl()
     d_monitor = new DriverMonitor()
     @maxwait(20 msec)

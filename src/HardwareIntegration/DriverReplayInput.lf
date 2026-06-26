@@ -2,13 +2,17 @@ target Python
 
 preamble {=
     import csv
+    import glob
     import os
     import time
 
-    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    # Set this to a trace directory to replay that run without environment variables.
+    # Example: "src/HardwareIntegration/data-collection/logs-trace-deeksha-normal"
+    _MANUAL_REPLAY_TRACE_DIR = ""
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
     _DRIVER_REPLAY_LOG_DIR = os.getenv(
         "DRIVER_REPLAY_LOG_DIR",
-        _REPLAY_TRACE_DIR or "/home/raspdeeksha/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-2",
+        _REPLAY_TRACE_DIR,
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
@@ -94,6 +98,41 @@ reactor DriverControl {
             except Exception:
                 return default
 
+        def _trace_dir_candidates(self):
+            source_dir = lf.source_directory()
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates = []
+            if _DRIVER_REPLAY_LOG_DIR:
+                candidates.append(_DRIVER_REPLAY_LOG_DIR)
+            candidates.extend([
+                "logs-trace",
+                os.path.join(source_dir, "logs-trace"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace"),
+            ])
+            candidates.extend(sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))))
+            candidates.extend(sorted(glob.glob(os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace*"))))
+
+            seen = set()
+            resolved = []
+            for path in candidates:
+                norm = os.path.normpath(path)
+                if norm and norm not in seen:
+                    seen.add(norm)
+                    resolved.append(norm)
+            return resolved
+
+        def _resolve_trace_dir(self, required_file):
+            for trace_dir in self._trace_dir_candidates():
+                if os.path.exists(os.path.join(trace_dir, required_file)):
+                    return trace_dir
+            return None
+
+        def _control_path(self):
+            return os.path.join(self.replay_trace_dir, "driver_control_replay_values.csv")
+
+        def _monitor_path(self):
+            return os.path.join(self.replay_trace_dir, "driver_monitor_replay_values.csv")
+
         def _last_logical_time_ns(self, csv_path):
             last_ns = 0
             if not os.path.exists(csv_path):
@@ -105,15 +144,13 @@ reactor DriverControl {
             return last_ns
 
         def _load_replay_stop_ns(self):
-            control_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_control_replay_values.csv")
-            monitor_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_monitor_replay_values.csv")
             return max(
-                self._last_logical_time_ns(control_path),
-                self._last_logical_time_ns(monitor_path),
+                self._last_logical_time_ns(self._control_path()),
+                self._last_logical_time_ns(self._monitor_path()),
             ) + _REPLAY_STOP_GRACE_NS
 
         def _load_control_samples(self):
-            control_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_control_replay_values.csv")
+            control_path = self._control_path()
             samples = []
 
             print(f"[DRIVER CONTROL REPLAY] Reading {control_path}", flush=True)
@@ -138,11 +175,17 @@ reactor DriverControl {
     =}
 
     reaction(startup) {=
+        self.replay_trace_dir = (
+            self._resolve_trace_dir("driver_control_replay_values.csv")
+            or _DRIVER_REPLAY_LOG_DIR
+            or "logs-trace"
+        )
         self.replay_samples = self._load_control_samples()
         self.sensor_ready = len(self.replay_samples) > 0
         self.replay_stop_ns = self._load_replay_stop_ns()
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
 
+        print(f"[DRIVER CONTROL REPLAY] Trace directory: {self.replay_trace_dir}", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
         print(f"[DRIVER CONTROL REPLAY] Stop time: {self.replay_stop_ns / 1e9:.3f} sec", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
@@ -170,9 +213,14 @@ reactor DriverControl {
 
         sample = None
 
-        if self.sensor_ready and self.replay_idx < len(self.replay_samples):
-            sample = self.replay_samples[self.replay_idx]
-            self.replay_idx += 1
+        if self.sensor_ready:
+            logical_time_ns = lf.time.logical_elapsed()
+            while self.replay_idx < len(self.replay_samples):
+                candidate = self.replay_samples[self.replay_idx]
+                if candidate["logical_time_ns"] > logical_time_ns:
+                    break
+                sample = candidate
+                self.replay_idx += 1
 
         if sample is not None:
             if sample["steer_present"]:
@@ -245,8 +293,37 @@ reactor DriverMonitor {
             except Exception:
                 return default
 
+        def _trace_dir_candidates(self):
+            source_dir = lf.source_directory()
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates = []
+            if _DRIVER_REPLAY_LOG_DIR:
+                candidates.append(_DRIVER_REPLAY_LOG_DIR)
+            candidates.extend([
+                "logs-trace",
+                os.path.join(source_dir, "logs-trace"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace"),
+            ])
+            candidates.extend(sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))))
+            candidates.extend(sorted(glob.glob(os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace*"))))
+
+            seen = set()
+            resolved = []
+            for path in candidates:
+                norm = os.path.normpath(path)
+                if norm and norm not in seen:
+                    seen.add(norm)
+                    resolved.append(norm)
+            return resolved
+
+        def _resolve_trace_dir(self, required_file):
+            for trace_dir in self._trace_dir_candidates():
+                if os.path.exists(os.path.join(trace_dir, required_file)):
+                    return trace_dir
+            return None
+
         def _load_monitor_samples(self):
-            monitor_path = os.path.join(_DRIVER_REPLAY_LOG_DIR, "driver_monitor_replay_values.csv")
+            monitor_path = os.path.join(self.replay_trace_dir, "driver_monitor_replay_values.csv")
             samples = []
 
             print(f"[DRIVER MONITOR REPLAY] Reading {monitor_path}", flush=True)
@@ -269,10 +346,16 @@ reactor DriverMonitor {
     =}
 
     reaction(startup) {=
+        self.replay_trace_dir = (
+            self._resolve_trace_dir("driver_monitor_replay_values.csv")
+            or _DRIVER_REPLAY_LOG_DIR
+            or "logs-trace"
+        )
         self.replay_samples = self._load_monitor_samples()
         self.sensor_ready = len(self.replay_samples) > 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
 
+        print(f"[DRIVER MONITOR REPLAY] Trace directory: {self.replay_trace_dir}", flush=True)
         print(f"[DRIVER MONITOR REPLAY] Loaded {len(self.replay_samples)} samples", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
@@ -283,9 +366,14 @@ reactor DriverMonitor {
 
         sample = None
 
-        if self.sensor_ready and self.replay_idx < len(self.replay_samples):
-            sample = self.replay_samples[self.replay_idx]
-            self.replay_idx += 1
+        if self.sensor_ready:
+            logical_time_ns = lf.time.logical_elapsed()
+            while self.replay_idx < len(self.replay_samples):
+                candidate = self.replay_samples[self.replay_idx]
+                if candidate["logical_time_ns"] > logical_time_ns:
+                    break
+                sample = candidate
+                self.replay_idx += 1
 
         if sample is not None:
             if sample["head_present"]:

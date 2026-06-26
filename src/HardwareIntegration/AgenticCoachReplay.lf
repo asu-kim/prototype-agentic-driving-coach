@@ -2,9 +2,13 @@ target Python
 
 preamble{=
     import csv
+    import glob
     import os
 
-    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    # Set this to a trace directory to replay that run without environment variables.
+    # Example: "src/HardwareIntegration/data-collection/logs-trace-deeksha-normal"
+    _MANUAL_REPLAY_TRACE_DIR = ""
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
     _LLM_REPLAY_SOURCE_PATH = os.getenv(
         "LLM_REPLAY_SOURCE_PATH",
         os.getenv("LLM_BEHAVIOR_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "llm_replay_values.csv") if _REPLAY_TRACE_DIR else ""),
@@ -79,6 +83,9 @@ reactor AgenticCoach {
         def replay_source_candidates(self):
             source_dir = lf.source_directory()
             candidates = []
+            if _REPLAY_TRACE_DIR:
+                candidates.append(os.path.join(_REPLAY_TRACE_DIR, "llm_replay_values.csv"))
+                candidates.append(os.path.join(_REPLAY_TRACE_DIR, "llm_behavior.csv"))
             if _LLM_REPLAY_SOURCE_PATH:
                 candidates.append(_LLM_REPLAY_SOURCE_PATH)
             repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
@@ -95,6 +102,11 @@ reactor AgenticCoach {
                 os.path.join(source_dir, "data-collection", "logs-trace-2", "llm_behavior.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_replay_values.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_behavior.csv"),
+            ])
+            for trace_dir in sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))):
+                candidates.append(os.path.join(trace_dir, "llm_replay_values.csv"))
+                candidates.append(os.path.join(trace_dir, "llm_behavior.csv"))
+            candidates.extend([
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_replay_values.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_behavior.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "llm_replay_values.csv"),
