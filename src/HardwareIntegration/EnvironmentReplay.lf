@@ -1,0 +1,250 @@
+target Python
+
+preamble {=
+    import csv
+    import glob
+    import json
+    import os
+
+    # Set this to a trace directory to replay that run without environment variables.
+    # Example: "src/HardwareIntegration/data-collection/logs-trace-dongha"
+    _MANUAL_REPLAY_TRACE_DIR = "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha"
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
+    _ENV_REPLAY_SOURCE_PATH = os.getenv(
+        "ENV_REPLAY_SOURCE_PATH",
+        os.path.join(_REPLAY_TRACE_DIR, "sim_environment_inputs.csv") if _REPLAY_TRACE_DIR else "",
+    )
+    _ENV_REPLAY_LOG_PATH = os.getenv(
+        "ENV_REPLAY_LOG_PATH",
+        os.path.join(_REPLAY_TRACE_DIR, "log-traces-replay", "sim_environment_inputs_replay.csv") if _REPLAY_TRACE_DIR else "logs-trace/sim_environment_inputs_replay.csv",
+    )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "FEDERATE_EXECUTION_LOG_PATH",
+        os.path.join(_REPLAY_TRACE_DIR, "log-traces-replay", "federate_execution_times.csv") if _REPLAY_TRACE_DIR else "logs-trace/federate_execution_times.csv",
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "lag_ms",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
+=}
+
+reactor Environment {
+    input steer_in
+    input velocity_in
+
+    output displacement
+    output environment_states
+
+    timer replay_tick(7 sec, 100 msec)
+
+    preamble {=
+        def _source_candidates(self):
+            source_dir = lf.source_directory()
+            repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
+            candidates = []
+            if _ENV_REPLAY_SOURCE_PATH:
+                candidates.append(_ENV_REPLAY_SOURCE_PATH)
+            candidates.extend([
+                "logs-trace/sim_environment_inputs.csv",
+                os.path.join(source_dir, "logs-trace", "sim_environment_inputs.csv"),
+            ])
+            for trace_dir in sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))):
+                candidates.append(os.path.join(trace_dir, "sim_environment_inputs.csv"))
+            candidates.extend([
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-dongha", "sim_environment_inputs.csv"),
+                os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "sim_environment_inputs.csv"),
+            ])
+            return [os.path.normpath(path) for path in candidates if path]
+
+        def _resolve_source_path(self):
+            seen = set()
+            for path in self._source_candidates():
+                if path in seen:
+                    continue
+                seen.add(path)
+                if os.path.exists(path):
+                    return path
+            return None
+
+        def _to_int(self, value, default=0):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+        def _load_rows(self):
+            source_path = self._resolve_source_path()
+            self.env_source_path = source_path or _ENV_REPLAY_SOURCE_PATH or "logs-trace/sim_environment_inputs.csv"
+            rows = []
+            if source_path is None:
+                print("[ENV REPLAY] Source log not found. Checked:", flush=True)
+                for path in self._source_candidates():
+                    print(f"[ENV REPLAY]   {path}", flush=True)
+                return rows
+
+            with open(source_path, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    states_json = row.get("environment_states_json") or "[]"
+                    try:
+                        states = json.loads(states_json)
+                    except Exception:
+                        states = [
+                            row.get("road_phase") or "",
+                            self._to_int(row.get("front_car_present"), 0),
+                            self._to_int(row.get("right_car_present"), 0),
+                            row.get("right_car_position") or "NONE",
+                            self._to_int(row.get("cross_left_car_present"), 0),
+                            self._to_int(row.get("cross_right_car_present"), 0),
+                        ]
+                    rows.append({
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "distance_from_start_m": self._to_float(row.get("distance_from_start_m"), 0.0),
+                        "velocity_kmh": self._to_float(row.get("velocity_kmh"), 0.0),
+                        "road_phase": row.get("road_phase") or "",
+                        "environment_distance": self._to_float(row.get("environment_distance"), 0.0),
+                        "environment_states": states,
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+    =}
+
+    reaction(startup) {=
+        self.replay_rows = self._load_rows()
+        self.replay_index = 0
+        self.last_displacement = 0.0
+        self.last_environment_states = []
+
+        log_dir = os.path.dirname(_ENV_REPLAY_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        self.env_replay_log_file = open(_ENV_REPLAY_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.env_replay_log_writer = csv.writer(self.env_replay_log_file)
+        self.env_replay_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "source_logical_time_ns",
+            "source_microstep",
+            "distance_from_start_m",
+            "velocity_kmh",
+            "road_phase",
+            "environment_distance",
+            "environment_states_json",
+            "replayed",
+        ])
+        self.env_replay_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+
+        print(f"[ENV REPLAY] Reading environment from {self.env_source_path}", flush=True)
+        print(f"[ENV REPLAY] Loaded {len(self.replay_rows)} rows", flush=True)
+        print(f"[ENV REPLAY LOG] Writing events to {_ENV_REPLAY_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+
+    reaction(replay_tick, steer_in, velocity_in) -> displacement, environment_states {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+
+        matched = None
+        while self.replay_index < len(self.replay_rows):
+            candidate = self.replay_rows[self.replay_index]
+            if candidate["logical_time_ns"] > logical_time_ns:
+                break
+            matched = candidate
+            self.replay_index += 1
+
+        if matched is not None:
+            self.last_displacement = matched["environment_distance"]
+            self.last_environment_states = matched["environment_states"]
+
+        displacement.set(self.last_displacement)
+        environment_states.set(self.last_environment_states)
+
+        self.env_replay_log_writer.writerow([
+            "env_replay" if matched is not None else "env_replay_hold",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_ms,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            matched["logical_time_ns"] if matched is not None else "",
+            matched["source_microstep"] if matched is not None else "",
+            matched["distance_from_start_m"] if matched is not None else "",
+            matched["velocity_kmh"] if matched is not None else "",
+            matched["road_phase"] if matched is not None else "",
+            self.last_displacement,
+            json.dumps(self.last_environment_states),
+            int(matched is not None),
+        ])
+        self.env_replay_log_file.flush()
+
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "EnvironmentReplay", "env_replay", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(shutdown) {=
+        if hasattr(self, "env_replay_log_file") and not self.env_replay_log_file.closed:
+            self.env_replay_log_file.flush()
+            self.env_replay_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+}
