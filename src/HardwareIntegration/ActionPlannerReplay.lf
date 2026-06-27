@@ -11,11 +11,11 @@ preamble{=
     )
     _PLANNER_REPLAY_LOG_PATH = os.getenv(
         "PLANNER_REPLAY_LOG_PATH",
-        "logs-trace/planner_events_replay.csv",
+        "log-traces-replay/planner_events_replay.csv",
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-traces-dongha/federate_execution_times.csv",
     )
 
     def _open_execution_log():

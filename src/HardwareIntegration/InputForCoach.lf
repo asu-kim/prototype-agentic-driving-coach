@@ -7,11 +7,15 @@ preamble {=
 
     _LLM_INPUT_LOG_PATH = os.getenv(
         "ADC_INPUT_LOG_PATH",
-        os.getenv("LLM_INPUT_LOG_PATH", "logs-trace/adc_inputs.csv"),
+        os.getenv("LLM_INPUT_LOG_PATH", "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/logs-trace-replay/adc_inputs.csv"),
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/logs-trace-replay/federate_execution_times.csv",
+    )
+    _ADC_ENV_REPLAY_SOURCE_PATH = os.getenv(
+        "ADC_ENV_REPLAY_SOURCE_PATH",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/sim_environment_inputs.csv",
     )
 
     def _open_execution_log():
@@ -61,6 +65,56 @@ preamble {=
 =}
 
 reactor InputForCoach{
+    preamble {=
+        def _to_int(self, value, default=0):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+        def _load_environment_replay_rows(self):
+            rows = []
+            if not _ADC_ENV_REPLAY_SOURCE_PATH or not os.path.exists(_ADC_ENV_REPLAY_SOURCE_PATH):
+                print(f"[ADC ENV REPLAY] Source log not found: {_ADC_ENV_REPLAY_SOURCE_PATH}", flush=True)
+                return rows
+            with open(_ADC_ENV_REPLAY_SOURCE_PATH, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    states_json = row.get("environment_states_json") or "[]"
+                    try:
+                        states = json.loads(states_json)
+                    except Exception:
+                        states = []
+                    rows.append({
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "environment_distance": self._to_float(row.get("environment_distance"), 0.0),
+                        "environment_states": states,
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+
+        def _apply_environment_replay(self, logical_time_ns):
+            matched = None
+            while self.env_replay_index < len(self.env_replay_rows):
+                candidate = self.env_replay_rows[self.env_replay_index]
+                if candidate["logical_time_ns"] > logical_time_ns:
+                    break
+                matched = candidate
+                self.env_replay_index += 1
+            if matched is not None:
+                self.s_val = matched["environment_distance"]
+                self.en_states_val = matched["environment_states"]
+    =}
     input s
     input v
     input st
@@ -92,6 +146,9 @@ reactor InputForCoach{
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
+        self.env_replay_rows = self._load_environment_replay_rows()
+        self.env_replay_index = 0
+        print(f"[ADC ENV REPLAY] Loaded {len(self.env_replay_rows)} rows from {_ADC_ENV_REPLAY_SOURCE_PATH}", flush=True)
         os.makedirs(os.path.dirname(_LLM_INPUT_LOG_PATH), exist_ok=True)
         self.llm_input_log_file = open(_LLM_INPUT_LOG_PATH, "w", newline="", encoding="utf-8")
         self.llm_input_log_writer = csv.writer(self.llm_input_log_file)
@@ -190,6 +247,8 @@ reactor InputForCoach{
     reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
         start_physical_time = lf.time.physical_elapsed()/1e6
         #reaction(llmclock)->coach_input{=
+        logical_time_ns = lf.time.logical_elapsed()
+        self._apply_environment_replay(logical_time_ns)
         displacement.set(self.s_val)
         velocity.set(self.v_val)
         steer.set(self.st_val)
@@ -198,7 +257,6 @@ reactor InputForCoach{
         environment_states.set(self.en_states_val)
 
         current_tag = lf.tag()
-        logical_time_ns = lf.time.logical_elapsed()
         self.llm_input_log_writer.writerow([
             "llm_output_tick",
             logical_time_ns,

@@ -7,7 +7,7 @@ preamble{=
 
     # Set this to a trace directory to replay that run without environment variables.
     # Example: "src/HardwareIntegration/data-collection/logs-trace-deeksha-normal"
-    _MANUAL_REPLAY_TRACE_DIR = ""
+    _MANUAL_REPLAY_TRACE_DIR = "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha"
     _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
     _LLM_REPLAY_SOURCE_PATH = os.getenv(
         "LLM_REPLAY_SOURCE_PATH",
@@ -15,11 +15,11 @@ preamble{=
     )
     _LLM_REPLAY_LOG_PATH = os.getenv(
         "LLM_REPLAY_LOG_PATH",
-        "logs-trace/llm_behavior_replay.csv",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/log-traces-replay/llm_behavior_replay.csv",
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/log-traces-replay/federate_execution_times.csv",
     )
 
     def _open_execution_log():

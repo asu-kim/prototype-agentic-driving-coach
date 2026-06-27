@@ -1,0 +1,108 @@
+target Python {keepalive: true,
+    // logging: DEBUG,
+    coordination: decentralized,
+    DNET: false,
+    tracing:true
+}
+
+import AgenticCoach from "AgenticCoach.lf"
+
+reactor DummyInputForCoach(
+    tick_period = 700 msec,
+    stop_after_ticks = 8
+) {
+    timer tick(0 sec, tick_period)
+
+    state tick_count = 0
+
+    output displacement
+    output velocity
+    output steer
+    output head_pos
+    output eye_pos
+    output environment_states
+
+    reaction(startup) {=
+        print("[DUMMY ADC] Starting synthetic inputs for AgenticCoach advancement test", flush=True)
+    =}
+
+    reaction(tick) -> displacement, velocity, steer, head_pos, eye_pos, environment_states {=
+        self.tick_count += 1
+
+        # Keep the values simple and deterministic so LLM behavior is easy to compare by tag.
+        distance_m = max(0.0, 1200.0 - (self.tick_count * 75.0))
+        velocity_kmh = 82.0 if self.tick_count % 3 == 1 else 88.0
+        steering = 1
+        head_history = ["CENTER", "CENTER", "RIGHT", "CENTER"]
+        eye_history = ["CENTER", "CENTER", "CENTER", "CENTER"]
+        environment = ["HIGHWAY", 0, 0, "NONE", 0, 0]
+
+        if distance_m <= 1000.0:
+            environment = ["HIGHWAY", 0, 0, "NONE", 0, 0]
+        if self.tick_count >= 6:
+            environment = ["LANE_CHANGE", 0, 0, "NONE", 0, 0]
+
+        displacement.set(distance_m)
+        velocity.set(velocity_kmh)
+        steer.set(steering)
+        head_pos.set(head_history)
+        eye_pos.set(eye_history)
+        environment_states.set(environment)
+
+        print(
+            f"[DUMMY ADC] tick={self.tick_count} "
+            f"logical={lf.time.logical_elapsed() / 1e6:.2f} ms "
+            f"distance={distance_m:.1f} velocity={velocity_kmh:.1f} env={environment}",
+            flush=True,
+        )
+
+        if self.tick_count >= self.stop_after_ticks:
+            print("[DUMMY ADC] Reached stop_after_ticks; requesting stop", flush=True)
+            lf.request_stop()
+    =}
+}
+
+reactor DummyPlanner {
+    input ctrl
+    input instr
+
+    reaction(startup) {=
+        print("[DUMMY PLANNER] Ready to receive AgenticCoach outputs", flush=True)
+    =}
+
+    reaction(ctrl, instr) {=
+        control = ctrl.value if ctrl.is_present else "NOT_PRESENT"
+        instruction = instr.value if instr.is_present else ""
+        print(
+            f"[DUMMY PLANNER] logical={lf.time.logical_elapsed() / 1e6:.2f} ms "
+            f"control={control} instruction={instruction}",
+            flush=True,
+        )
+    =} tardy {=
+        print(
+            f"[DUMMY PLANNER TARDY] logical={lf.time.logical_elapsed() / 1e6:.2f} ms",
+            flush=True,
+        )
+    =}
+}
+
+federated reactor {
+    @maxwait(120 msec)
+    adc = new DummyInputForCoach()
+
+    @maxwait(10 msec)
+    llm = new AgenticCoach()
+
+    @maxwait(400 msec)
+    planner = new DummyPlanner()
+
+    adc.displacement -> llm.s
+    adc.velocity -> llm.v
+    adc.steer -> llm.st
+    adc.head_pos -> llm.h
+    adc.eye_pos -> llm.e
+    adc.environment_states -> llm.en_states
+
+    llm.control -> planner.ctrl
+    llm.instruction -> planner.instr
+}
