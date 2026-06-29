@@ -74,7 +74,7 @@ reactor ActionPlanner {
     input en_states
     
     output act
-    output planned_instr
+    output instr_for_driver
 
     state last_speak_ns = -10000000000000
     state speech_proc
@@ -292,7 +292,7 @@ reactor ActionPlanner {
 
 
     initial mode monitoring {
-            reaction(ctrl, instr) -> warning, actuate, planned_instr {=
+            reaction(ctrl, instr) -> warning, actuate, instr_for_driver {=
                 start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
@@ -306,7 +306,7 @@ reactor ActionPlanner {
                 if token_keyword == "ACTUATE":
                     if instruction:
                         print(f"[LLM] ACTUATE | {instruction}", flush=True)
-                        planned_instr.set(instruction)
+                        instr_for_driver.set(instruction)
                         self.try_speak(now_ns, instruction)
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
@@ -328,7 +328,7 @@ reactor ActionPlanner {
                 if token_keyword == "WARNING":
                     if instruction:
                         print(f"[LLM] WARNING | {instruction}", flush=True)
-                        planned_instr.set(instruction)
+                        instr_for_driver.set(instruction)
                         self.try_speak(now_ns, instruction)
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
@@ -350,7 +350,7 @@ reactor ActionPlanner {
                 if token_keyword == "NONE":
                     if instruction:
                         print(f"[LLM] NONE | {instruction}", flush=True)
-                        planned_instr.set(instruction)
+                        instr_for_driver.set(instruction)
                         self.try_speak(now_ns, instruction)
 
                 current_dri = lf.time.logical_elapsed()/1e6
@@ -380,7 +380,7 @@ reactor ActionPlanner {
                 instruction = self.instruction_val
                 print(f"[PLANNER MONITORING TARDY] Processing {token_keyword}", flush=True)
                 if instruction:
-                    planned_instr.set(instruction)
+                    instr_for_driver.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
                 if token_keyword == "ACTUATE":
                     self.log_mode_transition("MONITORING", "ACTUATE", f"tardy {token_keyword}")
@@ -394,7 +394,7 @@ reactor ActionPlanner {
     }
 
     mode warning {
-            reaction(ctrl, instr) -> monitoring, actuate, planned_instr {=
+            reaction(ctrl, instr) -> monitoring, actuate, instr_for_driver {=
                 start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
@@ -408,7 +408,7 @@ reactor ActionPlanner {
                 if token_keyword == "ACTUATE":
                     if instruction:
                         print(f"[LLM] ACTUATE | {instruction}", flush=True)
-                        planned_instr.set(instruction)
+                        instr_for_driver.set(instruction)
                         self.try_speak(now_ns, instruction)
                     current_dri = lf.time.logical_elapsed()/1e6
                     physical_dri = lf.time.physical_elapsed()/1e6
@@ -472,7 +472,7 @@ reactor ActionPlanner {
                 instruction = self.instruction_val
                 print(f"[PLANNER WARNING TARDY] Processing {token_keyword}", flush=True)
                 if instruction:
-                    planned_instr.set(instruction)
+                    instr_for_driver.set(instruction)
                     self.try_speak(lf.time.physical_elapsed(), instruction)
                 if token_keyword == "ACTUATE":
                     self.log_mode_transition("WARNING", "ACTUATE", f"tardy {token_keyword}")
@@ -486,7 +486,7 @@ reactor ActionPlanner {
     }
 
     mode actuate {
-            reaction(ctrl, instr, s, v, en_states) -> act, monitoring, planned_instr {=
+            reaction(ctrl, instr, s, v, en_states) -> act, monitoring, instr_for_driver {=
                 start_physical_time = lf.time.physical_elapsed()/1e6
                 if ctrl.is_present:
                     self.control_token = (ctrl.value or "NONE").strip()
