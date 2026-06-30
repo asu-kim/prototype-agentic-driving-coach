@@ -225,6 +225,15 @@ reactor AgenticCoach {
 
         print(f"[LLM BEHAVIOR LOG] Writing behavior to {_LLM_BEHAVIOR_LOG_PATH}", flush=True)
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+        # llm_inputs = {
+        #     "distance_to_target_m": 100,
+        #     "velocity_kmh": 90,
+        #     "steering": "",
+        #     "head_history": ["CENTER"],
+        #     "eye_history": ["CENTER"],
+        #     "environment": {"NONE"}
+        # }
+        # self.run_llm_message(llm_inputs)
         
     =}
 
