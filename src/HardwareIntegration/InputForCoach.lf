@@ -5,13 +5,21 @@ preamble {=
     import json
     import os
 
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    _REPLAY_OUTPUT_DIR = os.getenv(
+        "REPLAY_OUTPUT_DIR",
+        os.path.join(_REPLAY_TRACE_DIR, "logs-trace-replay") if _REPLAY_TRACE_DIR else "",
+    )
     _LLM_INPUT_LOG_PATH = os.getenv(
         "ADC_INPUT_LOG_PATH",
-        os.getenv("LLM_INPUT_LOG_PATH", "logs-trace/adc_inputs.csv"),
+        os.getenv(
+            "LLM_INPUT_LOG_PATH",
+            os.path.join(_REPLAY_OUTPUT_DIR, "adc_inputs.csv") if _REPLAY_OUTPUT_DIR else "logs-trace/adc_inputs.csv",
+        ),
     )
     _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
         "FEDERATE_EXECUTION_LOG_DIR",
-        "logs-trace",
+        _REPLAY_OUTPUT_DIR or "logs-trace",
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "ADC_EXECUTION_LOG_PATH",
@@ -19,7 +27,10 @@ preamble {=
     )
     _ADC_ENV_REPLAY_SOURCE_PATH = os.getenv(
         "ADC_ENV_REPLAY_SOURCE_PATH",
-        "sim_environment_inputs.csv",
+        os.getenv(
+            "SIM_ENVIRONMENT_LOG_PATH",
+            os.path.join(_REPLAY_TRACE_DIR, "sim_environment_inputs.csv") if _REPLAY_TRACE_DIR else "sim_environment_inputs.csv",
+        ),
     )
 
     def _open_execution_log():

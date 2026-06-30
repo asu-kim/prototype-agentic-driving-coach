@@ -4,18 +4,30 @@ preamble{=
     import csv
     import os
 
-    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    _EVALUATION_TRACE_ROOT = os.getenv(
+        "REPLAY_TRACE_ROOT",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+    )
+    _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
+        _EVALUATION_TRACE_ROOT,
+        os.getenv("REPLAY_TRACE_NAME", "logs-trace-normal-assumption-network"),
+    )
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", _DEFAULT_REPLAY_TRACE_DIR)
+    _REPLAY_OUTPUT_DIR = os.getenv(
+        "REPLAY_OUTPUT_DIR",
+        os.path.join(_REPLAY_TRACE_DIR, "logs-trace-replay") if _REPLAY_TRACE_DIR else "logs-trace-replay",
+    )
     _PLANNER_REPLAY_SOURCE_PATH = os.getenv(
         "PLANNER_REPLAY_SOURCE_PATH",
         os.getenv("PLANNER_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "planner_events.csv") if _REPLAY_TRACE_DIR else ""),
     )
     _PLANNER_REPLAY_LOG_PATH = os.getenv(
         "PLANNER_REPLAY_LOG_PATH",
-        "log-traces-replay/planner_events_replay.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "planner_events_replay.csv"),
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-traces-dongha/federate_execution_times.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "federate_execution_times_replay.csv"),
     )
 
     def _open_execution_log():
@@ -38,6 +50,7 @@ preamble{=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -48,6 +61,10 @@ preamble{=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -57,6 +74,7 @@ preamble{=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -87,11 +105,23 @@ reactor ActionPlanner {
             candidates.extend([
                 "logs-trace/planner_events.csv",
                 os.path.join(source_dir, "logs-trace", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-normal-assumption-network", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-added-network-delay", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-normal-assumption-gpu", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-gpu-overload", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-relaxed-our-assumption", "planner_events.csv"),
+                os.path.join(source_dir, "evaluation", "logs-trace-tight-maxwait", "planner_events.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-1", "planner_events.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-1-replay", "planner_events.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-2", "planner_events.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-2-replay", "planner_events.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-network", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-added-network-delay", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-gpu", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-gpu-overload", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-relaxed-our-assumption", "planner_events.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-tight-maxwait", "planner_events.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "planner_events.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "planner_events.csv"),
                 os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "planner_events.csv"),
@@ -181,6 +211,7 @@ reactor ActionPlanner {
     =}
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
         self.replay_rows = self._load_planner_rows()
         self.replay_index = 0

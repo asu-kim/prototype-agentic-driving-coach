@@ -30,6 +30,16 @@ MODEL_TRACES = {
     "llama3.1:70b": "logs-trace-750-70b",
 }
 
+EVENT_LOGS = {
+    "d_control": "driver_control_inputs.csv",
+    "d_monitor": "driver_monitor_inputs.csv",
+    "adc": "adc_inputs.csv",
+    "llm": "llm_behavior.csv",
+    "planner": "planner_events.csv",
+    "c": "car_inputs.csv",
+    "sim": "sim_environment_inputs.csv",
+}
+
 
 def write_rows(path: Path, rows: list[dict]):
     keys = []
@@ -64,6 +74,44 @@ def load_exec(trace_dir: Path, condition: str) -> pd.DataFrame:
         df = df[df["federate"].astype(str).isin(FED_LABELS)]
         frames.append(df)
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def _ensure_event_lag(df: pd.DataFrame) -> pd.DataFrame:
+    if "lag_ms" in df:
+        df["lag_ms"] = pd.to_numeric(df["lag_ms"], errors="coerce")
+    elif "physical_time_ms" in df and "logical_time_ms" in df:
+        df["lag_ms"] = pd.to_numeric(df["physical_time_ms"], errors="coerce") - pd.to_numeric(df["logical_time_ms"], errors="coerce")
+    elif "physical_time_ms" in df and "logical_time_ns" in df:
+        df["lag_ms"] = pd.to_numeric(df["physical_time_ms"], errors="coerce") - (pd.to_numeric(df["logical_time_ns"], errors="coerce") / 1e6)
+    else:
+        df["lag_ms"] = np.nan
+    return df
+
+
+def load_event_lag(trace_dir: Path, condition: str) -> pd.DataFrame:
+    frames = []
+    for fed, filename in EVENT_LOGS.items():
+        path = trace_dir / filename
+        if not path.exists():
+            continue
+        df = read_csv(path)
+        df = _ensure_event_lag(df)
+        df["condition"] = condition
+        df["federate"] = fed
+        df["source_file"] = filename
+        frames.append(df[["condition", "federate", "source_file", "lag_ms"]])
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=["condition", "federate", "source_file", "lag_ms"])
+
+
+def load_combined_lag(trace_dir: Path, condition: str) -> pd.DataFrame:
+    exec_df = load_exec(trace_dir, condition)
+    exec_lag = exec_df[["condition", "federate", "source_file", "lag_ms"]].copy() if not exec_df.empty else pd.DataFrame(columns=["condition", "federate", "source_file", "lag_ms"])
+    if not exec_lag.empty:
+        exec_lag["source_kind"] = "execution"
+    event_lag = load_event_lag(trace_dir, condition)
+    if not event_lag.empty:
+        event_lag["source_kind"] = "event"
+    return pd.concat([exec_lag, event_lag], ignore_index=True)
 
 
 def load_llm(trace_dir: Path, condition: str) -> pd.DataFrame:
@@ -107,7 +155,7 @@ def barh_compare(labels, a, b, a_label, b_label, xlabel, title, out_dir, stem):
     y = np.arange(len(labels))
     h = 0.36
     ax.barh(y - h / 2, a, height=h, label=a_label, color="#2563eb")
-    ax.barh(y + h / 2, b, height=h, label=b_label, color="#dc2626")
+    ax.barh(y + h / 2, b, height=h, label=b_label, color="#ea580c")
     ax.set_yticks(y, labels)
     ax.invert_yaxis()
     ax.set_xlabel(xlabel)
@@ -139,18 +187,19 @@ def grouped_bars(labels, series, ylabel, title, out_dir, stem, note: str | None 
 
 def plot_network(root: Path, out: Path):
     traces = {
-        "Nominal communication latency": root / "logs-trace-coach-120",
-        "Netem added network delay": root / "logs-trace-coach-120-network-delay",
+        "Nominal network latency": root / "logs-trace-coach-120",
+        "Added network delay": root / "logs-trace-coach-120-network-delay",
     }
-    df = pd.concat([load_exec(path, label) for label, path in traces.items()], ignore_index=True)
-    feds = [fed for fed in FED_ORDER if fed in set(df["federate"].astype(str))]
+    exec_df = pd.concat([load_exec(path, label) for label, path in traces.items()], ignore_index=True)
+    lag_df = pd.concat([load_combined_lag(path, label) for label, path in traces.items()], ignore_index=True)
+    feds = [fed for fed in FED_ORDER if fed in set(lag_df["federate"].astype(str))]
     labels = [FED_LABELS[f] for f in feds]
     a, b = list(traces)
 
     barh_compare(
         labels,
-        metric_by_fed(df, a, feds, "lag_ms", p95),
-        metric_by_fed(df, b, feds, "lag_ms", p95),
+        metric_by_fed(lag_df, a, feds, "lag_ms", p95),
+        metric_by_fed(lag_df, b, feds, "lag_ms", p95),
         a,
         b,
         "p95 Lag (ms)",
@@ -160,8 +209,8 @@ def plot_network(root: Path, out: Path):
     )
     barh_compare(
         labels,
-        [tardy_count(df, a, fed) for fed in feds],
-        [tardy_count(df, b, fed) for fed in feds],
+        [tardy_count(exec_df, a, fed) for fed in feds],
+        [tardy_count(exec_df, b, fed) for fed in feds],
         a,
         b,
         "Tardy handler invocations",
@@ -174,8 +223,8 @@ def plot_network(root: Path, out: Path):
     grouped_bars(
         [FED_LABELS[f] for f in focus],
         {
-            a: metric_by_fed(df, a, focus, "lag_ms", p95),
-            b: metric_by_fed(df, b, focus, "lag_ms", p95),
+            a: metric_by_fed(lag_df, a, focus, "lag_ms", p95),
+            b: metric_by_fed(lag_df, b, focus, "lag_ms", p95),
         },
         "p95 Lag (ms)",
         "",
@@ -189,8 +238,8 @@ def plot_network(root: Path, out: Path):
             rows.append({
                 "condition": cond,
                 "federate": FED_LABELS[fed],
-                "p95_reaction_lag_ms": p95(df.loc[(df["condition"] == cond) & (df["federate"] == fed), "lag_ms"]),
-                "tardy_handler_invocations": tardy_count(df, cond, fed),
+                "p95_lag_ms": p95(lag_df.loc[(lag_df["condition"] == cond) & (lag_df["federate"] == fed), "lag_ms"]),
+                "tardy_handler_invocations": tardy_count(exec_df, cond, fed),
             })
     write_rows(out / "network_lf_federate_summary.csv", rows)
 
@@ -254,8 +303,8 @@ def plot_gpu(root: Path, out: Path):
             rows.append({
                 "condition": cond,
                 "federate": FED_LABELS[fed],
-                "p95_reaction_lag_ms": p95(df.loc[(df["condition"] == cond) & (df["federate"] == fed), "lag_ms"]),
-                "tardy_handler_invocations": tardy_count(df, cond, fed),
+                "p95_lag_ms": p95(lag_df.loc[(lag_df["condition"] == cond) & (lag_df["federate"] == fed), "lag_ms"]),
+                "tardy_handler_invocations": tardy_count(exec_df, cond, fed),
             })
     write_rows(out / "gpu_lag_propagation_summary.csv", rows)
 

@@ -6,21 +6,32 @@ preamble {=
     import json
     import os
 
-    # Set this to a trace directory to replay that run without environment variables.
-    # Example: "src/HardwareIntegration/data-collection/logs-trace-dongha"
-    _MANUAL_REPLAY_TRACE_DIR = "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha"
-    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
+    _EVALUATION_TRACE_ROOT = os.getenv(
+        "REPLAY_TRACE_ROOT",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+    )
+    _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
+        _EVALUATION_TRACE_ROOT,
+        os.getenv("REPLAY_TRACE_NAME", "logs-trace-normal-assumption-network"),
+    )
+    # Set this to force one trace without environment variables.
+    _MANUAL_REPLAY_TRACE_DIR = ""
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", _DEFAULT_REPLAY_TRACE_DIR)
+    _REPLAY_OUTPUT_DIR = os.getenv(
+        "REPLAY_OUTPUT_DIR",
+        os.path.join(_REPLAY_TRACE_DIR, "logs-trace-replay") if _REPLAY_TRACE_DIR else "logs-trace-replay",
+    )
     _ENV_REPLAY_SOURCE_PATH = os.getenv(
         "ENV_REPLAY_SOURCE_PATH",
         os.path.join(_REPLAY_TRACE_DIR, "sim_environment_inputs.csv") if _REPLAY_TRACE_DIR else "",
     )
     _ENV_REPLAY_LOG_PATH = os.getenv(
         "ENV_REPLAY_LOG_PATH",
-        os.path.join(_REPLAY_TRACE_DIR, "log-traces-replay", "sim_environment_inputs_replay.csv") if _REPLAY_TRACE_DIR else "logs-trace/sim_environment_inputs_replay.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "sim_environment_inputs_replay.csv"),
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        os.path.join(_REPLAY_TRACE_DIR, "log-traces-replay", "federate_execution_times.csv") if _REPLAY_TRACE_DIR else "logs-trace/federate_execution_times.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "federate_execution_times_replay.csv"),
     )
 
     def _open_execution_log():
@@ -43,6 +54,7 @@ preamble {=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -53,6 +65,10 @@ preamble {=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -62,6 +78,7 @@ preamble {=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -89,10 +106,17 @@ reactor Environment {
                 "logs-trace/sim_environment_inputs.csv",
                 os.path.join(source_dir, "logs-trace", "sim_environment_inputs.csv"),
             ])
+            for trace_dir in sorted(glob.glob(os.path.join(source_dir, "evaluation", "logs-trace*"))):
+                candidates.append(os.path.join(trace_dir, "sim_environment_inputs.csv"))
             for trace_dir in sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))):
                 candidates.append(os.path.join(trace_dir, "sim_environment_inputs.csv"))
             candidates.extend([
-                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-dongha", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-network", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-added-network-delay", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-gpu", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-gpu-overload", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-relaxed-our-assumption", "sim_environment_inputs.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-tight-maxwait", "sim_environment_inputs.csv"),
                 os.path.join(os.getcwd(), "..", "HardwareIntegratedADC", "logs-trace", "sim_environment_inputs.csv"),
             ])
             return [os.path.normpath(path) for path in candidates if path]
@@ -188,6 +212,7 @@ reactor Environment {
             "replayed",
         ])
         self.env_replay_log_file.flush()
+        self.tardy_invocation_count = 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
 
         print(f"[ENV REPLAY] Reading environment from {self.env_source_path}", flush=True)

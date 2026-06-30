@@ -5,21 +5,32 @@ preamble{=
     import glob
     import os
 
-    # Set this to a trace directory to replay that run without environment variables.
-    # Example: "src/HardwareIntegration/data-collection/logs-trace-deeksha-normal"
-    _MANUAL_REPLAY_TRACE_DIR = "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha"
-    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", "")
+    _EVALUATION_TRACE_ROOT = os.getenv(
+        "REPLAY_TRACE_ROOT",
+        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+    )
+    _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
+        _EVALUATION_TRACE_ROOT,
+        os.getenv("REPLAY_TRACE_NAME", "logs-trace-normal-assumption-network"),
+    )
+    # Set this to force one trace without environment variables.
+    _MANUAL_REPLAY_TRACE_DIR = ""
+    _REPLAY_TRACE_DIR = _MANUAL_REPLAY_TRACE_DIR or os.getenv("REPLAY_TRACE_DIR", _DEFAULT_REPLAY_TRACE_DIR)
+    _REPLAY_OUTPUT_DIR = os.getenv(
+        "REPLAY_OUTPUT_DIR",
+        os.path.join(_REPLAY_TRACE_DIR, "logs-trace-replay") if _REPLAY_TRACE_DIR else "logs-trace-replay",
+    )
     _LLM_REPLAY_SOURCE_PATH = os.getenv(
         "LLM_REPLAY_SOURCE_PATH",
         os.getenv("LLM_BEHAVIOR_LOG_PATH", os.path.join(_REPLAY_TRACE_DIR, "llm_replay_values.csv") if _REPLAY_TRACE_DIR else ""),
     )
     _LLM_REPLAY_LOG_PATH = os.getenv(
         "LLM_REPLAY_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/log-traces-replay/llm_behavior_replay.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "llm_behavior_replay.csv"),
     )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
         "FEDERATE_EXECUTION_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/log-traces-replay/federate_execution_times.csv",
+        os.path.join(_REPLAY_OUTPUT_DIR, "federate_execution_times_replay.csv"),
     )
 
     def _open_execution_log():
@@ -42,6 +53,7 @@ preamble{=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -52,6 +64,10 @@ preamble{=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -61,6 +77,7 @@ preamble{=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -103,10 +120,25 @@ reactor AgenticCoach {
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_replay_values.csv"),
                 os.path.join(source_dir, "data-collection", "logs-trace-3", "llm_behavior.csv"),
             ])
+            for trace_dir in sorted(glob.glob(os.path.join(source_dir, "evaluation", "logs-trace*"))):
+                candidates.append(os.path.join(trace_dir, "llm_replay_values.csv"))
+                candidates.append(os.path.join(trace_dir, "llm_behavior.csv"))
             for trace_dir in sorted(glob.glob(os.path.join(source_dir, "data-collection", "logs-trace*"))):
                 candidates.append(os.path.join(trace_dir, "llm_replay_values.csv"))
                 candidates.append(os.path.join(trace_dir, "llm_behavior.csv"))
             candidates.extend([
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-network", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-network", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-added-network-delay", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-added-network-delay", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-gpu", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-normal-assumption-gpu", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-gpu-overload", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-gpu-overload", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-relaxed-our-assumption", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-relaxed-our-assumption", "llm_behavior.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-tight-maxwait", "llm_replay_values.csv"),
+                os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "evaluation", "logs-trace-tight-maxwait", "llm_behavior.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_replay_values.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-2", "llm_behavior.csv"),
                 os.path.join(repo_root_from_replay, "src", "HardwareIntegration", "data-collection", "logs-trace-3", "llm_replay_values.csv"),
@@ -165,6 +197,7 @@ reactor AgenticCoach {
     =}
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
         self.replay_rows = self.load_replay_rows()
         self.replay_index = 0
