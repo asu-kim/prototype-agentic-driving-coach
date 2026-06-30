@@ -17,9 +17,13 @@ reactor Environment {
         import os
         from mujoco.glfw import glfw
 
+        _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+            "FEDERATE_EXECUTION_LOG_DIR",
+            "logs-trace",
+        )
         _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-            "FEDERATE_EXECUTION_LOG_PATH",
-            "logs-trace/federate_execution_times.csv",
+            "SIM_EXECUTION_LOG_PATH",
+            os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_sim.csv"),
         )
 
         def _open_execution_log():
@@ -42,6 +46,7 @@ reactor Environment {
                     "tag_time_ns",
                     "microstep",
                     "lag_ms",
+                    "tardy_invocation_count",
                     "start_physical_time_ms",
                     "stop_physical_time_ms",
                     "execution_time_ms",
@@ -52,6 +57,10 @@ reactor Environment {
         def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
             current_tag = lf.tag()
             logical_time_ns = lf.time.logical_elapsed()
+            if not hasattr(self, "tardy_invocation_count"):
+                self.tardy_invocation_count = 0
+            if "tardy" in reaction:
+                self.tardy_invocation_count += 1
             self.execution_log_writer.writerow([
                 federate,
                 reactor,
@@ -61,6 +70,7 @@ reactor Environment {
                 (lf.tag().time - lf.time.start()),
                 current_tag.microstep,
                 start_physical_time_ms - (logical_time_ns / 1e6),
+                self.tardy_invocation_count,
                 start_physical_time_ms,
                 stop_physical_time_ms,
                 stop_physical_time_ms - start_physical_time_ms,
@@ -83,6 +93,7 @@ reactor Environment {
     env.environment_states -> environment_states
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}

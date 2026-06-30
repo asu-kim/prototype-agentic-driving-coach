@@ -13,9 +13,13 @@ preamble{=
         "PLANNER_LOG_PATH",
         "logs-trace/planner_events.csv",
     )
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        "logs-trace",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-        "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "PLANNER_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_planner.csv"),
     )
 
     def _open_execution_log():
@@ -38,6 +42,7 @@ preamble{=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -48,6 +53,10 @@ preamble{=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -57,6 +66,7 @@ preamble{=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -105,6 +115,7 @@ reactor ActionPlanner {
                 (lf.tag().time - lf.time.start()),
                 current_tag.microstep,
                 physical_time_ms - logical_time_ms,
+                self.tardy_invocation_count,
                 mode,
                 from_mode,
                 to_mode,
@@ -256,6 +267,7 @@ reactor ActionPlanner {
 
     reaction(startup) {=
         
+        self.tardy_invocation_count = 0
         self.speech_proc = None
         self.speech_lock = threading.Lock()
         self.latest_environment_states = None
@@ -270,6 +282,7 @@ reactor ActionPlanner {
             "tag_time_ns",
             "microstep",
             "lag_ms",
+            "tardy_invocation_count",
             "mode",
             "from_mode",
             "to_mode",

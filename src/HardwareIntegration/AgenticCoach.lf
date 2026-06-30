@@ -12,9 +12,13 @@ preamble{=
         "LLM_BEHAVIOR_LOG_PATH",
         "logs-trace/llm_behavior.csv",
     )
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        "logs-trace",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-        "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "LLM_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_llm.csv"),
     )
 
     def _open_execution_log():
@@ -37,6 +41,7 @@ preamble{=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -47,6 +52,10 @@ preamble{=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -56,6 +65,7 @@ preamble{=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -189,6 +199,7 @@ reactor AgenticCoach {
 
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         start_physical_time = lf.time.physical_elapsed()/1e6
         print(f"START PHYSICAL TIME OF THE STARTUP IN LLM FEDERATE:{start_physical_time:.2f}ms", flush=True)
         self.execution_log_file, self.execution_log_writer = _open_execution_log()
@@ -203,6 +214,7 @@ reactor AgenticCoach {
             "tag_time_ns",
             "microstep",
             "lag_ms",
+            "tardy_invocation_count",
             "displacement_present",
             "velocity_present",
             "steer_present",
@@ -302,6 +314,7 @@ reactor AgenticCoach {
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             lag,
+            self.tardy_invocation_count,
             int(s.is_present),
             int(v.is_present),
             int(st.is_present),

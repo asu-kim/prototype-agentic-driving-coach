@@ -11,9 +11,13 @@ preamble{=
     )
     _SIM_ENV_DEBUG = os.getenv("SIM_ENV_DEBUG", "0").lower() in {"1", "true", "yes", "on"}
     _SIM_ENV_FLUSH_EVERY_N = max(1, int(os.getenv("SIM_ENV_FLUSH_EVERY_N", "10")))
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        "logs-trace",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-        "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "SIM_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_sim.csv"),
     )
 
     def _open_execution_log():
@@ -36,6 +40,7 @@ preamble{=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -46,6 +51,10 @@ preamble{=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -55,6 +64,7 @@ preamble{=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -83,6 +93,7 @@ reactor EnvironmentStates(output_period = 100 msec) {
     state log_count = 0
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         os.makedirs(os.path.dirname(_SIM_ENV_LOG_PATH), exist_ok=True)
         self.environment_log_file = open(_SIM_ENV_LOG_PATH, "w", newline="", encoding="utf-8")
         self.environment_log_writer = csv.writer(self.environment_log_file)
@@ -92,6 +103,8 @@ reactor EnvironmentStates(output_period = 100 msec) {
             "physical_time_ms",
             "tag_time_ns",
             "microstep",
+            "lag_ms",
+            "tardy_invocation_count",
             "distance_from_start_m",
             "velocity_kmh",
             "road_phase",
@@ -178,6 +191,8 @@ reactor EnvironmentStates(output_period = 100 msec) {
             lf.time.physical_elapsed() / 1e6,
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
+            (lf.time.physical_elapsed() / 1e6) - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             self.distance_from_start_m,
             self.velocity_kmh,
             road_phase,

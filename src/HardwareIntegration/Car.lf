@@ -9,9 +9,13 @@ preamble {=
         "CAR_LOG_PATH",
         "logs-trace/car_inputs.csv",
     )
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        "logs-trace",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-        "FEDERATE_EXECUTION_LOG_PATH",
-        "logs-trace/federate_execution_times.csv",
+        "CAR_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_c.csv"),
     )
 
     def _open_execution_log():
@@ -34,6 +38,7 @@ preamble {=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -44,6 +49,10 @@ preamble {=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -53,6 +62,7 @@ preamble {=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -76,6 +86,7 @@ reactor Car {
     output steer
 
     reaction(startup) {=
+        self.tardy_invocation_count = 0
         os.makedirs(os.path.dirname(_CAR_LOG_PATH), exist_ok=True)
         self.car_log_file = open(_CAR_LOG_PATH, "w", newline="", encoding="utf-8")
         self.car_log_writer = csv.writer(self.car_log_file)
@@ -86,6 +97,8 @@ reactor Car {
             "physical_time_ms",
             "tag_time_ns",
             "microstep",
+            "lag_ms",
+            "tardy_invocation_count",
             "steer_in_present",
             "accel_in_present",
             "brake_in_present",
@@ -196,6 +209,8 @@ reactor Car {
             lf.time.physical_elapsed() / 1e6,
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
+            lag,
+            self.tardy_invocation_count,
             int(steer_in.is_present),
             int(accel_in.is_present),
             int(brake_in.is_present),
@@ -249,6 +264,8 @@ reactor Car {
             lf.time.physical_elapsed() / 1e6,
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
+            lag,
+            self.tardy_invocation_count + 1,
             int(steer_in.is_present),
             int(accel_in.is_present),
             int(brake_in.is_present),

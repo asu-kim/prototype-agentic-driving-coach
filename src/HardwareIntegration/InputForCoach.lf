@@ -9,9 +9,13 @@ preamble {=
         "ADC_INPUT_LOG_PATH",
         os.getenv("LLM_INPUT_LOG_PATH", "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/logs-trace-replay/adc_inputs.csv"),
     )
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        "logs-trace",
+    )
     _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
-        "FEDERATE_EXECUTION_LOG_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/logs-trace-replay/federate_execution_times.csv",
+        "ADC_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_adc.csv"),
     )
     _ADC_ENV_REPLAY_SOURCE_PATH = os.getenv(
         "ADC_ENV_REPLAY_SOURCE_PATH",
@@ -38,6 +42,7 @@ preamble {=
                 "tag_time_ns",
                 "microstep",
                 "lag_ms",
+                "tardy_invocation_count",
                 "start_physical_time_ms",
                 "stop_physical_time_ms",
                 "execution_time_ms",
@@ -48,6 +53,10 @@ preamble {=
     def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
         current_tag = lf.tag()
         logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
         self.execution_log_writer.writerow([
             federate,
             reactor,
@@ -57,6 +66,7 @@ preamble {=
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
             start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             start_physical_time_ms,
             stop_physical_time_ms,
             stop_physical_time_ms - start_physical_time_ms,
@@ -143,6 +153,7 @@ reactor InputForCoach{
 
 
     reaction(startup){=
+        self.tardy_invocation_count = 0
         self.head_history = []
         self.eye_history = []
         self.max_history = 4
@@ -159,6 +170,8 @@ reactor InputForCoach{
             "physical_time_ms",
             "tag_time_ns",
             "microstep",
+            "lag_ms",
+            "tardy_invocation_count",
             "displacement_present",
             "velocity_present",
             "car_steer_present",
@@ -223,6 +236,8 @@ reactor InputForCoach{
             lf.time.physical_elapsed() / 1e6,
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
+            (lf.time.physical_elapsed() / 1e6) - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             int(s.is_present),
             int(v.is_present),
             int(st.is_present),
@@ -264,6 +279,8 @@ reactor InputForCoach{
             lf.time.physical_elapsed() / 1e6,
             (lf.tag().time - lf.time.start()),
             current_tag.microstep,
+            (lf.time.physical_elapsed() / 1e6) - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
             1,
             1,
             1,
