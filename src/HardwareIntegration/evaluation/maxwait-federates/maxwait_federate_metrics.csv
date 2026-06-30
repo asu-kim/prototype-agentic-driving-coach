@@ -1,0 +1,27 @@
+condition,federate,label,tardy_handler_invocations,lag_p95_ms
+Relaxed maxwait,d_control,"Driver
+Control",0,1.2492110499981188
+Relaxed maxwait,d_monitor,"Driver
+Monitor",0,86.08697180000017
+Relaxed maxwait,c,Car,0,20.45095880000008
+Relaxed maxwait,adc,"Input
+ForCoach",0,71.85298929999908
+Relaxed maxwait,llm,"Agentic
+Coach",0,74.64638280000109
+Relaxed maxwait,planner,"Action
+Planner",4,355.329591249998
+Relaxed maxwait,sim,"Envir-
+onment",0,31.10464280000306
+Tight maxwait,d_control,"Driver
+Control",0,1.2259580000018104
+Tight maxwait,d_monitor,"Driver
+Monitor",0,87.46739700000307
+Tight maxwait,c,Car,12,20.806838199999042
+Tight maxwait,adc,"Input
+ForCoach",0,98.48500940000304
+Tight maxwait,llm,"Agentic
+Coach",0,102.22535900000366
+Tight maxwait,planner,"Action
+Planner",180,344.02582439999674
+Tight maxwait,sim,"Envir-
+onment",1756,21.737567149999812

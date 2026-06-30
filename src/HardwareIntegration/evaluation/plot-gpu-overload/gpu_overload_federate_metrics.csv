@@ -1,0 +1,27 @@
+condition,federate,label,tardy_handler_invocations,lag_p95_ms
+No GPU overload,d_control,"Driver
+Control",0,1.4061426000000208
+No GPU overload,d_monitor,"Driver
+Monitor",0,71.94875749999846
+No GPU overload,c,Car,1,20.75159799999965
+No GPU overload,adc,"Input
+ForCoach",0,74.90975500000059
+No GPU overload,llm,"Agentic
+Coach",0,78.36982290000013
+No GPU overload,planner,"Action
+Planner",1,340.0647089999991
+No GPU overload,sim,"Envir-
+onment",0,32.30498624999782
+GPU overload,d_control,"Driver
+Control",0,1.209356200000183
+GPU overload,d_monitor,"Driver
+Monitor",0,65.86874625000017
+GPU overload,c,Car,24,20.440711000002924
+GPU overload,adc,"Input
+ForCoach",46,120.64443659999816
+GPU overload,llm,"Agentic
+Coach",10,488.67232589999895
+GPU overload,planner,"Action
+Planner",136,622.1363516000011
+GPU overload,sim,"Envir-
+onment",142,51.041334600001576

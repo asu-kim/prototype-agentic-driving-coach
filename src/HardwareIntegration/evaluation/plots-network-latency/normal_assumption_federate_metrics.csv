@@ -1,0 +1,27 @@
+condition,federate,label,tardy_handler_invocations,lag_p95_ms
+Nominal network latency,d_control,"Driver
+Control",0,1.4478260500032771
+Nominal network latency,d_monitor,"Driver
+Monitor",0,63.35000004999965
+Nominal network latency,c,Car,0,20.73604300000006
+Nominal network latency,adc,"Input
+ForCoach",0,67.75836860000126
+Nominal network latency,llm,"Agentic
+Coach",0,71.54658790000576
+Nominal network latency,planner,"Action
+Planner",1,347.05800839999836
+Nominal network latency,sim,"Envir-
+onment",0,32.89822719999938
+Additional network latency of 200ms,d_control,"Driver
+Control",0,1.1492137000006546
+Additional network latency of 200ms,d_monitor,"Driver
+Monitor",0,59.39007460000088
+Additional network latency of 200ms,c,Car,473,239.2537640000006
+Additional network latency of 200ms,adc,"Input
+ForCoach",2508,227.82222049999476
+Additional network latency of 200ms,llm,"Agentic
+Coach",167,408.38003174999767
+Additional network latency of 200ms,planner,"Action
+Planner",41,419.02144859999896
+Additional network latency of 200ms,sim,"Envir-
+onment",1903,51.36367390000014
