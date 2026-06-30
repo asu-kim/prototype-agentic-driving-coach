@@ -1,7 +1,8 @@
 target Python {
     files: ["models/car.xml", "models/stopsign.png", "models/exitsign.png", "models/lanechange.png", "models/speed_limit.png"],
     cmake-args: {
-        Python_EXECUTABLE: "python3"
+        // Python_EXECUTABLE: "/home/pawan/miniconda3/envs/LF_env/bin/python"
+        Python_EXECUTABLE:"python3"
     }
 }
 
@@ -137,7 +138,22 @@ reactor Environment {
         print("----------------------------------------------------------", flush=True)
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "sim", "Environment", "simulation_input", start_physical_time, stop_physical_time)
-    =}tardy
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        physical_time_ms = lf.time.physical_elapsed() / 1e6
+        next_tardy_count = self.tardy_invocation_count + 1
+        current_tag = lf.tag()
+        print(
+            f"[SIMULATION TARDY] simulation_input tardy count={next_tardy_count} "
+            f"lag={physical_time_ms - (logical_time_ns / 1e6):.2f} ms "
+            f"velocity_present={velocity_in.is_present} steer_present={steer_in.is_present} "
+            f"microstep={current_tag.microstep}",
+            flush=True,
+        )
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "Environment", "simulation_input_tardy", start_physical_time, stop_physical_time)
+    =}
 
     m.distance_from_start -> env.distance_from_start after 0 msec
 

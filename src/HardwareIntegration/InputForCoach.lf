@@ -256,7 +256,45 @@ reactor InputForCoach{
         self.llm_input_log_file.flush()
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "adc", "InputForCoach", "input_arrival", start_physical_time, stop_physical_time)
-    =} tardy
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        physical_time_ms = lf.time.physical_elapsed() / 1e6
+        next_tardy_count = self.tardy_invocation_count + 1
+        self.llm_input_log_writer.writerow([
+            "input_arrival_tardy",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_time_ms,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            physical_time_ms - (logical_time_ns / 1e6),
+            next_tardy_count,
+            int(s.is_present),
+            int(v.is_present),
+            int(st.is_present),
+            int(h.is_present),
+            int(e.is_present),
+            int(en_states.is_present),
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
+        print(
+            f"[ADC TARDY] input_arrival tardy count={next_tardy_count} "
+            f"lag={physical_time_ms - (logical_time_ns / 1e6):.2f} ms",
+            flush=True,
+        )
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "input_arrival_tardy", start_physical_time, stop_physical_time)
+    =}
 
 
     reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=

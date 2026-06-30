@@ -13,6 +13,7 @@ __pycache__/
 *.pyd
 .venv/
 venv/
+*.venv-plotting
 
 # Large model files
 *.pt
