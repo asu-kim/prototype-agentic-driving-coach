@@ -140,6 +140,24 @@ reactor Environment {
         _log_execution_time(self, "sim", "Environment", "simulation_input", start_physical_time, stop_physical_time)
     =} tardy {=
         start_physical_time = lf.time.physical_elapsed()/1e6
+        if velocity_in.is_present:
+            self.velocity_kmh = float(velocity_in.value)
+        if steer_in.is_present:
+            self.steer_value = steer_in.value
+
+        forward_cmd = self.velocity_kmh / 3.6
+
+        if self.steer_value == 2:
+            turn_cmd = -0.05
+        elif self.steer_value == 0:
+            turn_cmd = 0.05
+        else:
+            turn_cmd = 0.0
+
+        m.forward.set(forward_cmd)
+        m.turn.set(turn_cmd)
+        env.v.set(self.velocity_kmh)
+
         logical_time_ns = lf.time.logical_elapsed()
         physical_time_ms = lf.time.physical_elapsed() / 1e6
         next_tardy_count = self.tardy_invocation_count + 1
@@ -147,7 +165,7 @@ reactor Environment {
         print(
             f"[SIMULATION TARDY] simulation_input tardy count={next_tardy_count} "
             f"lag={physical_time_ms - (logical_time_ns / 1e6):.2f} ms "
-            f"velocity_present={velocity_in.is_present} steer_present={steer_in.is_present} "
+            f"velocity={self.velocity_kmh} steer={self.steer_value} "
             f"microstep={current_tag.microstep}",
             flush=True,
         )
