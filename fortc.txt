@@ -1,0 +1,3 @@
+sudo tc qdisc replace dev wlan0 root netem delay 200ms 30ms
+tc qdisc show dev wlan0
+sudo tc qdisc del dev wlan0 root
