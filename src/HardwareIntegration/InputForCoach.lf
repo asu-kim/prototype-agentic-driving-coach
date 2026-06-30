@@ -7,7 +7,7 @@ preamble {=
 
     _LLM_INPUT_LOG_PATH = os.getenv(
         "ADC_INPUT_LOG_PATH",
-        os.getenv("LLM_INPUT_LOG_PATH", "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/logs-trace-replay/adc_inputs.csv"),
+        os.getenv("LLM_INPUT_LOG_PATH", "logs-trace/adc_inputs.csv"),
     )
     _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
         "FEDERATE_EXECUTION_LOG_DIR",
@@ -19,7 +19,7 @@ preamble {=
     )
     _ADC_ENV_REPLAY_SOURCE_PATH = os.getenv(
         "ADC_ENV_REPLAY_SOURCE_PATH",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/data-collection/logs-trace-dongha/sim_environment_inputs.csv",
+        "sim_environment_inputs.csv",
     )
 
     def _open_execution_log():
