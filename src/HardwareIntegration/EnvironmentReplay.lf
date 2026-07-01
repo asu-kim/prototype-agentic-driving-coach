@@ -8,7 +8,7 @@ preamble {=
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+        os.path.abspath(os.path.join(os.getcwd(), "src/HardwareIntegration/evaluation-replay")),
     )
     _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
         _EVALUATION_TRACE_ROOT,
@@ -262,6 +262,39 @@ reactor Environment {
 
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "sim", "EnvironmentReplay", "env_replay", start_physical_time, stop_physical_time)
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        logical_time_ns = lf.time.logical_elapsed()
+        current_tag = lf.tag()
+        physical_ms = lf.time.physical_elapsed()/1e6
+
+        displacement.set(self.last_displacement)
+        environment_states.set(self.last_environment_states)
+
+        self.env_replay_log_writer.writerow([
+            "env_replay_tardy",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_ms,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            "",
+            "",
+            "",
+            "",
+            "",
+            self.last_displacement,
+            json.dumps(self.last_environment_states),
+            0,
+        ])
+        self.env_replay_log_file.flush()
+
+        print(
+            f"[ENV REPLAY TARDY] Holding last environment state at {logical_time_ns / 1e6:.2f} ms",
+            flush=True,
+        )
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "EnvironmentReplay", "env_replay_tardy", start_physical_time, stop_physical_time)
     =}
 
     reaction(shutdown) {=
