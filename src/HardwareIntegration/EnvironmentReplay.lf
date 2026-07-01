@@ -221,7 +221,7 @@ reactor Environment {
         print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
     =}
 
-    reaction(replay_tick, steer_in, velocity_in) -> displacement, environment_states {=
+    reaction(replay_tick) -> displacement, environment_states {=
         start_physical_time = lf.time.physical_elapsed()/1e6
         logical_time_ns = lf.time.logical_elapsed()
         current_tag = lf.tag()
@@ -295,6 +295,15 @@ reactor Environment {
         )
         stop_physical_time = lf.time.physical_elapsed()/1e6
         _log_execution_time(self, "sim", "EnvironmentReplay", "env_replay_tardy", start_physical_time, stop_physical_time)
+    =}
+
+    reaction(steer_in, velocity_in) {=
+        # The replayed environment is driven by sim_environment_inputs.csv.
+        # Live car inputs are consumed here only so they cannot advance the replay.
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "sim", "EnvironmentReplay", "env_input_tardy", start_physical_time, stop_physical_time)
     =}
 
     reaction(shutdown) {=
