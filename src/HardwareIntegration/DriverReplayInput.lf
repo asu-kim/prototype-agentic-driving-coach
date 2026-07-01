@@ -321,6 +321,14 @@ reactor DriverMonitor {
             except Exception:
                 return default
 
+        def _to_float(self, value, default):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
         def _trace_dir_candidates(self):
             source_dir = lf.source_directory()
             repo_root_from_replay = os.path.normpath(os.path.join(os.getcwd(), "..", ".."))
