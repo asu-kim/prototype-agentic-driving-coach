@@ -5,6 +5,7 @@ preamble {=
     import glob
     import json
     import os
+    import time
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
@@ -147,6 +148,16 @@ reactor Environment {
             except Exception:
                 return default
 
+        def _sleep_to_source_lag(self, row, logical_time_ns):
+            target_lag_ms = row.get("source_lag_ms", 0.0) if row is not None else 0.0
+            if target_lag_ms > 0.0:
+                current_lag_ms = (lf.time.physical_elapsed()/1e6) - (logical_time_ns / 1e6)
+                sleep_ms = target_lag_ms - current_lag_ms
+                if sleep_ms > 0.0:
+                    print(f"[ENV REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {target_lag_ms:.3f} ms", flush=True)
+                    time.sleep(sleep_ms / 1000.0)
+            return lf.time.physical_elapsed()/1e6
+
         def _load_rows(self):
             source_path = self._resolve_source_path()
             self.env_source_path = source_path or _ENV_REPLAY_SOURCE_PATH or "logs-trace/sim_environment_inputs.csv"
@@ -179,6 +190,7 @@ reactor Environment {
                         "road_phase": row.get("road_phase") or "",
                         "environment_distance": self._to_float(row.get("environment_distance"), 0.0),
                         "environment_states": states,
+                        "source_lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                     })
             rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
             return rows
@@ -236,6 +248,7 @@ reactor Environment {
             self.replay_index += 1
 
         if matched is not None:
+            physical_ms = self._sleep_to_source_lag(matched, logical_time_ns)
             self.last_displacement = matched["environment_distance"]
             self.last_environment_states = matched["environment_states"]
 

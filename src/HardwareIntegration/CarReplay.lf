@@ -4,10 +4,11 @@ preamble {=
     import csv
     import glob
     import os
+    import time
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+        os.path.abspath(os.path.join(os.getcwd(), "src/HardwareIntegration/evaluation-replay")),
     )
     _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
         _EVALUATION_TRACE_ROOT,
@@ -159,7 +160,19 @@ reactor Car {
                 return default
 
 
+        def _sleep_to_source_lag(self, row, logical_time_ns):
+            target_lag_ms = row.get("source_lag_ms", 0.0)
+            if target_lag_ms > 0.0:
+                current_lag_ms = (lf.time.physical_elapsed()/1e6) - (logical_time_ns / 1e6)
+                sleep_ms = target_lag_ms - current_lag_ms
+                if sleep_ms > 0.0:
+                    print(f"[CAR REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {target_lag_ms:.3f} ms", flush=True)
+                    time.sleep(sleep_ms / 1000.0)
+            return lf.time.physical_elapsed()/1e6
+
         def _emit_replay_row(self, row, logical_time_ns, physical_ms, tag_time, microstep, velocity, steer):
+            physical_ms = self._sleep_to_source_lag(row, logical_time_ns)
+            tag_time = lf.tag().time - lf.time.start()
             self.last_velocity = row["car_velocity"]
             self.last_steer = row["car_steer"]
             self.car_log_writer.writerow([
@@ -210,6 +223,7 @@ reactor Car {
                         "actuate_in": row.get("actuate_in", ""),
                         "car_velocity": self._to_float(row.get("car_velocity"), 0.0),
                         "car_steer": self._to_int(row.get("car_steer"), 1),
+                        "source_lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                     })
             rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
             return rows

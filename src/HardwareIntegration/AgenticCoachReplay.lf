@@ -4,10 +4,11 @@ preamble{=
     import csv
     import glob
     import os
+    import time
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+        os.path.abspath(os.path.join(os.getcwd(), "src/HardwareIntegration/evaluation-replay")),
     )
     _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
         _EVALUATION_TRACE_ROOT,
@@ -158,6 +159,14 @@ reactor AgenticCoach {
                     return path
             return None
 
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
         def load_replay_rows(self):
             rows = []
             source_path = self.resolve_replay_source_path()
@@ -184,11 +193,17 @@ reactor AgenticCoach {
                     msg = (row.get("instruction") or "").strip()
                     if token == "NONE":
                         msg = ""
+                    try:
+                        inference_ms = float(row.get("inference_ms") or 0.0)
+                    except ValueError:
+                        inference_ms = 0.0
                     rows.append({
                         "event": event,
                         "logical_time_ns": logical_time_ns,
                         "control": token,
                         "instruction": msg,
+                        "inference_ms": max(0.0, inference_ms),
+                        "source_lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                         "source_row": row,
                     })
 
@@ -219,6 +234,7 @@ reactor AgenticCoach {
             "source_event",
             "control",
             "instruction",
+            "inference_sleep_ms",
             "replayed",
         ])
         self.replay_log_file.flush()
@@ -265,6 +281,7 @@ reactor AgenticCoach {
                 "",
                 "",
                 "",
+                "",
                 0,
             ])
             self.replay_log_file.flush()
@@ -274,6 +291,20 @@ reactor AgenticCoach {
 
         tok = matched["control"]
         msg = matched["instruction"]
+        inference_ms = matched["inference_ms"]
+        if inference_ms > 0.0:
+            print(f"[LLM REPLAY] Sleeping for recorded inference time: {inference_ms:.3f} ms", flush=True)
+            time.sleep(inference_ms / 1000.0)
+
+        target_lag_ms = matched.get("source_lag_ms", 0.0)
+        current_lag_ms = (lf.time.physical_elapsed()/1e6) - (logical_time_ns / 1e6)
+        sleep_ms = target_lag_ms - current_lag_ms
+        if sleep_ms > 0.0:
+            print(f"[LLM REPLAY] Sleeping {sleep_ms:.3f} ms more to emulate recorded lag {target_lag_ms:.3f} ms", flush=True)
+            time.sleep(sleep_ms / 1000.0)
+
+        physical_ms = lf.time.physical_elapsed()/1e6
+        lag_ms = physical_ms - (logical_time_ns / 1e6)
         control.set(tok)
         instruction.set(msg)
 
@@ -295,6 +326,7 @@ reactor AgenticCoach {
             matched["event"],
             tok,
             msg,
+            inference_ms,
             1,
         ])
         self.replay_log_file.flush()

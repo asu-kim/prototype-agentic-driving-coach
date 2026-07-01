@@ -1,0 +1,427 @@
+target Python
+
+preamble {=
+    import csv
+    import json
+    import os
+    import time
+
+    _REPLAY_TRACE_DIR = os.getenv("REPLAY_TRACE_DIR", "")
+    _REPLAY_OUTPUT_DIR = os.getenv(
+        "REPLAY_OUTPUT_DIR",
+        os.path.join(_REPLAY_TRACE_DIR, "logs-trace-replay") if _REPLAY_TRACE_DIR else "",
+    )
+    _LLM_INPUT_LOG_PATH = os.getenv(
+        "ADC_INPUT_LOG_PATH",
+        os.getenv(
+            "LLM_INPUT_LOG_PATH",
+            os.path.join(_REPLAY_OUTPUT_DIR, "adc_inputs.csv") if _REPLAY_OUTPUT_DIR else "logs-trace/adc_inputs.csv",
+        ),
+    )
+    _FEDERATE_EXECUTION_LOG_DIR = os.getenv(
+        "FEDERATE_EXECUTION_LOG_DIR",
+        _REPLAY_OUTPUT_DIR or "logs-trace",
+    )
+    _FEDERATE_EXECUTION_LOG_PATH = os.getenv(
+        "ADC_EXECUTION_LOG_PATH",
+        os.path.join(_FEDERATE_EXECUTION_LOG_DIR, "federate_execution_times_adc.csv"),
+    )
+    _ADC_REPLAY_SOURCE_PATH = os.getenv(
+        "ADC_REPLAY_SOURCE_PATH",
+        os.path.join(_REPLAY_TRACE_DIR, "adc_inputs.csv") if _REPLAY_TRACE_DIR else "adc_inputs.csv",
+    )
+    _ADC_ENV_REPLAY_SOURCE_PATH = os.getenv(
+        "ADC_ENV_REPLAY_SOURCE_PATH",
+        os.getenv(
+            "SIM_ENVIRONMENT_LOG_PATH",
+            os.path.join(_REPLAY_TRACE_DIR, "sim_environment_inputs.csv") if _REPLAY_TRACE_DIR else "sim_environment_inputs.csv",
+        ),
+    )
+
+    def _open_execution_log():
+        log_dir = os.path.dirname(_FEDERATE_EXECUTION_LOG_PATH)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        needs_header = (
+            not os.path.exists(_FEDERATE_EXECUTION_LOG_PATH)
+            or os.path.getsize(_FEDERATE_EXECUTION_LOG_PATH) == 0
+        )
+        log_file = open(_FEDERATE_EXECUTION_LOG_PATH, "a", newline="", encoding="utf-8")
+        log_writer = csv.writer(log_file)
+        if needs_header:
+            log_writer.writerow([
+                "federate",
+                "reactor",
+                "reaction",
+                "logical_time_ns",
+                "logical_time_ms",
+                "tag_time_ns",
+                "microstep",
+                "lag_ms",
+                "tardy_invocation_count",
+                "start_physical_time_ms",
+                "stop_physical_time_ms",
+                "execution_time_ms",
+            ])
+            log_file.flush()
+        return log_file, log_writer
+
+    def _log_execution_time(self, federate, reactor, reaction, start_physical_time_ms, stop_physical_time_ms):
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        if not hasattr(self, "tardy_invocation_count"):
+            self.tardy_invocation_count = 0
+        if "tardy" in reaction:
+            self.tardy_invocation_count += 1
+        self.execution_log_writer.writerow([
+            federate,
+            reactor,
+            reaction,
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            start_physical_time_ms - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
+            start_physical_time_ms,
+            stop_physical_time_ms,
+            stop_physical_time_ms - start_physical_time_ms,
+        ])
+        self.execution_log_file.flush()
+=}
+
+reactor InputForCoach{
+    preamble {=
+        def _to_int(self, value, default=0):
+            try:
+                if value is None or value == "":
+                    return default
+                return int(float(value))
+            except Exception:
+                return default
+
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+        def _load_adc_replay_rows(self):
+            rows = []
+            if not _ADC_REPLAY_SOURCE_PATH or not os.path.exists(_ADC_REPLAY_SOURCE_PATH):
+                print(f"[ADC REPLAY] Source log not found: {_ADC_REPLAY_SOURCE_PATH}", flush=True)
+                return rows
+            with open(_ADC_REPLAY_SOURCE_PATH, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    if (row.get("event") or "").strip() != "llm_output_tick":
+                        continue
+                    rows.append({
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "source_lag_ms": self._to_float(row.get("lag_ms"), 0.0),
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+
+        def _sleep_to_adc_source_lag(self, logical_time_ns):
+            matched = None
+            while self.adc_replay_index < len(self.adc_replay_rows):
+                candidate = self.adc_replay_rows[self.adc_replay_index]
+                if candidate["logical_time_ns"] > logical_time_ns:
+                    break
+                matched = candidate
+                self.adc_replay_index += 1
+            target_lag_ms = matched["source_lag_ms"] if matched is not None else 0.0
+            if target_lag_ms > 0.0:
+                current_lag_ms = (lf.time.physical_elapsed()/1e6) - (logical_time_ns / 1e6)
+                sleep_ms = target_lag_ms - current_lag_ms
+                if sleep_ms > 0.0:
+                    print(f"[ADC REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {target_lag_ms:.3f} ms", flush=True)
+                    time.sleep(sleep_ms / 1000.0)
+
+        def _load_environment_replay_rows(self):
+            rows = []
+            if not _ADC_ENV_REPLAY_SOURCE_PATH or not os.path.exists(_ADC_ENV_REPLAY_SOURCE_PATH):
+                print(f"[ADC ENV REPLAY] Source log not found: {_ADC_ENV_REPLAY_SOURCE_PATH}", flush=True)
+                return rows
+            with open(_ADC_ENV_REPLAY_SOURCE_PATH, newline="", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    states_json = row.get("environment_states_json") or "[]"
+                    try:
+                        states = json.loads(states_json)
+                    except Exception:
+                        states = []
+                    rows.append({
+                        "logical_time_ns": self._to_int(row.get("logical_time_ns"), 0),
+                        "source_microstep": self._to_int(row.get("microstep"), 0),
+                        "environment_distance": self._to_float(row.get("environment_distance"), 0.0),
+                        "environment_states": states,
+                    })
+            rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
+            return rows
+
+        def _apply_environment_replay(self, logical_time_ns):
+            matched = None
+            while self.env_replay_index < len(self.env_replay_rows):
+                candidate = self.env_replay_rows[self.env_replay_index]
+                if candidate["logical_time_ns"] > logical_time_ns:
+                    break
+                matched = candidate
+                self.env_replay_index += 1
+            if matched is not None:
+                self.s_val = matched["environment_distance"]
+                self.en_states_val = matched["environment_states"]
+    =}
+    input s
+    input v
+    input st
+    input h
+    input e
+    input en_states
+
+    // Local LLM inference is synchronous, so leave enough time between requests
+    // for one inference to finish before the next logical tick.
+    timer llmclock(7 sec, 400 msec)
+
+    state s_val = 0.0
+    state v_val = 0.0
+    state st_val = 2
+    state h_val = 5
+    state e_val = 5
+    state en_states_val = []
+
+    output displacement
+    output velocity
+    output steer
+    output head_pos
+    output eye_pos
+    output environment_states
+ 
+
+
+    reaction(startup){=
+        self.tardy_invocation_count = 0
+        self.head_history = []
+        self.eye_history = []
+        self.max_history = 4
+        self.env_replay_rows = self._load_environment_replay_rows()
+        self.env_replay_index = 0
+        self.adc_replay_rows = self._load_adc_replay_rows()
+        self.adc_replay_index = 0
+        print(f"[ADC ENV REPLAY] Loaded {len(self.env_replay_rows)} rows from {_ADC_ENV_REPLAY_SOURCE_PATH}", flush=True)
+        os.makedirs(os.path.dirname(_LLM_INPUT_LOG_PATH), exist_ok=True)
+        self.llm_input_log_file = open(_LLM_INPUT_LOG_PATH, "w", newline="", encoding="utf-8")
+        self.llm_input_log_writer = csv.writer(self.llm_input_log_file)
+        self.llm_input_log_writer.writerow([
+            "event",
+            "logical_time_ns",
+            "logical_time_ms",
+            "physical_time_ms",
+            "tag_time_ns",
+            "microstep",
+            "lag_ms",
+            "tardy_invocation_count",
+            "displacement_present",
+            "velocity_present",
+            "car_steer_present",
+            "head_present",
+            "eye_present",
+            "environment_states_present",
+            "environment_distance",
+            "car_velocity",
+            "car_steer",
+            "head",
+            "eye",
+            "head_history_json",
+            "eye_history_json",
+            "environment_states_json",
+        ])
+        self.llm_input_log_file.flush()
+        self.execution_log_file, self.execution_log_writer = _open_execution_log()
+        print(f"[ADC INPUT LOG] Writing inputs to {_LLM_INPUT_LOG_PATH}", flush=True)
+        print(f"[EXECUTION LOG] Appending timings to {_FEDERATE_EXECUTION_LOG_PATH}", flush=True)
+    =}
+    reaction(s, v, st, h, e, en_states){=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        if s.is_present:
+            self.s_val = s.value
+        if v.is_present:
+            self.v_val = v.value
+        if st.is_present:
+            self.st_val = st.value
+        if h.is_present:
+            self.h_val = h.value
+            #  print(f"Head value every 100ms: {self.h_val}")
+            if self.h_val == 0:
+                self.head_history.append("LEFT")
+            elif self.h_val == 1:
+                self.head_history.append("CENTER")
+            elif self.h_val == 2:
+                self.head_history.append("RIGHT")
+            else:
+                self.head_history.append("CENTER")
+        if e.is_present:
+            self.e_val = e.value
+            #  print(f"EYE value every 100ms: {self.e_val}")
+            if self.e_val == 0:
+                self.eye_history.append("LEFT")
+            elif self.e_val == 1:
+                self.eye_history.append("CENTER")
+            elif self.e_val == 2:
+                self.eye_history.append("RIGHT")
+            else:
+                self.eye_history.append("CENTER")
+        if en_states.is_present:
+            self.en_states_val = en_states.value
+        self.head_history = self.head_history[-self.max_history:]
+        self.eye_history = self.eye_history[-self.max_history:]
+
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        self.llm_input_log_writer.writerow([
+            "input_arrival",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            (lf.time.physical_elapsed() / 1e6) - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
+            int(s.is_present),
+            int(v.is_present),
+            int(st.is_present),
+            int(h.is_present),
+            int(e.is_present),
+            int(en_states.is_present),
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "input_arrival", start_physical_time, stop_physical_time)
+    =} tardy {=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        current_tag = lf.tag()
+        logical_time_ns = lf.time.logical_elapsed()
+        physical_time_ms = lf.time.physical_elapsed() / 1e6
+        next_tardy_count = self.tardy_invocation_count + 1
+        self.llm_input_log_writer.writerow([
+            "input_arrival_tardy",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            physical_time_ms,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            physical_time_ms - (logical_time_ns / 1e6),
+            next_tardy_count,
+            int(s.is_present),
+            int(v.is_present),
+            int(st.is_present),
+            int(h.is_present),
+            int(e.is_present),
+            int(en_states.is_present),
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
+        print(
+            f"[ADC TARDY] input_arrival tardy count={next_tardy_count} "
+            f"lag={physical_time_ms - (logical_time_ns / 1e6):.2f} ms",
+            flush=True,
+        )
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "input_arrival_tardy", start_physical_time, stop_physical_time)
+    =}
+
+
+    reaction(llmclock)->displacement, velocity, steer, head_pos, eye_pos, environment_states{=
+        start_physical_time = lf.time.physical_elapsed()/1e6
+        #reaction(llmclock)->coach_input{=
+        logical_time_ns = lf.time.logical_elapsed()
+        self._apply_environment_replay(logical_time_ns)
+        self._sleep_to_adc_source_lag(logical_time_ns)
+        displacement.set(self.s_val)
+        velocity.set(self.v_val)
+        steer.set(self.st_val)
+        head_pos.set(self.head_history)
+        eye_pos.set(self.eye_history)
+        environment_states.set(self.en_states_val)
+
+        current_tag = lf.tag()
+        self.llm_input_log_writer.writerow([
+            "llm_output_tick",
+            logical_time_ns,
+            logical_time_ns / 1e6,
+            lf.time.physical_elapsed() / 1e6,
+            (lf.tag().time - lf.time.start()),
+            current_tag.microstep,
+            (lf.time.physical_elapsed() / 1e6) - (logical_time_ns / 1e6),
+            self.tardy_invocation_count,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            self.s_val,
+            self.v_val,
+            self.st_val,
+            self.h_val,
+            self.e_val,
+            json.dumps(self.head_history),
+            json.dumps(self.eye_history),
+            json.dumps(self.en_states_val),
+        ])
+        self.llm_input_log_file.flush()
+        # coach_input.set({
+        #     "distance": self.s_val,
+        #     "velocity": self.v_val,
+        #     "steering": self.st_val,
+        #     "head_history": list(self.head_history),
+        #     "eye_history": list(self.eye_history),
+        #     "environment": self.en_states_val,
+        # })
+
+        current_dri = lf.time.logical_elapsed()/1e6
+        physical_dri = lf.time.physical_elapsed()/1e6
+        lag = physical_dri - current_dri
+        current_tag = lf.tag()
+
+
+        print("----------------------------------------------------------")
+        print(f"[InputForCoach] Logical time: {current_dri:.2f} ms", flush=True)
+        print(f"[InputForCoach] Physical time: {physical_dri:.2f} ms", flush=True)
+        print(f"[InputForCoach] LAG: {lag:.2f} ms", flush=True)
+        print(f"[InputForCoach] Tag time: {(lf.tag().time - lf.time.start())} ns", flush=True)
+        print(f"[InputForCoach] Microstep: {current_tag.microstep}", flush=True)
+        print("----------------------------------------------------------")
+        stop_physical_time = lf.time.physical_elapsed()/1e6
+        _log_execution_time(self, "adc", "InputForCoach", "llm_output_tick", start_physical_time, stop_physical_time)
+
+    =}
+
+
+    reaction(shutdown) {=
+        if hasattr(self, "llm_input_log_file") and not self.llm_input_log_file.closed:
+            self.llm_input_log_file.flush()
+            self.llm_input_log_file.close()
+        if hasattr(self, "execution_log_file") and not self.execution_log_file.closed:
+            self.execution_log_file.flush()
+            self.execution_log_file.close()
+    =}
+
+}

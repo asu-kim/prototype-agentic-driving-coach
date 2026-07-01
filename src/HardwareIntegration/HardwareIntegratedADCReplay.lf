@@ -7,7 +7,7 @@ target Python {keepalive: true,
 import DriverControl from "DriverReplayInput.lf"
 import DriverMonitor from "DriverReplayInput.lf"
 import Car from "CarReplay.lf"
-import InputForCoach from "InputForCoach.lf"
+import InputForCoach from "InputForCoachReplay.lf"
 import AgenticCoach from "AgenticCoachReplay.lf"
 import ActionPlanner from "ActionPlannerReplay.lf"
 import Environment from "EnvironmentReplay.lf"

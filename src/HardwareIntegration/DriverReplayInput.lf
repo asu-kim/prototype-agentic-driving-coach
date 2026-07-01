@@ -8,7 +8,7 @@ preamble {=
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+        os.path.abspath(os.path.join(os.getcwd(), "src/HardwareIntegration/evaluation-replay")),
     )
     _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
         _EVALUATION_TRACE_ROOT,
@@ -185,6 +185,7 @@ reactor DriverControl {
                             "steer": self._to_int(row.get("steer"), self.steer_val),
                             "accel": self._to_float(row.get("accelerator"), self.accel_val),
                             "brake": self._to_float(row.get("brake"), self.brake_val),
+                            "lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                         })
             else:
                 print(f"[DRIVER CONTROL REPLAY] Missing file: {control_path}", flush=True)
@@ -251,6 +252,13 @@ reactor DriverControl {
 
             if sample["brake_present"]:
                 self.brake_val = sample["brake"]
+
+        if sample is not None and sample["lag_ms"] > 0.0:
+            current_lag_ms = (lf.time.physical_elapsed()/1e6) - (lf.time.logical_elapsed()/1e6)
+            sleep_ms = sample["lag_ms"] - current_lag_ms
+            if sleep_ms > 0.0:
+                print(f"[DRIVER CONTROL REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {sample['lag_ms']:.3f} ms", flush=True)
+                time.sleep(sleep_ms / 1000.0)
 
         steer.set(self.steer_val)
         accelerator.set(self.accel_val)
@@ -359,6 +367,7 @@ reactor DriverMonitor {
                             "eye_present": self._to_int(row.get("eye_present"), 0),
                             "head": self._to_int(row.get("head"), self.head_val),
                             "eye": self._to_int(row.get("eye"), self.eye_val),
+                            "lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                         })
             else:
                 print(f"[DRIVER MONITOR REPLAY] Missing file: {monitor_path}", flush=True)
@@ -399,6 +408,13 @@ reactor DriverMonitor {
                 self.replay_idx += 1
 
         if sample is not None:
+            if sample["lag_ms"] > 0.0:
+                current_lag_ms = (lf.time.physical_elapsed()/1e6) - (lf.time.logical_elapsed()/1e6)
+                sleep_ms = sample["lag_ms"] - current_lag_ms
+                if sleep_ms > 0.0:
+                    print(f"[DRIVER MONITOR REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {sample['lag_ms']:.3f} ms", flush=True)
+                    time.sleep(sleep_ms / 1000.0)
+
             if sample["head_present"]:
                 self.head_val = sample["head"]
                 head.set(self.head_val)

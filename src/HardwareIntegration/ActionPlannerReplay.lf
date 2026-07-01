@@ -3,10 +3,11 @@ target Python
 preamble{=
     import csv
     import os
+    import time
 
     _EVALUATION_TRACE_ROOT = os.getenv(
         "REPLAY_TRACE_ROOT",
-        "/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/src/HardwareIntegration/evaluation",
+        os.path.abspath(os.path.join(os.getcwd(), "src/HardwareIntegration/evaluation-replay")),
     )
     _DEFAULT_REPLAY_TRACE_DIR = os.path.join(
         _EVALUATION_TRACE_ROOT,
@@ -146,6 +147,24 @@ reactor ActionPlanner {
             except Exception:
                 return default
 
+        def _to_float(self, value, default=0.0):
+            try:
+                if value is None or value == "":
+                    return default
+                return float(value)
+            except Exception:
+                return default
+
+        def _sleep_to_source_lag(self, row, logical_time_ns):
+            target_lag_ms = row.get("source_lag_ms", 0.0)
+            if target_lag_ms > 0.0:
+                current_lag_ms = (lf.time.physical_elapsed()/1e6) - (logical_time_ns / 1e6)
+                sleep_ms = target_lag_ms - current_lag_ms
+                if sleep_ms > 0.0:
+                    print(f"[PLANNER REPLAY] Sleeping {sleep_ms:.3f} ms to emulate recorded lag {target_lag_ms:.3f} ms", flush=True)
+                    time.sleep(sleep_ms / 1000.0)
+            return lf.time.physical_elapsed()/1e6
+
         def _load_planner_rows(self):
             source_path = self._resolve_planner_source_path()
             self.planner_source_path = source_path or _PLANNER_REPLAY_SOURCE_PATH or "logs-trace/planner_events.csv"
@@ -174,11 +193,14 @@ reactor ActionPlanner {
                         "instruction": instruction,
                         "act_command": act_command,
                         "lane_command": (row.get("lane_command") or "").strip(),
+                        "source_lag_ms": self._to_float(row.get("lag_ms"), 0.0),
                     })
             rows.sort(key=lambda item: (item["logical_time_ns"], item["source_microstep"]))
             return rows
 
         def _emit_replay_row(self, row, logical_time_ns, physical_ms, tag_time, microstep, act, planned_instr):
+            physical_ms = self._sleep_to_source_lag(row, logical_time_ns)
+            tag_time = lf.tag().time - lf.time.start()
             logical_time_ms = logical_time_ns / 1e6
             lag_ms = physical_ms - logical_time_ms
             instruction = row["instruction"]
