@@ -17,15 +17,15 @@ federated reactor at 10.218.100.78 {
     // REPLAY_TRACE_NAME is resolved under src/HardwareIntegration/evaluation.
     d_control = new DriverControl()
     d_monitor = new DriverMonitor()
-    @maxwait(20 msec)
+    @maxwait(10 msec)
     c = new Car()
-    @maxwait(120 msec)
+    @maxwait(150 msec)
     adc = new InputForCoach()
-    @maxwait(120 msec)
+    @maxwait(105 msec)
     llm = new AgenticCoach() 
-    @maxwait(400 msec)
+    @maxwait(200 msec)
     planner = new ActionPlanner() 
-    @maxwait(50 msec)
+    @maxwait(14 msec)
     sim = new Environment() 
 
 
