@@ -1,4 +1,4 @@
-# Deterministic Prototyping and Testing Environment for Agentic CPS
+# Prototype Agentic Driving Coach as a Distributed Human- and Agent-in-the-Loop CPS (H/AITL CPS)
 
 A deterministic prototyping and testing environment for agentic cyber-physical systems, focused on a real-time agentic driving coach. The project combines Lingua Franca (LF) for deterministic execution, hardware-in-the-loop driver inputs, local LLM guidance, and MuJoCo-based vehicle simulation support.
 
