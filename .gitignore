@@ -28,3 +28,22 @@ ADCHITL.rrd
 # Large collected data / replay logs
 data-collection.zip
 src/HardwareIntegration/data-collection/
+src/HardwareIntegration/data-maxwait/
+src/HardwareIntegration/evaluation-plots/out/
+src/HardwareIntegration/evaluation-replay/logs-trace-normal-assumption-network/logs-trace-replay/
+src/HardwareIntegration/evaluation-replay/logs-trace-relaxed-our-assumption/logs-trace-replay-maxwait-test/
+
+# Local trace bundles
+added-network-delay/
+gpu-overload/
+normal-assumption-gpu/
+normal-assumption-lft/
+relaxed-maxwait/
+tight-maxwait/
+
+# Local paper and scratch scripts
+TCRS_2026_AgenticCPS.pdf
+src/HardwareIntegration/evaluation/generate_replay_values.py
+src/HardwareIntegration/evaluation/plot_tardy_percentage_federates.py
+src/HardwareIntegration/evaluation/prepare_evaluation_replay.py
+src/HardwareIntegration/plot.py

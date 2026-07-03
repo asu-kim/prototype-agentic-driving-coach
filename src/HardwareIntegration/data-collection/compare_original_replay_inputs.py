@@ -6,7 +6,7 @@ import csv
 import math
 from pathlib import Path
 
-DEFAULT_ORIGINAL = Path("src/HardwareIntegration/data-collection/logs-trace-2")
+DEFAULT_ORIGINAL = Path("/home/asurite.ad.asu.edu/dprahlad/deterministic-prototyping-agenticCPS/logs-trace")
 DEFAULT_REPLAY = Path("src/HardwareIntegration/data-collection/logs-trace-2-replay")
 IGNORE_COLUMNS = {"physical_time_ms", "tag_time_ns"}
 KEY_COLUMNS = ["event", "logical_time_ns", "microstep"]
