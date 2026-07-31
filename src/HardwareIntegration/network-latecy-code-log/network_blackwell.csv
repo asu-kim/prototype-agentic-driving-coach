@@ -1007,5 +1007,6 @@ Median RTT: 7.350 ms
 P95 RTT: 9.872 ms
 P99 RTT: 15.266 ms
 Max RTT: 25.766 ms
+Estimated one-way P95: 4.936 ms
 Estimated one-way max: 12.883 ms
 ===========================
